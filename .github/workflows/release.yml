@@ -30,17 +30,17 @@ jobs:
             name: macos-arm64
 
     steps:
-      # 📦 拉代码
+      # 📦 拉取代码
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🐹 Go
+      # 🐹 Go 环境
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: 1.22
 
-      # 🌐 Node
+      # 🌐 Node.js 环境
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -50,15 +50,16 @@ jobs:
       - name: Install Linux Dependencies
         if: runner.os == 'Linux'
         run: |
+          sudo add-apt-repository universe
           sudo apt-get update
           sudo apt-get install -y \
             build-essential \
             pkg-config \
             libgtk-3-dev \
-            libwebkit2gtk-4.0-dev \
+            libwebkit2gtk-4.1-dev \
             libglib2.0-dev
 
-      # ⚡ 缓存（加速）
+      # ⚡ 缓存 Go
       - name: Cache Go
         uses: actions/cache@v4
         with:
@@ -67,6 +68,7 @@ jobs:
             ~/.cache/go-build
           key: go-${{ runner.os }}-${{ hashFiles('**/go.sum') }}
 
+      # ⚡ 缓存 Node
       - name: Cache Node
         uses: actions/cache@v4
         with:
@@ -77,18 +79,17 @@ jobs:
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      # 📦 前端依赖
+      # 📦 安装前端依赖
       - name: Install frontend deps
         run: |
           cd frontend
           npm install
 
-      # 🏗️ 构建（⚠️ 不要 cross build）
+      # 🏗️ 构建 App
       - name: Build App
         env:
           CGO_ENABLED: 1
-        run: |
-          wails build
+        run: wails build
 
       # 📦 打包 macOS
       - name: Package macOS
