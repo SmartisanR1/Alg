@@ -1,0 +1,496 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    @apply h-screen overflow-hidden;
+    background: #12121a !important;
+    font-size: 14px; /* 提升基础字号 */
+  }
+
+  #app {
+    @apply h-screen overflow-hidden relative;
+    background: transparent !important;
+  }
+
+  /* ============================================================
+   * 窗口容器 & 平台圆角处理
+   * ============================================================ */
+
+  /* 默认 (macOS 非全屏): 保留圆角 */
+  .app-container {
+    @apply h-full w-full overflow-hidden border-none relative;
+    background-clip: padding-box;
+    border-radius: 12px !important;
+    z-index: 1;
+  }
+
+  .dark .app-container {
+    @apply bg-dark-bg;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 8px 40px rgba(0,0,0,0.6);
+  }
+
+  .light .app-container, :not(.dark) .app-container {
+    @apply bg-light-bg;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset, 0 8px 30px rgba(0,0,0,0.12);
+  }
+
+  /* macOS 全屏: 去除圆角 */
+  .platform-mac.fullscreen .app-container {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Windows / Linux: 去除内部圆角 (OS 原生窗口框架已处理) */
+  .platform-windows .app-container,
+  .platform-linux .app-container {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Force inner children to have no extra radius */
+  .app-container > * {
+    border-radius: 0;
+  }
+
+  /* ============================================================
+   * Deep fix for White Cards in Dark Mode
+   * ============================================================ */
+  .dark .ck-card,
+  .dark textarea,
+  .dark input,
+  .dark select,
+  .dark .ck-result,
+  .dark .search-input {
+    background-color: #1e1e2e !important;
+    border-color: #2a2a3e !important;
+    color: #e4e4f0 !important;
+    box-shadow: none !important;
+  }
+
+  .dark .sidebar-item-active {
+    background-color: rgba(124, 106, 247, 0.15) !important;
+  }
+
+  .dark .ck-textarea, .dark .ck-input, .dark .ck-select {
+    @apply focus:ring-violet-500/20;
+  }
+
+  /* Sidebar Group Labels */
+  .sidebar-group-label {
+    @apply px-3 text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2;
+  }
+  .dark .sidebar-group-label {
+    @apply text-dark-muted/80;
+  }
+  :not(.dark) .sidebar-group-label {
+    @apply text-light-muted/80;
+  }
+
+  /* Rounded corners for UI elements */
+  .ck-card, .ck-input, .ck-textarea, .ck-select, .ck-result, .nav-item {
+    border-radius: 12px !important;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(124, 106, 247, 0.25);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 106, 247, 0.5);
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(124, 106, 247, 0.3);
+    color: inherit;
+  }
+}
+
+@layer components {
+  /* ============================================================
+   * 输入框 & 文本域 — 提升字号与间距
+   * ============================================================ */
+  .ck-input {
+    @apply w-full rounded-xl border px-3.5 py-2.5 text-sm font-mono transition-all duration-200 outline-none leading-relaxed;
+  }
+
+  .dark .ck-input {
+    @apply bg-[#1a1a26] border-dark-border text-dark-text placeholder-dark-muted;
+    @apply focus:border-dark-accent focus:ring-2 focus:ring-dark-accent/10;
+  }
+  .light .ck-input, :not(.dark) .ck-input {
+    @apply bg-white border-light-border text-light-text placeholder-light-muted;
+    @apply focus:border-light-accent focus:ring-2 focus:ring-light-accent/10 shadow-sm;
+  }
+
+  .ck-textarea {
+    @apply ck-input resize-none leading-relaxed;
+    min-height: 120px; /* 从 100px 提升到 120px */
+    line-height: 1.65;
+  }
+
+  /* Select */
+  .ck-select {
+    @apply ck-input appearance-none cursor-pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238888a8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  /* 金融模块紧凑输入框 */
+  .ck-input-sm {
+    @apply ck-input px-2 py-1.5 text-xs;
+  }
+  .dark .ck-input-sm {
+    @apply bg-[#1a1a26] border-dark-border text-dark-text placeholder-dark-muted;
+    @apply focus:border-dark-accent focus:ring-1 focus:ring-dark-accent/10;
+  }
+  :not(.dark) .ck-input-sm {
+    @apply bg-white border-light-border text-light-text placeholder-light-muted;
+    @apply focus:border-light-accent focus:ring-1 focus:ring-light-accent/10 shadow-sm;
+  }
+
+  /* 金融模块紧凑textarea */
+  .ck-textarea-sm {
+    @apply ck-input resize-none px-2 py-1.5 text-xs;
+    min-height: 60px;
+    line-height: 1.5;
+  }
+  .dark .ck-textarea-sm {
+    @apply bg-[#1a1a26] border-dark-border text-dark-text placeholder-dark-muted;
+  }
+  :not(.dark) .ck-textarea-sm {
+    @apply bg-white border-light-border text-light-text placeholder-light-muted;
+  }
+
+  /* 金融模块紧凑结果框 */
+  .ck-result-sm {
+    min-height: 40px !important;
+    max-height: 120px !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* ============================================================
+   * 按钮
+   * ============================================================ */
+  .ck-btn {
+    @apply inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer select-none;
+    @apply disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .ck-btn-primary {
+    @apply ck-btn bg-dark-accent text-white hover:bg-dark-accentHover hover:shadow-lg hover:shadow-dark-accent/20 active:scale-[0.98];
+  }
+
+  .ck-btn-secondary {
+    @apply ck-btn border;
+  }
+
+  .dark .ck-btn-secondary {
+    @apply border-dark-border text-dark-muted hover:bg-dark-hover hover:text-dark-text;
+  }
+  :not(.dark) .ck-btn-secondary {
+    @apply border-light-border text-light-muted hover:bg-light-hover hover:text-light-text shadow-sm;
+  }
+
+  .ck-btn-success {
+    @apply ck-btn bg-emerald-600 text-white hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/20 active:scale-[0.98];
+  }
+
+  .ck-btn-danger {
+    @apply ck-btn bg-red-600 text-white hover:bg-red-500 hover:shadow-lg hover:shadow-red-600/20 active:scale-[0.98];
+  }
+
+  /* ============================================================
+   * 卡片
+   * ============================================================ */
+  .ck-card {
+    @apply rounded-2xl border p-5 transition-all duration-200;
+  }
+
+  .dark .ck-card {
+    @apply bg-dark-card border-dark-border hover:border-dark-border/80;
+  }
+
+  :not(.dark) .ck-card {
+    @apply bg-white border-light-border shadow-md shadow-gray-200/50 hover:shadow-lg hover:shadow-gray-200/80;
+  }
+
+  /* ============================================================
+   * 标签 — 提升字号
+   * ============================================================ */
+  .ck-label {
+    @apply block text-xs font-bold uppercase tracking-wider mb-1.5;
+  }
+
+  .dark .ck-label {
+    @apply text-dark-muted;
+  }
+  :not(.dark) .ck-label {
+    @apply text-light-muted;
+  }
+
+  /* ============================================================
+   * 结果面板 — 关键修复：增加最小高度、允许滚动
+   * ============================================================ */
+  .ck-result {
+    @apply w-full rounded-xl border px-4 py-3.5 font-mono text-sm break-all whitespace-pre-wrap transition-all duration-200;
+    min-height: 150px;       /* 从 80px 提升到 150px */
+    max-height: 350px;       /* 最大高度防止过长 */
+    overflow-y: auto;        /* 允许垂直滚动 */
+    line-height: 1.7;
+    word-break: break-all;
+  }
+
+  /* 高度自适应变体 (用于需要自动伸展的地方) */
+  .ck-result.auto-height {
+    max-height: none;
+    min-height: 150px;
+  }
+
+  .dark .ck-result {
+    @apply bg-[#14141e] border-dark-border text-dark-text;
+  }
+  :not(.dark) .ck-result {
+    @apply bg-gray-50 border-light-border text-light-text shadow-inner;
+  }
+
+  /* 生成密钥显示字号 */
+  .ck-key-hex {
+    font-size: 12px !important;
+    line-height: 1.6;
+  }
+
+  /* ============================================================
+   * 右侧面板字体微调
+   * ============================================================ */
+  .ck-right-panel {
+    font-size: 13px;
+  }
+  .ck-right-panel .ck-section-title {
+    font-size: 12px;
+  }
+  .ck-right-panel .ck-result {
+    font-size: 12px;
+  }
+
+  /* ============================================================
+   * Toast
+   * ============================================================ */
+  .ck-toast {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 220;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border: 1px solid transparent;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .ck-toast-dark {
+    background: rgba(20, 20, 30, 0.95);
+    color: #e4e4f0;
+    border-color: rgba(124, 106, 247, 0.2);
+  }
+  .ck-toast-light {
+    background: rgba(255, 255, 255, 0.95);
+    color: #2b2b3a;
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+
+  /* ============================================================
+   * 徽标/标记
+   * ============================================================ */
+  .ck-badge {
+    @apply inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider;
+  }
+
+  .ck-badge-purple {
+    @apply ck-badge bg-purple-500/15 text-purple-400 border border-purple-500/20;
+  }
+  .ck-badge-cyan {
+    @apply ck-badge bg-cyan-500/15 text-cyan-400 border border-cyan-500/20;
+  }
+  .ck-badge-green {
+    @apply ck-badge bg-emerald-500/15 text-emerald-400 border border-emerald-500/20;
+  }
+  .ck-badge-red {
+    @apply ck-badge bg-red-500/15 text-red-400 border border-red-500/20;
+  }
+
+  /* ============================================================
+   * 分隔线
+   * ============================================================ */
+  .ck-divider {
+    @apply my-5 border-t;
+  }
+  .dark .ck-divider {
+    @apply border-dark-border;
+  }
+  :not(.dark) .ck-divider {
+    @apply border-light-border;
+  }
+
+  /* ============================================================
+   * 区块标题 — 略微提升字号
+   * ============================================================ */
+  .ck-section-title {
+    @apply text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2;
+  }
+  .dark .ck-section-title {
+    @apply text-dark-muted;
+  }
+  .dark .ck-section-title::after {
+    content: "";
+    @apply flex-1 h-[1px] bg-dark-border/50;
+  }
+  :not(.dark) .ck-section-title {
+    @apply text-light-muted;
+  }
+  :not(.dark) .ck-section-title::after {
+    content: "";
+    @apply flex-1 h-[1px] bg-light-border;
+  }
+
+  /* ============================================================
+   * 侧栏导航项
+   * ============================================================ */
+  .nav-item {
+    @apply flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer mb-1.5;
+  }
+  .dark .nav-item {
+    @apply text-dark-muted hover:text-dark-text hover:bg-dark-hover;
+  }
+  :not(.dark) .nav-item {
+    @apply text-light-muted hover:text-light-text hover:bg-light-hover;
+  }
+  .nav-item.active {
+    @apply shadow-sm;
+  }
+  .dark .nav-item.active {
+    @apply bg-dark-accent/15 text-dark-accent border border-dark-accent/20;
+  }
+  :not(.dark) .nav-item.active {
+    @apply bg-light-accent/10 text-light-accent border border-light-accent/20;
+  }
+
+  /* Mac 标题栏左侧流量灯占位 */
+  [data-wails-platform="darwin"] .titlebar-drag {
+    padding-left: 80px !important;
+  }
+
+  /* ============================================================
+   * 选项卡
+   * ============================================================ */
+  .ck-tab {
+    @apply px-4 py-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-200;
+  }
+  .dark .ck-tab {
+    @apply text-dark-muted hover:text-dark-text hover:bg-dark-hover;
+  }
+  :not(.dark) .ck-tab {
+    @apply text-light-muted hover:text-light-text hover:bg-light-hover;
+  }
+  .ck-tab.active {
+    @apply shadow-md;
+  }
+  .dark .ck-tab.active {
+    @apply bg-dark-accent text-white shadow-dark-accent/20;
+  }
+  :not(.dark) .ck-tab.active {
+    @apply bg-light-accent text-white shadow-light-accent/20;
+  }
+
+  /* ============================================================
+   * 复制按钮
+   * ============================================================ */
+  .ck-copy-btn {
+    @apply flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer;
+  }
+  .dark .ck-copy-btn {
+    @apply text-dark-muted hover:text-dark-text hover:bg-dark-hover border border-dark-border;
+  }
+  :not(.dark) .ck-copy-btn {
+    @apply text-light-muted hover:text-light-text hover:bg-light-hover border border-light-border;
+  }
+
+  /* ============================================================
+   * 密钥专用展示框 (SM2/RSA等长密钥)
+   * ============================================================ */
+  .ck-key-box {
+    @apply w-full rounded-xl border px-3.5 py-3 font-mono text-xs break-all;
+    min-height: 90px;
+    max-height: 200px;
+    overflow-y: auto;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+
+  .dark .ck-key-box {
+    @apply bg-[#14141e] border-dark-border;
+  }
+  :not(.dark) .ck-key-box {
+    @apply bg-gray-50 border-light-border shadow-inner;
+  }
+}
+
+/* ============================================================
+ * 过渡动画
+ * ============================================================ */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* ============================================================
+ * Tooltip
+ * ============================================================ */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  @apply bg-dark-card text-dark-text text-xs font-bold px-2 py-1 rounded-lg border border-dark-border shadow-2xl;
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ============================================================
+ * Wails 可拖拽标题栏
+ * ============================================================ */
+.titlebar-drag {
+  --wails-draggable: drag;
+}
+.titlebar-nodrag {
+  --wails-draggable: no-drag;
+}
