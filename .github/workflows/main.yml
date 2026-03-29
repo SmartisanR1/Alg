@@ -1,0 +1,46 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm install
+          cd ..
+
+      - name: Build app
+        run: wails build
+
+      - name: Package
+        run: |
+          cd build/bin
+          ditto -c -k --keepParent CryptoKit.app CryptoKit-macos.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/bin/CryptoKit-macos.zip
