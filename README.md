@@ -143,6 +143,29 @@ cryptokit/
 
 ---
 
+⚠️ macOS 用户注意
+
+由于 没有 Apple Developer 签名，从 Release 下载的 CryptoKit.app 可能会被 macOS 报告：
+
+“无法验证开发者，可能包含恶意软件或泄露隐私”
+
+解决办法（无需 Apple 账号）：
+
+方式 1：右键打开
+	1.	右键点击 CryptoKit.app → 选择 打开
+	2.	弹窗选择 仍要打开
+	3.	以后双击即可直接运行
+
+方式 2：命令行解除隔离
+在终端执行以下命令（假设下载在 ~/Downloads）：
+
+    sudo xattr -r -d com.apple.quarantine ~/Downloads/CryptoKit.app
+    
+•	解除后可直接双击运行
+
+•	仅需执行一次
+
+
 ## ⚠️ 安全说明
 
 - 所有计算在本地进行，**数据不离开本机**
