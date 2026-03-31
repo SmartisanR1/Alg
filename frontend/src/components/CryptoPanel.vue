@@ -23,8 +23,8 @@
       @blur="handleBlur"
       :placeholder="placeholder"
       :readonly="readonly"
-      :rows="rows || 4"
-      class="ck-textarea w-full !pb-6"
+      :rows="rows || 3"
+      class="ck-textarea w-full !pb-4"
       :class="[{ 'ck-textarea-sm': compact, 'cursor-default': readonly }]"
     />
     <input
@@ -34,28 +34,28 @@
       @blur="handleBlur"
       :placeholder="placeholder"
       :readonly="readonly"
-      class="ck-input w-full !pr-20"
+      class="ck-input w-full !pr-14"
       :class="{ 'ck-input-sm': compact }"
     />
     <div v-else-if="type === 'result'"
-          class="ck-result cursor-text !pb-6 relative"
+          class="ck-result cursor-text !pb-4 relative"
           :class="[
             { 'ck-result-sm': compact },
             { 'text-emerald-400': success === true, 'text-red-400': success === false }
           ]">
       <span v-if="modelValue">{{ displayValue }}</span>
-      <span v-else class="opacity-30">{{ placeholder || '结果将显示在这里...' }}</span>
+      <span v-else class="ck-empty">{{ placeholder || '结果将显示在这里...' }}</span>
     </div>
 
     <!-- Byte Count Badge (Bottom Right) -->
-    <div v-if="modelValue && showByteCount" 
-         class="absolute bottom-1.5 right-1.5 flex items-center gap-1.5 px-2 py-0.5 rounded border backdrop-blur-sm pointer-events-none transition-opacity duration-200"
+    <div v-if="modelValue && showByteCount"
+         class="absolute bottom-1 right-1 flex items-center gap-1 px-1 py-0.5 rounded border backdrop-blur-sm pointer-events-none transition-opacity duration-200"
          :class="[
            success === false ? 'opacity-100' : 'opacity-60 group-hover:opacity-100',
            isDark ? 'bg-dark-bg/80 border-dark-border/50 text-dark-text' : 'bg-white/80 border-light-border/50 text-light-text'
          ]">
       <div class="w-1.5 h-1.5 rounded-full" :class="isHex ? 'bg-violet-500' : 'bg-cyan-500'"></div>
-      <span class="text-[10px] font-mono font-medium whitespace-nowrap">
+      <span class="text-[8px] font-mono font-medium whitespace-nowrap">
         {{ byteCount }} bytes
       </span>
     </div>

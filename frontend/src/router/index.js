@@ -11,6 +11,7 @@ const routes = [
   { path: '/pqc', component: () => import('../views/PQCView.vue'), meta: { title: '后量子密码' } },
   { path: '/gmpqc', component: () => import('../views/GMPQCView.vue'), meta: { title: '国密后量子密码' } },
   { path: '/tools', component: () => import('../views/ToolsView.vue'), meta: { title: '工具箱' } },
+  { path: '/packet', component: () => import('../views/ToolsView.vue'), meta: { title: '报文收发' } },
   { path: '/bigint', component: () => import('../views/BigIntView.vue'), meta: { title: '大数运算' } },
   { path: '/cert', component: () => import('../views/CertView.vue'), meta: { title: '证书管理' } },
   { path: '/file', component: () => import('../views/FileView.vue'), meta: { title: '文件加解密' } },

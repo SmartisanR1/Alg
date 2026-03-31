@@ -116,7 +116,7 @@
       <div class="space-y-3">
         <div class="ck-card space-y-4">
           <p class="ck-section-title">上传 CSR 签发</p>
-          <CryptoPanel v-model="signReq.csr" label="CSR 内容 (PEM)" type="textarea" :rows="8" placeholder="粘贴 -----BEGIN CERTIFICATE REQUEST----- ..." />
+          <CryptoPanel v-model="signReq.csr" label="CSR 内容 (PEM)" type="textarea" :rows="4" placeholder="粘贴 -----BEGIN CERTIFICATE REQUEST----- ..." />
           
           <div class="flex items-center gap-2 mb-2">
             <button @click="signShowAdvanced = !signShowAdvanced" class="text-[11px] text-violet-400 flex items-center gap-1 hover:text-violet-300 transition-colors">
@@ -214,8 +214,8 @@
     </div>
 
     <!-- Direct Issuance (Internal CA) -->
-    <div v-show="activeTab === 'self'" class="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-2">
+    <div v-show="activeTab === 'self'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-4">
           <div class="flex justify-between items-center">
             <p class="ck-section-title">直接签发 (由内置 CA 签名)</p>
@@ -324,9 +324,9 @@
           <button @click="genSelfSigned" class="ck-btn-primary w-full justify-center mt-2">立即签发并生成结果</button>
         </div>
       </div>
-      <div class="space-y-3 flex flex-col h-full min-h-0 overflow-hidden">
+      <div class="ck-stack">
         <!-- Certificate Result -->
-        <div class="ck-card flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div class="ck-card">
           <div class="flex justify-between items-center mb-1">
             <label class="ck-label !mb-0 text-emerald-400">生成的证书 (PEM)</label>
             <div class="flex gap-1">
@@ -335,14 +335,14 @@
               </button>
             </div>
           </div>
-          <div class="ck-result flex-1 !min-h-0 !p-2 !text-[10px] break-all overflow-y-auto font-mono"
+          <div class="ck-result !min-h-[96px] !p-2 !text-[10px] break-all overflow-y-auto font-mono"
                :class="{'text-emerald-400/90': selfResult.success}">
             {{ selfResult.cert || '等待生成...' }}
           </div>
         </div>
 
         <!-- CSR Result -->
-        <div class="ck-card flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div class="ck-card">
           <div class="flex justify-between items-center mb-1">
             <label class="ck-label !mb-0 text-violet-400">生成的 CSR (PEM)</label>
             <div class="flex gap-1">
@@ -351,13 +351,13 @@
               </button>
             </div>
           </div>
-          <div class="ck-result flex-1 !min-h-0 !p-2 !text-[10px] break-all overflow-y-auto font-mono text-violet-400/90">
+          <div class="ck-result !min-h-[96px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-violet-400/90">
             {{ selfResult.csr || '等待生成...' }}
           </div>
         </div>
 
         <!-- Private Key Result -->
-        <div class="ck-card flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div class="ck-card">
           <div class="flex justify-between items-center mb-1">
             <label class="ck-label !mb-0 text-amber-400">配套私钥 (PEM)</label>
             <div class="flex gap-1">
@@ -366,7 +366,7 @@
               </button>
             </div>
           </div>
-          <div class="ck-result flex-1 !min-h-0 !p-2 !text-[10px] break-all overflow-y-auto font-mono text-amber-400/90">
+          <div class="ck-result !min-h-[96px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-amber-400/90">
             {{ selfResult.key || '等待生成...' }}
           </div>
         </div>
@@ -387,8 +387,8 @@
     </div>
 
     <!-- Dual Certificate (GM/T 0010) -->
-    <div v-show="activeTab === 'dual'" class="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-2">
+    <div v-show="activeTab === 'dual'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-4">
           <div class="flex justify-between items-center">
             <p class="ck-section-title">国密双证书签发 (签名+加密)</p>
@@ -456,7 +456,7 @@
         </div>
       </div>
 
-      <div class="space-y-3 flex flex-col h-full min-h-0 overflow-hidden">
+      <div class="ck-stack">
         <div v-if="dualResult.success" class="flex-1 min-h-0 flex flex-col space-y-3 animate-fade-in">
           <div class="grid grid-cols-2 gap-3 flex-1 min-h-0">
             <div class="ck-card flex flex-col p-2.5">

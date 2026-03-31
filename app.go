@@ -522,6 +522,10 @@ func (a *App) ParsePKCS12File(path string, password string) utils.PKCS12Result {
 	return utils.ParsePKCS12File(path, password)
 }
 
+func (a *App) SendPacket(req utils.PacketIORequest) utils.PacketIOResult {
+	return utils.SendPacket(req)
+}
+
 func (a *App) SelectFile() string {
 	path, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "选择文件",

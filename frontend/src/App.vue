@@ -34,17 +34,17 @@
       </div>
 
       <!-- Search & Theme -->
-      <div class="flex items-center gap-3 titlebar-nodrag" :class="!isMac ? 'mr-[120px]' : ''">
+      <div class="flex items-center gap-2 titlebar-nodrag" :class="!isMac ? 'mr-[112px]' : ''">
         <div class="relative group/search hidden md:block">
-          <SearchIcon class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dark-muted" />
+          <SearchIcon class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" :class="isDark ? 'text-dark-muted' : 'text-slate-400'" />
           <input v-model="search" type="text" placeholder="快速搜索算法..."
-                 class="w-48 lg:w-64 h-8 pl-8 pr-10 text-xs rounded-lg border outline-none transition-all search-input"
+                 class="w-44 lg:w-56 h-8 pl-8 pr-9 text-xs rounded-xl border outline-none transition-all search-input"
                  :class="isDark ? 'bg-dark-bg border-dark-border' : 'bg-gray-100 border-transparent focus:bg-white focus:border-light-accent'" />
 
           <!-- Search Results Dropdown -->
           <div v-if="search" class="absolute left-0 top-10 w-full z-[100] rounded-xl border shadow-2xl overflow-hidden"
                :class="isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-light-border shadow-gray-200'">
-            <div v-if="filteredAlgos.length === 0" class="p-4 text-center text-xs text-dark-muted">未找到相关算法</div>
+            <div v-if="filteredAlgos.length === 0" class="p-4 text-center text-xs" :class="isDark ? 'text-dark-muted' : 'text-slate-400'">未找到相关算法</div>
             <router-link v-for="algo in filteredAlgos" :key="algo.path" :to="algo.path"
                          @click="search = ''"
                          class="flex items-center gap-3 px-4 py-2.5 text-xs hover:bg-violet-500/10 transition-colors">
@@ -53,11 +53,11 @@
             </router-link>
           </div>
         </div>
-        <button ref="historyBtnRef" @click="showHistory = !showHistory" class="p-2 rounded-lg hover:bg-dark-hover transition-colors relative">
-          <HistoryIcon class="w-4 h-4 text-dark-muted" />
+        <button @click="showHistory = !showHistory" class="titlebar-icon-btn relative">
+          <HistoryIcon class="w-4 h-4" :class="isDark ? 'text-dark-muted' : 'text-slate-500'" />
           <span v-if="history.length" class="absolute top-1 right-1 w-1.5 h-1.5 bg-violet-500 rounded-full"></span>
         </button>
-        <button @click="handleToggleTheme" class="p-2 rounded-lg hover:bg-dark-hover transition-colors">
+        <button @click="handleToggleTheme" class="titlebar-icon-btn">
           <SunIcon v-if="isDark" class="w-4 h-4 text-amber-400" />
           <MoonIcon v-else class="w-4 h-4 text-violet-400" />
         </button>
@@ -90,40 +90,49 @@
       </div>
     </transition>
 
-      <!-- Main Content -->
-      <div class="flex-1 flex overflow-hidden">
-        <!-- Sidebar -->
-        <aside class="w-60 shrink-0 border-r flex flex-col p-4 gap-6 overflow-y-auto"
-               :class="isDark ? 'border-dark-border bg-dark-surface' : 'border-light-border bg-gray-50/50'">
+    <!-- Main Content -->
+    <div class="flex-1 overflow-hidden flex flex-col app-shell" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+      <section class="app-topbar-region shrink-0 px-2.5 pt-2 pb-1.5">
+        <div class="top-shell">
+        <div class="compact-toolbar" :class="isDark ? 'compact-toolbar-dark' : 'compact-toolbar-light'">
+          <div class="toolbar-inline">
+            <label class="toolbar-group-select">
+              <span class="toolbar-select-label">分类</span>
+              <select
+                :value="activeGroup.label"
+                class="toolbar-select"
+                @change="handleGroupSelect($event.target.value)"
+              >
+                <option v-for="group in navGroups" :key="group.label" :value="group.label">{{ group.label }}</option>
+              </select>
+            </label>
 
-          <div v-for="group in navGroups" :key="group.label" class="space-y-1">
-            <p class="sidebar-group-label text-[10px] px-3 mb-2 font-bold opacity-50 uppercase tracking-widest">{{ group.label }}</p>
-            <router-link v-for="item in group.items" :key="item.path" :to="item.path"
-                         v-slot="{ isActive }">
-              <div class="nav-item" :class="{ 'active': isActive, 'sidebar-item-active': isActive && isDark }">
-                <component :is="item.icon" class="w-4.5 h-4.5 shrink-0" />
-                <span class="flex-1 text-sm font-semibold">{{ item.label }}</span>
-                <span v-if="item.badge" class="px-1.5 py-0.5 rounded-md bg-violet-500/20 text-violet-400 text-[9px] font-bold uppercase">{{ item.badge }}</span>
+            <router-link
+              v-for="item in activeGroup.items"
+              :key="item.path"
+              :to="item.path"
+              v-slot="{ isActive }"
+            >
+              <div class="tool-pill" :class="{ active: isActive }">
+                <component :is="item.icon" class="w-3.5 h-3.5 shrink-0" />
+                <span class="truncate">{{ item.label }}</span>
               </div>
             </router-link>
           </div>
-
-        <div class="mt-auto pt-5 border-t border-dark-border/50 px-3">
-          <div class="flex items-center gap-2 mb-1">
-            <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-            <span class="text-xs font-medium text-dark-muted">本地后端已就绪</span>
-          </div>
-          <p class="text-[10px] text-dark-muted/60">Go + Wails v2 + Vue 3</p>
         </div>
-      </aside>
+        </div>
+      </section>
 
-      <!-- Page Content -->
-      <main class="flex-1 overflow-hidden relative" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
+      <main class="app-main-region flex-1 overflow-y-auto relative px-2.5 pb-2.5">
+        <div class="page-shell">
+        <div class="page-stage min-h-full" :class="isDark ? 'page-stage-dark' : 'page-stage-light'">
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </div>
+        </div>
       </main>
     </div>
 
@@ -137,24 +146,26 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from './stores/app'
 import { storeToRefs } from 'pinia'
 import * as runtime from '../wailsjs/runtime/runtime'
 import {
-  ShieldIcon, ShieldCheckIcon, SearchIcon, SunIcon, MoonIcon,
-  ZapIcon, CalculatorIcon, HistoryIcon, XIcon,
+  ShieldCheckIcon, SearchIcon, SunIcon, MoonIcon,
+  ZapIcon, CalculatorIcon, HistoryIcon,
   LockIcon, KeyIcon, HashIcon, ShieldHalfIcon,
-  FlagIcon, AtomIcon, WrenchIcon, FileIcon, FingerprintIcon
+  FlagIcon, AtomIcon, WrenchIcon, FileIcon, FingerprintIcon, SendIcon
 } from 'lucide-vue-next'
 
 const store = useAppStore()
+const route = useRoute()
+const router = useRouter()
 const { isDark, history, toast } = storeToRefs(store)
 const { toggleTheme, clearHistory } = store
 
 const search = ref('')
 const showHistory = ref(false)
-const historyBtnRef = ref(null)
 
 // 平台检测
 const isMac      = ref(false)
@@ -165,6 +176,7 @@ const isLinux    = ref(false)
 const isFullscreen = ref(false)
 
 const themeMode = ref('auto') // 'light', 'dark', 'auto'
+const selectedGroupLabel = ref('')
 
 // ── 主题逻辑 ────────────────────────────────────────────────
 const updateThemeByTime = () => {
@@ -208,6 +220,26 @@ const filteredAlgos = computed(() => {
   ).slice(0, 8)
 })
 
+const routeGroup = computed(() => {
+  return navGroups.find(group => group.items.some(item => item.path === route.path)) || navGroups[0]
+})
+
+const activeGroup = computed(() => {
+  return navGroups.find(group => group.label === selectedGroupLabel.value) || routeGroup.value
+})
+
+const selectGroup = (group) => {
+  selectedGroupLabel.value = group.label
+  if (!group.items.some(item => item.path === route.path)) {
+    router.push(group.items[0].path)
+  }
+}
+
+const handleGroupSelect = (label) => {
+  const group = navGroups.find(item => item.label === label)
+  if (group) selectGroup(group)
+}
+
 // ── 生命周期 ────────────────────────────────────────────────
 onMounted(async () => {
   // 从 Wails 运行时获取平台信息
@@ -239,60 +271,174 @@ onUnmounted(() => {
 // ── 导航结构 ────────────────────────────────────────────────
 const navGroups = [
   {
-    label: '🌐 国际算法',
+    label: '对称加密',
     items: [
-      { path: '/symmetric',  label: '对称算法',     icon: LockIcon },
-      { path: '/asymmetric', label: '非对称算法',    icon: KeyIcon },
-      { path: '/hash',       label: 'Hash / HMAC',  icon: HashIcon },
-      { path: '/mac',        label: 'MAC / KDF',    icon: ShieldHalfIcon },
+      { path: '/symmetric', label: '对称算法', icon: LockIcon, desc: 'AES / DES / ChaCha20', badge: '国际' },
+      { path: '/gm', label: '国密算法', icon: FlagIcon, desc: 'SM4 / SM3 / SM2', badge: '国密' },
+      { path: '/finance', label: '金融算法', icon: FingerprintIcon, desc: 'PIN / MAC / 分散', badge: '行业' },
     ]
   },
   {
-    label: '🏦 金融密码',
+    label: '非对称体系',
     items: [
-      { path: '/finance', label: '金融数据密码', icon: FingerprintIcon },
+      { path: '/asymmetric', label: '公钥算法', icon: KeyIcon, desc: 'RSA / ECC / EdDSA', badge: '国际' },
+      { path: '/pqc', label: '后量子', icon: AtomIcon, desc: 'FIPS 203 / 204 / 205', badge: 'PQC' },
+      { path: '/gmpqc', label: '国密 PQC', icon: ZapIcon, desc: '调研与对比', badge: '探索' },
+      { path: '/cert', label: '证书管理', icon: ShieldCheckIcon, desc: 'X.509 / CSR / PEM', badge: 'PKI' },
     ]
   },
   {
-    label: '🇨🇳 国密算法',
+    label: '摘要与认证',
     items: [
-      { path: '/gm', label: 'SM2 / SM3 / SM4', icon: FlagIcon },
+      { path: '/hash', label: 'Hash / HMAC', icon: HashIcon, desc: 'SHA / BLAKE / HMAC', badge: '摘要' },
+      { path: '/mac', label: 'MAC / KDF', icon: ShieldHalfIcon, desc: 'CMAC / HKDF / PBKDF2', badge: 'KDF' },
     ]
   },
   {
-    label: '⚛️ 后量子 PQC',
+    label: '工具与文件',
     items: [
-      { path: '/pqc',   label: 'FIPS 203/204/205', icon: AtomIcon, badge: 'NIST' },
-      { path: '/gmpqc', label: '国密 PQC (调研)',   icon: ZapIcon },
-    ]
-  },
-  {
-    label: '🛠️ 工具',
-    items: [
-      { path: '/tools',   label: '编解码工具箱', icon: WrenchIcon },
-      { path: '/bigint',  label: '大数运算',     icon: CalculatorIcon },
-      { path: '/cert',    label: '证书管理',     icon: ShieldCheckIcon },
-      { path: '/file',    label: '文件加解密',   icon: FileIcon },
+      { path: '/packet', label: '报文收发', icon: SendIcon, desc: 'TCP 长度头 / 文件发送', badge: '联调' },
+      { path: '/tools', label: '转换工具', icon: WrenchIcon, desc: 'Base64 / Hex / URL', badge: '通用' },
+      { path: '/bigint', label: '大数运算', icon: CalculatorIcon, desc: '模运算 / 进制 / 扩展欧几里得', badge: '数学' },
+      { path: '/file', label: '文件加解密', icon: FileIcon, desc: '文件流与落盘处理', badge: '文件' },
     ]
   }
 ]
+
+watch(
+  () => route.path,
+  () => {
+    selectedGroupLabel.value = routeGroup.value.label
+  },
+  { immediate: true }
+)
 </script>
 
 <style>
-.nav-item {
-  @apply flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer mb-1;
+.compact-toolbar {
+  @apply rounded-2xl border px-2.5 py-2;
+  backdrop-filter: blur(18px);
 }
-.dark .nav-item {
-  @apply text-dark-muted hover:bg-dark-hover hover:text-dark-text;
+
+.top-shell,
+.page-shell {
+  width: 100%;
 }
-.nav-item.active {
-  @apply bg-violet-500/15 text-violet-400 shadow-sm shadow-violet-500/10;
+
+.titlebar-icon-btn {
+  @apply w-8 h-8 rounded-xl inline-flex items-center justify-center transition-colors border;
 }
-:not(.dark) .nav-item {
-  @apply text-light-muted hover:bg-light-hover hover:text-light-text;
+
+.app-container.dark .titlebar-icon-btn {
+  @apply border-dark-border hover:bg-dark-hover;
 }
-:not(.dark) .nav-item.active {
-  @apply bg-violet-50 text-violet-600;
+
+.app-container.light .titlebar-icon-btn {
+  @apply border-slate-200 hover:bg-slate-100;
+}
+
+.compact-toolbar-dark {
+  @apply border-dark-border;
+  background: linear-gradient(180deg, rgba(24, 24, 34, 0.94), rgba(20, 20, 30, 0.9));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.compact-toolbar-light {
+  @apply border-light-border shadow-sm shadow-slate-200/70;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.92));
+}
+
+.toolbar-inline {
+  @apply flex items-center gap-1.5 overflow-x-auto;
+}
+
+.toolbar-group-select {
+  @apply shrink-0 relative inline-flex items-center;
+}
+
+.toolbar-select-label {
+  @apply absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] font-semibold pointer-events-none opacity-70;
+}
+
+.toolbar-select {
+  @apply h-9 min-w-[144px] rounded-xl border pl-11 pr-9 text-[12px] font-semibold outline-none appearance-none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238888a8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.app-container.dark .toolbar-select {
+  @apply bg-dark-bg border-dark-border text-dark-text;
+}
+
+.app-container.light .toolbar-select {
+  @apply bg-slate-50 border-slate-200 text-slate-800;
+}
+
+.tool-pill {
+  @apply shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 h-9 rounded-xl border text-[12px] font-semibold transition-all duration-200;
+}
+
+.app-container.dark .tool-pill {
+  @apply border-dark-border bg-dark-bg/70 text-dark-muted hover:text-dark-text;
+}
+
+.app-container.dark .tool-pill.active {
+  @apply border-violet-500/30 bg-violet-500/10 text-violet-300 shadow-sm shadow-violet-500/10;
+}
+
+.app-container.light .tool-pill {
+  @apply border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900;
+}
+
+.app-container.light .tool-pill.active {
+  @apply border-violet-200 bg-violet-50 text-violet-700 shadow-sm shadow-violet-200/40;
+}
+
+.page-stage {
+  @apply rounded-[12px] border overflow-hidden;
+  min-height: 100%;
+}
+
+.page-stage-dark {
+  @apply bg-dark-surface border-dark-border;
+}
+
+.page-stage-light {
+  @apply bg-white/95 border-light-border shadow-md shadow-slate-200/70;
+}
+
+.app-container.dark .titlebar-drag {
+  background: #161622 !important;
+  border-color: #2a2a3e !important;
+}
+
+.app-container.fullscreen .app-topbar-region {
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+
+.app-container.fullscreen .app-main-region {
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-bottom: 14px;
+}
+
+.app-container.fullscreen .compact-toolbar {
+  padding: 10px 12px;
+}
+
+.app-container.fullscreen .tool-pill {
+  height: 36px;
+  padding-left: 12px;
+  padding-right: 12px;
+  font-size: 13px;
+}
+
+.app-container.fullscreen .page-stage {
+  border-radius: 16px;
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -302,4 +448,5 @@ const navGroups = [
   opacity: 0;
   transform: translateY(4px);
 }
+
 </style>

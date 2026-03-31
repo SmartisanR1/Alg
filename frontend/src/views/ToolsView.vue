@@ -1,18 +1,18 @@
 <template>
-  <PageLayout title="编解码工具箱" subtitle="进制转换 · Base64 · XOR · URL编解码 · 时间戳 · 随机数生成"
+  <PageLayout :title="pageTitle" :subtitle="pageSubtitle"
               icon-bg="bg-amber-500/20"
-              :tabs="tabs" :active-tab="activeTab" @tab-change="activeTab = $event">
+              :tabs="visibleTabs" :active-tab="activeTab" @tab-change="handleTabChange">
     <template #icon>
       <WrenchIcon class="w-4 h-4 text-amber-400" />
     </template>
 
     <!-- Encoding -->
-    <div v-if="activeTab === 'encode'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'encode'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <!-- Str <-> Hex -->
         <div class="ck-card">
           <p class="ck-section-title">字符串 ↔ Hex</p>
-          <CryptoPanel v-model="enc.input" label="输入" type="textarea" :rows="4" clearable placeholder="输入文本或hex..." />
+          <CryptoPanel v-model="enc.input" label="输入" type="textarea" :rows="3" clearable placeholder="输入文本或hex..." />
           <div class="flex gap-2 mt-2">
             <button @click="strToHex" class="ck-btn-primary flex-1 justify-center text-xs">文本 → Hex</button>
             <button @click="hexToStr" class="ck-btn-secondary flex-1 justify-center text-xs">Hex → 文本</button>
@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <div class="space-y-3">
+      <div class="ck-stack">
         <!-- URL Encode -->
         <div class="ck-card">
           <p class="ck-section-title">URL 编解码</p>
@@ -70,15 +70,15 @@
 
         <!-- Result -->
         <div class="ck-card">
-          <CryptoPanel v-model="encResult.data" label="结果" type="result" :success="encResult.success" copyable />
+          <CryptoPanel v-model="encResult.data" label="结果" type="result" :success="encResult.success" copyable compact />
           <div v-if="encResult.error" class="mt-2 text-xs text-red-400">{{ encResult.error }}</div>
         </div>
       </div>
     </div>
 
     <!-- XOR / Bitwise -->
-    <div v-if="activeTab === 'xor'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'xor'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">XOR 异或运算</p>
           <div>
@@ -122,25 +122,25 @@
         </div>
       </div>
 
-      <div class="space-y-3">
+      <div class="ck-stack">
         <div class="ck-card">
-          <CryptoPanel v-model="xorResult.data" label="运算结果" type="result" :success="xorResult.success" copyable />
+          <CryptoPanel v-model="xorResult.data" label="运算结果" type="result" :success="xorResult.success" copyable compact />
           <div v-if="xorResult.error" class="mt-2 text-xs text-red-400">{{ xorResult.error }}</div>
         </div>
       </div>
     </div>
 
     <!-- Random -->
-    <div v-if="activeTab === 'random'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'random'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">随机数生成</p>
           <div>
-            <label class="ck-label">字节长度</label>
-            <div class="flex gap-2 flex-wrap mb-2">
+              <label class="ck-label">字节长度</label>
+              <div class="flex gap-2 flex-wrap mb-2">
               <button v-for="n in [8, 16, 24, 32, 48, 64]" :key="n"
-                      class="px-2 py-1 text-xs rounded-md border transition-all"
-                      :class="rng.length === n ? (isDark ? 'bg-violet-500/20 border-violet-500 text-violet-300' : 'bg-violet-100 border-violet-400 text-violet-700') : (isDark ? 'border-dark-border text-dark-muted hover:border-dark-accent/50' : 'border-light-border text-light-muted hover:border-light-accent/50')"
+                      class="ck-chip-btn"
+                      :class="{ active: rng.length === n }"
                       @click="rng.length = n">{{ n }}B</button>
             </div>
             <input v-model.number="rng.length" type="number" min="1" max="4096" class="ck-input" />
@@ -157,7 +157,35 @@
           </button>
         </div>
 
-        <!-- Padding tool -->
+        <div class="ck-card">
+          <CryptoPanel v-model="rngResult.data" label="随机数结果" type="result" :success="rngResult.success" copyable compact />
+        </div>
+
+        <div class="ck-card space-y-3">
+          <p class="ck-section-title">XChaCha20-Poly1305 Key/Nonce</p>
+          <div>
+            <label class="ck-label">Key (32字节)</label>
+            <div class="ck-result ck-result-sm !min-h-0 text-xs font-mono break-all">{{ xchacha.key }}</div>
+            <div v-if="xchacha.key" class="flex gap-3 mt-1">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+                {{ (xchacha.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
+              </span>
+            </div>
+          </div>
+          <div>
+            <label class="ck-label">Nonce (24字节)</label>
+            <div class="ck-result ck-result-sm !min-h-0 text-xs font-mono break-all">{{ xchacha.nonce }}</div>
+            <div v-if="xchacha.nonce" class="flex gap-3 mt-1">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
+                {{ (xchacha.nonce.replace(/\s+/g, '').length / 2) + ' bytes' }}
+              </span>
+            </div>
+          </div>
+          <button @click="genXChaCha" class="ck-btn-muted w-full justify-center text-sm">生成 Key / Nonce</button>
+        </div>
+      </div>
+
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">数据填充工具</p>
           <div class="grid grid-cols-2 gap-2">
@@ -182,44 +210,29 @@
             <button @click="doPadRemove" class="ck-btn-secondary flex-1 text-xs justify-center">移除填充</button>
           </div>
         </div>
-        <div class="ck-card space-y-3">
-          <p class="ck-section-title">XChaCha20-Poly1305 Key/Nonce</p>
-          <div>
-            <label class="ck-label">Key (32字节)</label>
-            <div class="ck-result !min-h-0 text-xs font-mono break-all">{{ xchacha.key }}</div>
-            <div v-if="xchacha.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
-                {{ (xchacha.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
-            </div>
-          </div>
-          <div>
-            <label class="ck-label">Nonce (24字节)</label>
-            <div class="ck-result !min-h-0 text-xs font-mono break-all">{{ xchacha.nonce }}</div>
-            <div v-if="xchacha.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
-                {{ (xchacha.nonce.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
-            </div>
-          </div>
-          <button @click="genXChaCha" class="ck-btn-primary w-full justify-center text-sm">生成</button>
-        </div>
-      </div>
-
-      <div class="space-y-3">
         <div class="ck-card">
-          <CryptoPanel v-model="rngResult.data" label="随机数结果" type="result" :success="rngResult.success" copyable />
-        </div>
-        <div class="ck-card">
-          <CryptoPanel v-model="padResult.data" label="填充结果 (hex)" type="result" :success="padResult.success" copyable />
+          <CryptoPanel v-model="padResult.data" label="填充结果 (hex)" type="result" :success="padResult.success" copyable compact />
           <div v-if="padResult.error" class="mt-2 text-xs text-red-400">{{ padResult.error }}</div>
+        </div>
+        <div class="ck-card">
+          <p class="ck-section-title">填充说明</p>
+          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div class="ck-note-card">
+              <p class="ck-note-title text-violet-400">常见块长</p>
+              <p>DES / 3DES 通常用 8 字节块长，AES / SM4 通常用 16 字节块长。</p>
+            </div>
+            <div class="ck-note-card">
+              <p class="ck-note-title text-amber-400">联调提醒</p>
+              <p>移除填充失败时，通常是块长、模式或输入编码和对端不一致。</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Timestamp -->
-    <div v-if="activeTab === 'timestamp'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'timestamp'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">时间戳转换</p>
           <div class="grid grid-cols-2 gap-2">
@@ -255,13 +268,13 @@
           <input v-model="ts.value" class="ck-input font-mono ck-trim-space" :placeholder="tsPlaceholder" />
           <div class="flex gap-2">
             <button @click="doTsConvert" class="ck-btn-primary flex-1 justify-center text-sm">转换</button>
-            <button @click="nowTs" class="ck-btn-secondary text-xs">当前时间</button>
+            <button @click="nowTs" class="ck-btn-muted text-xs">当前时间</button>
           </div>
         </div>
       </div>
-      <div class="space-y-3">
+      <div class="ck-stack">
         <div class="ck-card">
-          <CryptoPanel v-model="tsResult.data" label="转换结果" type="result" :success="tsResult.success" copyable />
+          <CryptoPanel v-model="tsResult.data" label="转换结果" type="result" :success="tsResult.success" copyable compact />
           <div v-if="tsResult.error" class="mt-2 text-xs text-red-400">{{ tsResult.error }}</div>
         </div>
         <!-- Quick ref -->
@@ -286,8 +299,8 @@
     </div>
 
     <!-- ASN.1 -->
-    <div v-if="activeTab === 'asn1'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'asn1'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">ASN.1 解析</p>
           <div class="grid grid-cols-2 gap-2">
@@ -302,20 +315,20 @@
               </select>
             </div>
             <div class="flex items-end">
-              <button @click="uploadAsn1File" class="ck-btn-secondary w-full justify-center text-xs">
+              <button @click="uploadAsn1File" class="ck-btn-muted w-full justify-center text-xs">
                 <FolderOpenIcon class="w-3.5 h-3.5" /> 选择文件解析
               </button>
             </div>
           </div>
-          <CryptoPanel v-model="asn1.input" label="输入 (可粘贴 PEM/DER/Hex/Base64)" type="textarea" :rows="6" clearable />
+          <CryptoPanel v-model="asn1.input" label="输入 (可粘贴 PEM/DER/Hex/Base64)" type="textarea" :rows="3" clearable />
           <button @click="parseAsn1" class="ck-btn-primary w-full justify-center text-sm">解析</button>
         </div>
       </div>
 
-      <div class="space-y-3">
+      <div class="ck-stack">
         <div class="ck-card">
           <label class="ck-label">解析结果</label>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[240px] resize-none bg-transparent outline-none border-none overflow-y-auto"
+          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[108px] resize-none bg-transparent outline-none border-none overflow-y-auto"
                     :value="asn1Result.data || (asn1Result.error ? '' : '结果将显示在这里...')"></textarea>
           <div v-if="asn1Result.error" class="mt-2 text-xs text-red-400">{{ asn1Result.error }}</div>
         </div>
@@ -323,8 +336,8 @@
     </div>
 
     <!-- BaseX -->
-    <div v-if="activeTab === 'base'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'base'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">Base32</p>
           <div class="grid grid-cols-2 gap-2">
@@ -391,9 +404,9 @@
         </div>
       </div>
 
-      <div class="space-y-3">
+      <div class="ck-stack">
         <div class="ck-card">
-          <CryptoPanel v-model="baseResult.data" label="结果" type="result" :success="baseResult.success" copyable />
+          <CryptoPanel v-model="baseResult.data" label="结果" type="result" :success="baseResult.success" copyable compact />
           <div v-if="baseResult.error" class="mt-2 text-xs text-red-400">{{ baseResult.error }}</div>
         </div>
         <div class="ck-card">
@@ -410,11 +423,11 @@
     </div>
 
     <!-- JWT/JWK -->
-    <div v-if="activeTab === 'jwt'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'jwt'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">JWT 解析/验证</p>
-          <CryptoPanel v-model="jwt.token" label="JWT Token" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="jwt.token" label="JWT Token" type="textarea" :rows="3" clearable />
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="ck-label">密钥格式</label>
@@ -429,19 +442,19 @@
               <input v-model="jwt.verify" type="checkbox">验证签名
             </label>
           </div>
-          <CryptoPanel v-model="jwt.key" label="密钥 (PEM/JWK/RAW)" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="jwt.key" label="密钥 (PEM/JWK/RAW)" type="textarea" :rows="3" clearable />
           <button @click="parseJwt" class="ck-btn-primary w-full justify-center text-sm">解析 / 验证</button>
         </div>
       </div>
-      <div class="space-y-3">
+      <div class="ck-stack">
         <div class="ck-card">
           <p class="ck-section-title">Header</p>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[72px] resize-none bg-transparent outline-none border-none"
                     :value="jwtResult.header"></textarea>
         </div>
         <div class="ck-card">
           <p class="ck-section-title">Payload</p>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[72px] resize-none bg-transparent outline-none border-none"
                     :value="jwtResult.payload"></textarea>
           <div v-if="jwt.verify" class="mt-2 text-xs" :class="jwtResult.valid ? 'text-emerald-400' : 'text-red-400'">
             {{ jwtResult.valid ? '签名验证通过' : '签名验证失败' }}
@@ -452,8 +465,8 @@
     </div>
 
     <!-- Key/Cert -->
-    <div v-if="activeTab === 'keycert'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'keycert'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">密钥格式转换</p>
           <div>
@@ -465,7 +478,7 @@
               <option value="base64">Base64</option>
             </select>
           </div>
-          <CryptoPanel v-model="keyConv.data" label="密钥输入" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="keyConv.data" label="密钥输入" type="textarea" :rows="3" clearable />
           <button @click="convertKey" class="ck-btn-primary w-full justify-center text-sm">
             <KeyIcon class="w-3.5 h-3.5" /> 转换
           </button>
@@ -488,7 +501,7 @@
         <div class="ck-card space-y-3">
           <p class="ck-section-title">PKCS#12 (.pfx) 导入</p>
           <div class="flex gap-2">
-            <button @click="uploadPfx" class="ck-btn-secondary flex-1 text-xs justify-center">
+            <button @click="uploadPfx" class="ck-btn-muted flex-1 text-xs justify-center">
               <FolderOpenIcon class="w-3.5 h-3.5" /> 选择 PFX 文件
             </button>
           </div>
@@ -507,38 +520,242 @@
         </div>
       </div>
 
-      <div class="space-y-3">
+      <div class="ck-stack">
         <div class="ck-card">
           <label class="ck-label">PKCS#1 (PEM)</label>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none"
                     :value="keyConvResult.pkcs1"></textarea>
         </div>
         <div class="ck-card">
           <label class="ck-label">PKCS#8 (PEM)</label>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none"
                     :value="keyConvResult.pkcs8"></textarea>
         </div>
         <div class="ck-card">
           <label class="ck-label">公钥 (PEM)</label>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none"
                     :value="keyConvResult.pub"></textarea>
         </div>
         <div class="ck-card">
           <label class="ck-label">DER (Hex/Base64)</label>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[80px] resize-none bg-transparent outline-none border-none"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[50px] resize-none bg-transparent outline-none border-none"
                     :value="keyConvResult.derHex"></textarea>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[80px] resize-none bg-transparent outline-none border-none mt-2"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[50px] resize-none bg-transparent outline-none border-none mt-2"
                     :value="keyConvResult.derBase64"></textarea>
         </div>
         <div class="ck-card">
           <label class="ck-label">PFX 导入结果</label>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none"
                     :value="pfxResult.key"></textarea>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none mt-2"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none mt-2"
                     :value="pfxResult.cert"></textarea>
-          <textarea readonly class="ck-result text-xs font-mono w-full min-h-[120px] resize-none bg-transparent outline-none border-none mt-2"
+          <textarea readonly class="ck-result ck-result-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none mt-2"
                     :value="pfxResult.ca"></textarea>
           <div v-if="pfxResult.info" class="mt-1 text-xs text-amber-400">证书: {{ pfxResult.info }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Packet I/O -->
+    <div v-if="activeTab === 'packet'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
+        <div class="ck-card space-y-3">
+          <p class="ck-section-title">报文发送 / 接收</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="ck-label">主机地址</label>
+              <input v-model="packet.host" class="ck-input" placeholder="127.0.0.1" />
+            </div>
+            <div>
+              <label class="ck-label">端口</label>
+              <input v-model.number="packet.port" type="number" min="1" max="65535" class="ck-input" placeholder="8000" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="ck-label">网络模式</label>
+              <select v-model="packet.network" class="ck-select">
+                <option value="auto">auto (DNS/IPv4/IPv6)</option>
+                <option value="tcp">tcp</option>
+                <option value="tcp4">tcp4</option>
+                <option value="tcp6">tcp6</option>
+              </select>
+            </div>
+            <div>
+              <label class="ck-label">传输模式</label>
+              <select v-model="packet.transport" class="ck-select">
+                <option value="plain">plain</option>
+                <option value="tls">tls</option>
+                <option value="tlcp">tlcp</option>
+              </select>
+            </div>
+            <div>
+              <label class="ck-label">ServerName（SNI）</label>
+              <input v-model="packet.serverName" class="ck-input" placeholder="可选（仅 TLS/TLCP）" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="ck-label">允许不验证证书</label>
+              <div class="flex items-center gap-2 mt-1">
+                <input type="checkbox" v-model="packet.insecureSkipVerify" id="insecureSkipVerify" />
+                <label for="insecureSkipVerify" class="text-xs">InsecureSkipVerify</label>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="packet.transport === 'tls' || packet.transport === 'tlcp'" class="grid grid-cols-1 gap-2">
+            <label class="ck-label">CA 证书 (PEM)</label>
+            <textarea v-model="packet.caCert" rows="3" class="ck-textarea" placeholder="粘贴或加载 CA PEM 证书"></textarea>
+            <button @click="loadCertFile('caCert')" class="ck-btn-muted">加载 CA 证书文件</button>
+
+            <label class="ck-label">客户端签名证书 (PEM)</label>
+            <textarea v-model="packet.clientCert" rows="3" class="ck-textarea" placeholder="粘贴客户端签名证书"></textarea>
+            <button @click="loadCertFile('clientCert')" class="ck-btn-muted">加载签名证书文件</button>
+
+            <label class="ck-label">客户端签名私钥 (PEM)</label>
+            <textarea v-model="packet.clientKey" rows="3" class="ck-textarea" placeholder="粘贴客户端签名私钥"></textarea>
+            <button @click="loadCertFile('clientKey')" class="ck-btn-muted">加载签名私钥文件</button>
+          </div>
+
+          <div v-if="packet.transport === 'tlcp'" class="grid grid-cols-1 gap-2">
+            <label class="ck-label">TLCP 加密证书 (PEM)</label>
+            <textarea v-model="packet.clientEncCert" rows="3" class="ck-textarea" placeholder="粘贴 TLCP 加密证书"></textarea>
+            <button @click="loadCertFile('clientEncCert')" class="ck-btn-muted">加载加密证书文件</button>
+
+            <label class="ck-label">TLCP 加密私钥 (PEM)</label>
+            <textarea v-model="packet.clientEncKey" rows="3" class="ck-textarea" placeholder="粘贴 TLCP 加密私钥"></textarea>
+            <button @click="loadCertFile('clientEncKey')" class="ck-btn-muted">加载加密私钥文件</button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="ck-label">报文头长度</label>
+              <select v-model.number="packet.headerLength" class="ck-select">
+                <option :value="0">0 字节</option>
+                <option :value="1">1 字节</option>
+                <option :value="2">2 字节</option>
+                <option :value="3">3 字节</option>
+                <option :value="4">4 字节</option>
+              </select>
+            </div>
+            <div>
+              <label class="ck-label">发送格式</label>
+              <select v-model="packet.payloadFormat" class="ck-select">
+                <option value="hex">Hex</option>
+                <option value="text">文本</option>
+              </select>
+            </div>
+            <div>
+              <label class="ck-label">响应显示</label>
+              <select v-model="packet.responseFormat" class="ck-select">
+                <option value="text">文本优先</option>
+                <option value="hex">Hex</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-[1fr_auto] gap-2 items-end">
+            <div>
+              <label class="ck-label">超时 (毫秒)</label>
+              <input v-model.number="packet.timeoutMs" type="number" min="200" max="60000" step="100" class="ck-input" />
+            </div>
+            <button @click="choosePacketFile" class="ck-btn-muted justify-center whitespace-nowrap">
+              <FolderOpenIcon class="w-3.5 h-3.5" /> 选择报文文件
+            </button>
+          </div>
+
+          <div v-if="packet.filePath" class="packet-file-bar">
+            <span class="truncate">{{ packet.filePath }}</span>
+            <button @click="packet.filePath = ''" class="ck-copy-btn">移除文件</button>
+          </div>
+
+          <div class="packet-view-switch">
+            <button class="ck-chip-btn" :class="{ active: packet.editorView === 'hex' }" @click="packet.editorView = 'hex'">Hex 视图</button>
+            <button class="ck-chip-btn" :class="{ active: packet.editorView === 'text' }" @click="packet.editorView = 'text'">文本视图</button>
+            <span v-if="packetSyncError" class="packet-sync-error">{{ packetSyncError }}</span>
+          </div>
+
+          <CryptoPanel
+            v-if="packet.editorView === 'hex'"
+            v-model="packet.payloadHex"
+            label="发送报文 (Hex)"
+            type="textarea"
+            :rows="3"
+            clearable
+            placeholder="粘贴 Hex 报文，文本发送上限约 1MB，文件模式可发送更大内容..."
+          />
+          <CryptoPanel
+            v-else
+            v-model="packet.payloadText"
+            label="发送报文 (文本)"
+            type="textarea"
+            :rows="3"
+            clearable
+            placeholder="输入待发送报文，Hex / 文本视图会自动同步..."
+          />
+
+          <div class="flex gap-2">
+            <button @click="sendPacketNow" class="ck-btn-primary flex-1 justify-center">
+              <ZapIcon class="w-3.5 h-3.5" /> 发送并接收
+            </button>
+            <button @click="resetPacket" class="ck-btn-secondary justify-center">清空</button>
+          </div>
+
+          <div class="packet-meta-grid">
+            <div class="ck-note-card">
+              <p class="ck-note-title text-amber-400">发送提示</p>
+              <p>头长为 0 时直接发原始字节流；头长 1-4 时按大端长度前缀自动封包。</p>
+            </div>
+            <div class="ck-note-card">
+              <p class="ck-note-title text-cyan-400">文件模式</p>
+              <p>选择文件后优先发送文件内容，适合超过 1MB 的大报文测试，不影响当前整体布局。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ck-stack">
+        <div class="ck-card space-y-2">
+          <p class="ck-section-title">响应内容</p>
+          <div class="packet-stats">
+            <span class="packet-stat">发送 {{ packetResult.requestBytes || 0 }} B</span>
+            <span class="packet-stat">接收 {{ packetResult.responseBytes || 0 }} B</span>
+            <span class="packet-stat">{{ packetResult.durationMs || 0 }} ms</span>
+          </div>
+          <div class="packet-view-switch !mb-1">
+            <button class="ck-chip-btn" :class="{ active: packet.responseView === 'text' }" @click="packet.responseView = 'text'">文本视图</button>
+            <button class="ck-chip-btn" :class="{ active: packet.responseView === 'hex' }" @click="packet.responseView = 'hex'">Hex 视图</button>
+          </div>
+          <CryptoPanel :model-value="packetResponseDisplay" label="响应数据" type="result" :success="packetResult.success" copyable />
+          <div v-if="packetResult.error" class="text-xs text-red-400">{{ packetResult.error }}</div>
+        </div>
+
+        <div class="ck-card space-y-2">
+          <p class="ck-section-title">发送历史</p>
+          <div v-if="!packetHistory.length" class="ck-empty py-4">最近发送的连接参数和报文会显示在这里。</div>
+          <div v-else class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+            <button v-for="entry in packetHistory" :key="entry.id" class="packet-history-item" @click="applyPacketHistory(entry)">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold truncate">{{ entry.host }}:{{ entry.port }}</span>
+                <span class="text-[10px] opacity-70">{{ entry.time }}</span>
+              </div>
+              <div class="text-[11px] opacity-80">头长 {{ entry.headerLength }} · {{ entry.payloadFormat.toUpperCase() }} · {{ entry.requestBytes }} B</div>
+              <div class="text-[11px] font-mono truncate opacity-70">{{ entry.preview }}</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="ck-card space-y-2">
+          <p class="ck-section-title">响应 Hex / 报文头</p>
+          <CryptoPanel v-model="packetResult.responseHex" label="响应 Hex" type="result" :success="packetResult.success" copyable compact />
+          <CryptoPanel v-model="packetResult.headerHex" label="响应头 Hex" type="result" :success="packetResult.success" copyable compact />
+          <div class="ck-note-card">
+            <p class="ck-note-title text-violet-400">使用说明</p>
+            <p class="text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">如果服务端返回的是二进制内容，界面会自动回退到 Hex 展示；文本协议则优先直接展示可读内容。</p>
+          </div>
         </div>
       </div>
     </div>
@@ -546,15 +763,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRoute, useRouter } from 'vue-router'
 import { WrenchIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, KeyIcon, ShieldCheckIcon } from 'lucide-vue-next'
 import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
-import { HexToString, StringToHex, Base64Encode, Base64Decode, XORCompute, URLEncode, URLDecode, UnicodeEncode, UnicodeDecode, GenerateRandom, PaddingApply, PaddingRemove, BaseConvert, TimestampConvert, ParseASN1, ParseASN1File, Base32Encode, Base32Decode, Base58Encode, Base58Decode, Bech32Encode, Bech32Decode, ParseJWT, ConvertKey, VerifyCertChain, ParsePKCS12, ParsePKCS12File, SelectFile } from '../../wailsjs/go/main/App'
+import { HexToString, StringToHex, Base64Encode, Base64Decode, XORCompute, URLEncode, URLDecode, UnicodeEncode, UnicodeDecode, GenerateRandom, PaddingApply, PaddingRemove, BaseConvert, TimestampConvert, ParseASN1, ParseASN1File, Base32Encode, Base32Decode, Base58Encode, Base58Decode, Bech32Encode, Bech32Decode, ParseJWT, ConvertKey, VerifyCertChain, ParsePKCS12, ParsePKCS12File, SelectFile, ReadFile, SendPacket } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
-const { isDark } = storeToRefs(useAppStore())
+const store = useAppStore()
+const route = useRoute()
+const router = useRouter()
+const { isDark } = storeToRefs(store)
+const { addHistory, showToast } = store
 
 const tabs = [
   { id: 'encode', label: '编解码' },
@@ -565,8 +787,36 @@ const tabs = [
   { id: 'base', label: 'BaseX' },
   { id: 'jwt', label: 'JWT/JWK' },
   { id: 'keycert', label: 'Key/Cert' },
+  { id: 'packet', label: '报文收发' },
 ]
-const activeTab = ref('encode')
+const visibleTabs = computed(() => route.path === '/packet' ? [{ id: 'packet', label: '报文收发' }] : tabs)
+const pageTitle = computed(() => route.path === '/packet' ? '报文发送 / 接收' : '编解码工具箱')
+const pageSubtitle = computed(() => route.path === '/packet' ? 'TCP 报文头长度 · Hex / 文本双视图 · 文件发送 · 发送历史' : '进制转换 · Base64 · XOR · 时间戳 · Key/Cert · 报文收发')
+const activeTab = ref(route.path === '/packet' ? 'packet' : 'encode')
+
+function syncTabFromRoute() {
+  if (route.path === '/packet') {
+    activeTab.value = 'packet'
+    return
+  }
+  const tab = typeof route.query.tab === 'string' ? route.query.tab : ''
+  activeTab.value = tabs.some(item => item.id === tab) ? tab : 'encode'
+}
+
+function handleTabChange(tabId) {
+  activeTab.value = tabId
+  if (tabId === 'packet') {
+    router.replace({ path: '/packet' })
+    return
+  }
+  if (route.path === '/packet') {
+    router.replace({ path: '/tools', query: { tab: tabId } })
+    return
+  }
+  router.replace({ path: '/tools', query: tabId === 'encode' ? {} : { tab: tabId } })
+}
+
+watch(() => [route.path, route.query.tab], syncTabFromRoute, { immediate: true })
 
 // Encoding
 const enc = reactive({ input: '' })
@@ -772,4 +1022,263 @@ async function uploadPfx() {
   pfxResult.key = r.keyPem; pfxResult.cert = r.certPem; pfxResult.ca = r.caPem; pfxResult.info = r.certInfo
   pfxResult.error = r.error
 }
+
+const PACKET_PREFS_KEY = 'ck-packet-prefs'
+const PACKET_HISTORY_KEY = 'ck-packet-history'
+const packet = reactive({
+  host: '127.0.0.1',
+  port: 8000,
+  headerLength: 4,
+  timeoutMs: 5000,
+  payloadText: '',
+  payloadHex: '',
+  payloadFormat: 'hex',
+  responseFormat: 'text',
+  filePath: '',
+  editorView: 'hex',
+  responseView: 'text',
+  network: 'auto',
+  transport: 'plain',
+  serverName: '',
+  insecureSkipVerify: false,
+  caCert: '',
+  clientCert: '',
+  clientKey: '',
+  clientEncCert: '',
+  clientEncKey: '',
+})
+const packetResult = reactive({
+  success: null,
+  error: '',
+  response: '',
+  responseHex: '',
+  requestBytes: 0,
+  responseBytes: 0,
+  headerHex: '',
+  durationMs: 0,
+})
+const packetHistory = ref([])
+const packetSyncError = ref('')
+let packetSyncLock = false
+
+function textToHex(text) {
+  return Array.from(new TextEncoder().encode(text)).map(byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase()
+}
+
+function hexToText(hex) {
+  const clean = hex.replace(/\s+/g, '')
+  if (!clean) return ''
+  if (clean.length % 2 !== 0) throw new Error('Hex 长度必须为偶数')
+  if (!/^[0-9a-fA-F]+$/.test(clean)) throw new Error('Hex 中包含非法字符')
+  return new TextDecoder().decode(Uint8Array.from(clean.match(/.{2}/g).map(v => parseInt(v, 16))))
+}
+
+const packetResponseDisplay = computed(() => packet.responseView === 'hex' ? (packetResult.responseHex || packetResult.response) : (packetResult.response || packetResult.responseHex))
+
+function savePacketPrefs() {
+  localStorage.setItem(PACKET_PREFS_KEY, JSON.stringify({
+    host: packet.host,
+    port: packet.port,
+    headerLength: packet.headerLength,
+    timeoutMs: packet.timeoutMs,
+    payloadFormat: packet.payloadFormat,
+    responseFormat: packet.responseFormat,
+    editorView: packet.editorView,
+    responseView: packet.responseView,
+    network: packet.network,
+    transport: packet.transport,
+    serverName: packet.serverName,
+    insecureSkipVerify: packet.insecureSkipVerify,
+    caCert: packet.caCert,
+    clientCert: packet.clientCert,
+    clientKey: packet.clientKey,
+    clientEncCert: packet.clientEncCert,
+    clientEncKey: packet.clientEncKey,
+  }))
+}
+
+function loadPacketPrefs() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PACKET_PREFS_KEY) || 'null')
+    if (!saved) return
+    packet.host = saved.host || packet.host
+    packet.port = Number(saved.port) || packet.port
+    packet.headerLength = Number.isInteger(saved.headerLength) ? saved.headerLength : packet.headerLength
+    packet.timeoutMs = Number(saved.timeoutMs) || packet.timeoutMs
+    packet.payloadFormat = saved.payloadFormat || packet.payloadFormat
+    packet.responseFormat = saved.responseFormat || packet.responseFormat
+    packet.editorView = saved.editorView || packet.editorView
+    packet.responseView = saved.responseView || packet.responseView
+    packet.network = saved.network || packet.network
+    packet.transport = saved.transport || packet.transport
+    packet.serverName = saved.serverName || packet.serverName
+    packet.insecureSkipVerify = saved.insecureSkipVerify === true
+    packet.caCert = saved.caCert || packet.caCert
+    packet.clientCert = saved.clientCert || packet.clientCert
+    packet.clientKey = saved.clientKey || packet.clientKey
+    packet.clientEncCert = saved.clientEncCert || packet.clientEncCert
+    packet.clientEncKey = saved.clientEncKey || packet.clientEncKey
+  } catch {}
+}
+
+function loadPacketHistory() {
+  try {
+    packetHistory.value = JSON.parse(localStorage.getItem(PACKET_HISTORY_KEY) || '[]')
+  } catch {
+    packetHistory.value = []
+  }
+}
+
+function persistPacketHistory() {
+  localStorage.setItem(PACKET_HISTORY_KEY, JSON.stringify(packetHistory.value.slice(0, 12)))
+}
+
+function syncPacketTextToHex() {
+  if (packetSyncLock) return
+  packetSyncLock = true
+  packetSyncError.value = ''
+  packet.payloadHex = textToHex(packet.payloadText)
+  packetSyncLock = false
+}
+
+function syncPacketHexToText() {
+  if (packetSyncLock) return
+  packetSyncLock = true
+  try {
+    packet.payloadText = hexToText(packet.payloadHex)
+    packetSyncError.value = ''
+  } catch (err) {
+    packetSyncError.value = err.message
+  }
+  packetSyncLock = false
+}
+
+watch(() => packet.payloadText, syncPacketTextToHex)
+watch(() => packet.payloadHex, syncPacketHexToText)
+watch(() => [packet.host, packet.port, packet.headerLength, packet.timeoutMs, packet.payloadFormat, packet.responseFormat, packet.editorView, packet.responseView], savePacketPrefs, { deep: true })
+watch(() => packet.payloadFormat, (format) => {
+  packet.editorView = format === 'hex' ? 'hex' : 'text'
+})
+
+async function choosePacketFile() {
+  const path = await SelectFile()
+  if (path) packet.filePath = path
+}
+
+async function loadCertFile(field) {
+  const path = await SelectFile()
+  if (!path) return
+  const content = await ReadFile(path)
+  if (content) {
+    packet[field] = content
+    showToast('证书加载成功', 'success')
+  } else {
+    showToast('证书加载失败，请确认文件内容', 'error')
+  }
+}
+
+async function sendPacketNow() {
+  const payload = packet.payloadFormat === 'hex' ? packet.payloadHex : packet.payloadText
+  const r = await SendPacket({
+    host: packet.host,
+    port: packet.port,
+    network: packet.network,
+    transport: packet.transport,
+    serverName: packet.serverName,
+    insecureSkipVerify: packet.insecureSkipVerify,
+    headerLength: packet.headerLength,
+    timeoutMs: packet.timeoutMs,
+    payloadFormat: packet.payloadFormat,
+    payload,
+    responseFormat: packet.responseFormat,
+    filePath: packet.filePath,
+    caCertPem: packet.caCert,
+    clientCertPem: packet.clientCert,
+    clientKeyPem: packet.clientKey,
+    clientEncCertPem: packet.clientEncCert,
+    clientEncKeyPem: packet.clientEncKey,
+  })
+  packetResult.success = r.success
+  packetResult.error = r.error || ''
+  packetResult.response = r.response || ''
+  packetResult.responseHex = r.responseHex || ''
+  packetResult.requestBytes = r.requestBytes || 0
+  packetResult.responseBytes = r.responseBytes || 0
+  packetResult.headerHex = r.headerHex || ''
+  packetResult.durationMs = r.durationMs || 0
+  addHistory({
+    type: '报文收发',
+    data: `${packet.host}:${packet.port} ${packet.payloadFormat.toUpperCase()} ${packetResult.requestBytes}B`,
+  })
+  packetHistory.value.unshift({
+    id: Date.now(),
+    host: packet.host,
+    port: packet.port,
+    network: packet.network,
+    transport: packet.transport,
+    serverName: packet.serverName,
+    insecureSkipVerify: packet.insecureSkipVerify,
+    caCert: packet.caCert,
+    clientCert: packet.clientCert,
+    clientKey: packet.clientKey,
+    clientEncCert: packet.clientEncCert,
+    clientEncKey: packet.clientEncKey,
+    headerLength: packet.headerLength,
+    timeoutMs: packet.timeoutMs,
+    payloadFormat: packet.payloadFormat,
+    responseFormat: packet.responseFormat,
+    payloadHex: packet.payloadHex,
+    payloadText: packet.payloadText,
+    filePath: packet.filePath,
+    requestBytes: packetResult.requestBytes,
+    time: new Date().toLocaleTimeString(),
+    preview: (packet.payloadFormat === 'hex' ? packet.payloadHex : packet.payloadText).slice(0, 80),
+  })
+  packetHistory.value = packetHistory.value.slice(0, 12)
+  persistPacketHistory()
+  showToast(r.success ? '报文已发送' : '发送失败', r.success ? 'success' : 'error')
+}
+
+function applyPacketHistory(entry) {
+  packet.host = entry.host
+  packet.port = entry.port
+  packet.headerLength = entry.headerLength
+  packet.timeoutMs = entry.timeoutMs
+  packet.payloadFormat = entry.payloadFormat
+  packet.responseFormat = entry.responseFormat || packet.responseFormat
+  packet.network = entry.network || packet.network
+  packet.transport = entry.transport || packet.transport
+  packet.serverName = entry.serverName || packet.serverName
+  packet.insecureSkipVerify = entry.insecureSkipVerify || packet.insecureSkipVerify
+  packet.caCert = entry.caCert || packet.caCert
+  packet.clientCert = entry.clientCert || packet.clientCert
+  packet.clientKey = entry.clientKey || packet.clientKey
+  packet.clientEncCert = entry.clientEncCert || packet.clientEncCert
+  packet.clientEncKey = entry.clientEncKey || packet.clientEncKey
+  packet.filePath = entry.filePath || ''
+  packet.payloadHex = entry.payloadHex || ''
+  packet.payloadText = entry.payloadText || ''
+  packet.editorView = entry.payloadFormat === 'hex' ? 'hex' : 'text'
+  showToast('已载入历史参数')
+}
+
+function resetPacket() {
+  packet.payloadText = ''
+  packet.payloadHex = ''
+  packet.filePath = ''
+  packetResult.success = null
+  packetResult.error = ''
+  packetResult.response = ''
+  packetResult.responseHex = ''
+  packetResult.requestBytes = 0
+  packetResult.responseBytes = 0
+  packetResult.headerHex = ''
+  packetResult.durationMs = 0
+  packetSyncError.value = ''
+}
+
+onMounted(() => {
+  loadPacketPrefs()
+  loadPacketHistory()
+})
 </script>

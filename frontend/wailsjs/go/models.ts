@@ -1714,6 +1714,76 @@ export namespace utils {
 	        this.certInfo = source["certInfo"];
 	    }
 	}
+	export class PacketIORequest {
+	    host: string;
+	    port: number;
+	    network: string;
+	    transport: string;
+	    serverName: string;
+	    insecureSkipVerify: boolean;
+	    headerLength: number;
+	    timeoutMs: number;
+	    payload: string;
+	    payloadFormat: string;
+	    responseFormat: string;
+	    filePath: string;
+	    caCertPem: string;
+	    clientCertPem: string;
+	    clientKeyPem: string;
+	    clientEncCertPem: string;
+	    clientEncKeyPem: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new PacketIORequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.host = source["host"];
+	        this.port = source["port"];
+	        this.network = source["network"];
+	        this.transport = source["transport"];
+	        this.serverName = source["serverName"];
+	        this.insecureSkipVerify = source["insecureSkipVerify"];
+	        this.headerLength = source["headerLength"];
+	        this.timeoutMs = source["timeoutMs"];
+	        this.payload = source["payload"];
+	        this.payloadFormat = source["payloadFormat"];
+	        this.responseFormat = source["responseFormat"];
+	        this.filePath = source["filePath"];
+	        this.caCertPem = source["caCertPem"];
+	        this.clientCertPem = source["clientCertPem"];
+	        this.clientKeyPem = source["clientKeyPem"];
+	        this.clientEncCertPem = source["clientEncCertPem"];
+	        this.clientEncKeyPem = source["clientEncKeyPem"];
+	    }
+	}
+	export class PacketIOResult {
+	    success: boolean;
+	    error: string;
+	    response: string;
+	    responseHex: string;
+	    requestBytes: number;
+	    responseBytes: number;
+	    headerHex: string;
+	    durationMs: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PacketIOResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.error = source["error"];
+	        this.response = source["response"];
+	        this.responseHex = source["responseHex"];
+	        this.requestBytes = source["requestBytes"];
+	        this.responseBytes = source["responseBytes"];
+	        this.headerHex = source["headerHex"];
+	        this.durationMs = source["durationMs"];
+	    }
+	}
 	export class PaddingRequest {
 	    data: string;
 	    mode: string;

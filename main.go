@@ -19,10 +19,10 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:         "CryptoKit — 全平台密码算法工具箱",
-		Width:         1400,
-		Height:        900,
-		MinWidth:      1100,
-		MinHeight:     700,
+		Width:         1240,
+		Height:        800,
+		MinWidth:      1040,
+		MinHeight:     680,
 		DisableResize: false,
 		Fullscreen:    false,
 		Frameless:     false,

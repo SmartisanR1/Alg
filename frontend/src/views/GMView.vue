@@ -35,8 +35,8 @@
     </transition>
 
     <!-- SM2 -->
-    <div v-if="activeTab === 'sm2'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-4 flex flex-col min-h-0">
+    <div v-if="activeTab === 'sm2'" class="ck-workbench animate-fade-in">
+      <div class="space-y-4 min-w-0">
         <!-- Sub-tabs -->
         <div class="flex gap-1 p-1 rounded-lg w-fit shrink-0"
              :class="isDark ? 'bg-dark-card' : 'bg-light-card'">
@@ -152,7 +152,7 @@
       </div>
 
       <!-- Right Column: Principle Panel (Persistent) -->
-      <div class="ck-card overflow-y-auto flex flex-col h-full ck-right-panel">
+      <div class="ck-card ck-right-panel">
         <p class="ck-section-title">算法原理 (SM2)</p>
         <div class="space-y-3 text-[11px] leading-relaxed flex-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
           <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -176,15 +176,15 @@
     </div>
 
     <!-- SM3 -->
-    <div v-if="activeTab === 'sm3'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'sm3'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <label class="ck-label">输入格式</label>
           <select v-model="sm3Format" class="ck-select mb-3">
             <option value="text">纯文本 (UTF-8)</option>
             <option value="hex">十六进制 (Hex)</option>
           </select>
-          <CryptoPanel v-model="sm3Data" label="输入数据" type="textarea" :rows="6" clearable />
+          <CryptoPanel v-model="sm3Data" label="输入数据" type="textarea" :rows="4" clearable />
         </div>
         <div class="flex gap-2">
           <button @click="computeSM3" class="ck-btn-primary flex-1 justify-center"><HashIcon class="w-3.5 h-3.5" />SM3 杂凑计算</button>
@@ -198,12 +198,12 @@
           <input v-model="sm3Key" class="ck-input font-mono ck-trim-space" placeholder="输入 16/32 字节 Hex 密钥..." />
         </div>
       </div>
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden h-full ck-right-panel">
-        <div class="ck-card shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="ck-card">
           <CryptoPanel v-model="sm3Result.data" label="SM3 杂凑值 (256-bit)" type="result" :success="sm3Result.success" copyable />
           <div v-if="sm3Result.error" class="mt-2 text-xs text-red-400">{{ sm3Result.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 & 特性 (SM3)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -228,8 +228,8 @@
     </div>
 
     <!-- SM4 -->
-    <div v-if="activeTab === 'sm4'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'sm4'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <p class="ck-section-title">算法参数配置</p>
           <div class="grid grid-cols-2 gap-3">
@@ -286,16 +286,16 @@
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="sm4.data" label="数据 (Hex)" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="sm4.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
           <div v-if="sm4LenHint" :class="['mt-1 text-xs', hintClass(sm4LenHint)]">{{ sm4LenHint }}</div>
         </div>
       </div>
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden h-full ck-right-panel">
-        <div class="grid grid-cols-2 gap-2 shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="grid grid-cols-2 gap-2">
           <button @click="doSM4Encrypt" class="ck-btn-primary justify-center" :disabled="sm4Disabled"><LockIcon class="w-3.5 h-3.5" />SM4 加密</button>
           <button @click="doSM4Decrypt" class="ck-btn-secondary justify-center" :disabled="sm4Disabled"><UnlockIcon class="w-3.5 h-3.5" />SM4 解密</button>
         </div>
-        <div class="ck-card shrink-0">
+        <div class="ck-card">
           <CryptoPanel v-model="sm4Result.data" label="运算结果 (Hex)" type="result" :success="sm4Result.success" copyable />
           <div v-if="sm4Result.extra" class="mt-2 space-y-1">
             <div class="flex justify-between items-center text-[10px]">
@@ -306,7 +306,7 @@
           </div>
           <div v-if="sm4Result.error" class="mt-2 text-xs text-red-400">{{ sm4Result.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 & 模式说明 (SM4)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -332,8 +332,8 @@
     </div>
 
     <!-- SM9 -->
-    <div v-if="activeTab === 'sm9'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'sm9'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <p class="ck-section-title">SM9 标识密码 (IBC)</p>
           <p class="text-[11px] mb-3" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
@@ -377,12 +377,12 @@
           </div>
         </div>
       </div>
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden h-full ck-right-panel">
-        <div class="ck-card shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="ck-card">
           <CryptoPanel v-model="sm9Result.data" label="运算结果" type="result" :success="sm9Result.success" copyable />
           <div v-if="sm9Result.error" class="mt-2 text-xs text-red-400">{{ sm9Result.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 & 特性 (SM9)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -405,8 +405,8 @@
     </div>
 
     <!-- ZUC -->
-    <div v-if="activeTab === 'zuc'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'zuc'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <p class="ck-section-title">ZUC (祖冲之) 流密码</p>
           <div class="grid grid-cols-2 gap-3 mb-3">
@@ -450,18 +450,18 @@
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="zuc.data" label="待加/解密数据 (Hex)" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="zuc.data" label="待加/解密数据 (Hex)" type="textarea" :rows="3" clearable />
         </div>
         <button @click="doZUCEncrypt" class="ck-btn-primary w-full justify-center">
           <ZapIcon class="w-3.5 h-3.5" /> 执行 ZUC 变换
         </button>
       </div>
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden h-full ck-right-panel">
-        <div class="ck-card shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="ck-card">
           <CryptoPanel v-model="zucResult.data" label="变换结果 (Hex)" type="result" :success="zucResult.success" copyable />
           <div v-if="zucResult.error" class="mt-2 text-xs text-red-400">{{ zucResult.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 & 特性 (ZUC)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -484,8 +484,8 @@
     </div>
 
     <!-- Digital Envelope (GM/T 0010-2012) -->
-    <div v-if="activeTab === 'envelope'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'envelope'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-4">
           <p class="ck-section-title">制作数字信封 (密封)</p>
           <div class="space-y-3">
@@ -523,13 +523,13 @@
         </div>
       </div>
 
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden h-full">
-        <div class="ck-card shrink-0">
+      <div class="ck-stack">
+        <div class="ck-card">
           <CryptoPanel v-model="envelopeResult.data" label="处理结果" type="result" :success="envelopeResult.success" copyable />
           <div v-if="envelopeResult.error" class="mt-2 text-xs text-red-400">{{ envelopeResult.error }}</div>
         </div>
         
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 (GM/T 0010-2012)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">

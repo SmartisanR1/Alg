@@ -33,7 +33,7 @@
             <option value="hex">Hex</option>
           </select>
           <CryptoPanel v-model="hashInput" label="输入数据" clearable type="textarea"
-                       :placeholder="hashFormat === 'text' ? '输入文本...' : '输入hex数据...'" :rows="5" />
+                       :placeholder="hashFormat === 'text' ? '输入文本...' : '输入hex数据...'" :rows="3" />
           <div v-if="hashLenHint" :class="['mt-1 text-xs', hintClass(hashLenHint)]">{{ hashLenHint }}</div>
           <div v-if="selectedAlgos.some(a => a.startsWith('SHAKE'))" class="mt-2">
             <label class="ck-label">SHAKE 输出长度 (字节)</label>
@@ -106,7 +106,7 @@
               </span>
             </div>
           </div>
-          <CryptoPanel v-model="hmac.data" label="数据 (hex)" type="textarea" clearable :rows="5" />
+          <CryptoPanel v-model="hmac.data" label="数据 (hex)" type="textarea" clearable :rows="3" />
           <div v-if="hmacLenHint" :class="['mt-1 text-xs', hintClass(hmacLenHint)]">{{ hmacLenHint }}</div>
         </div>
         <button @click="computeHmac" class="ck-btn-primary w-full justify-center">

@@ -35,8 +35,8 @@
     </transition>
 
     <!-- RSA -->
-    <div v-if="activeTab === 'rsa'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'rsa'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <p class="ck-section-title">RSA 密钥生成</p>
           <div class="flex gap-2 mb-4">
@@ -107,23 +107,23 @@
           </div>
           <div>
             <label class="ck-label">密钥内容 (PEM/Hex)</label>
-            <textarea v-model="rsa.key" class="ck-textarea text-[10px] font-mono" rows="4" placeholder="粘贴公钥(加密/验签)或私钥(解密/签名)..." />
+            <textarea v-model="rsa.key" class="ck-textarea text-[10px] font-mono" rows="3" placeholder="粘贴公钥(加密/验签)或私钥(解密/签名)..." />
           </div>
           <CryptoPanel v-model="rsa.data" label="待处理数据 (Hex)" type="textarea" :rows="3" clearable />
         </div>
       </div>
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden ck-right-panel">
-        <div class="grid grid-cols-2 gap-2 shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="grid grid-cols-2 gap-2">
           <button @click="rsaEncrypt" class="ck-btn-primary justify-center"><LockIcon class="w-3.5 h-3.5"/>加密</button>
           <button @click="rsaDecrypt" class="ck-btn-secondary justify-center"><UnlockIcon class="w-3.5 h-3.5"/>解密</button>
           <button @click="rsaSign" class="ck-btn-success justify-center"><PenIcon class="w-3.5 h-3.5"/>签名</button>
           <button @click="rsaVerify" class="ck-btn-secondary justify-center"><CheckCircleIcon class="w-3.5 h-3.5"/>验签</button>
         </div>
-        <div class="ck-card shrink-0">
+        <div class="ck-card">
           <CryptoPanel v-model="rsaResult.data" label="运算结果" type="result" :success="rsaResult.success" copyable />
           <div v-if="rsaResult.error" class="mt-2 text-xs text-red-400">{{ rsaResult.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 (RSA)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -143,8 +143,8 @@
     </div>
 
     <!-- ECC -->
-    <div v-if="activeTab === 'ecc'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'ecc'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <p class="ck-section-title">ECC 曲线密钥生成</p>
           <div class="flex gap-2 mb-4">
@@ -193,7 +193,7 @@
         <div class="ck-card space-y-2">
           <div>
             <label class="ck-label">密钥内容 (PEM/Hex)</label>
-            <textarea v-model="ecc.key" class="ck-textarea text-[10px] font-mono" rows="4" placeholder="粘贴私钥(签名)或公钥(验签/ECDH)..." />
+            <textarea v-model="ecc.key" class="ck-textarea text-[10px] font-mono" rows="3" placeholder="粘贴私钥(签名)或公钥(验签/ECDH)..." />
           </div>
           <div>
             <label class="ck-label">对方公钥 (仅 ECDH 使用)</label>
@@ -202,17 +202,17 @@
           <CryptoPanel v-model="ecc.data" label="待处理数据 (Hex)" type="input" clearable />
         </div>
       </div>
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden ck-right-panel">
-        <div class="grid grid-cols-3 gap-2 shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="grid grid-cols-3 gap-2">
           <button @click="eccSign" class="ck-btn-primary justify-center text-xs"><PenIcon class="w-3.5 h-3.5"/>签名</button>
           <button @click="eccVerify" class="ck-btn-secondary justify-center text-xs"><CheckCircleIcon class="w-3.5 h-3.5"/>验签</button>
           <button @click="ecdhCompute" class="ck-btn-success justify-center text-xs"><LinkIcon class="w-3.5 h-3.5"/>ECDH</button>
         </div>
-        <div class="ck-card shrink-0">
+        <div class="ck-card">
           <CryptoPanel v-model="eccResult.data" label="运算结果" type="result" :success="eccResult.success" copyable />
           <div v-if="eccResult.error" class="mt-2 text-xs text-red-400">{{ eccResult.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 (ECC)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -232,8 +232,8 @@
     </div>
 
     <!-- Ed25519 / X25519 -->
-    <div v-if="activeTab === 'curve25519'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'curve25519'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <p class="ck-section-title">Curve25519 系列操作</p>
           <div class="flex gap-2 mb-3">
@@ -301,17 +301,17 @@
           <CryptoPanel v-model="c25519.data" label="待处理数据 (Hex)" type="input" clearable />
         </div>
       </div>
-      <div class="space-y-3 flex flex-col min-h-0 overflow-hidden ck-right-panel">
-        <div class="grid grid-cols-2 gap-2 shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="grid grid-cols-2 gap-2">
           <button @click="x25519Exchange" class="ck-btn-primary text-xs justify-center"><LinkIcon class="w-3.5 h-3.5"/>X25519 密钥交换</button>
           <button @click="ed25519Sign" class="ck-btn-success text-xs justify-center"><PenIcon class="w-3.5 h-3.5"/>Ed25519 签名</button>
           <button @click="ed25519Verify" class="ck-btn-secondary col-span-2 text-xs justify-center"><CheckCircleIcon class="w-3.5 h-3.5"/>Ed25519 验签</button>
         </div>
-        <div class="ck-card shrink-0">
+        <div class="ck-card">
           <CryptoPanel v-model="c25519Result.data" label="运算结果" type="result" :success="c25519Result.success" copyable />
           <div v-if="c25519Result.error" class="mt-2 text-xs text-red-400">{{ c25519Result.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">算法原理 (Curve25519)</p>
           <div class="text-[11px] space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-3 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">

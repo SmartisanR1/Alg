@@ -59,7 +59,7 @@
                 <label class="ck-label !mb-0 text-amber-400">私钥 (Private Key)</label>
                 <button @click="copy(kemKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <textarea readonly class="ck-result ck-key-hex !min-h-[120px] text-amber-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.privateKey"></textarea>
+              <textarea readonly class="ck-result ck-key-hex !min-h-[96px] text-amber-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.privateKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
                   {{ base64ByteLen(kemKeys.privateKey) + ' bytes' }}
@@ -71,7 +71,7 @@
                 <label class="ck-label !mb-0 text-cyan-400">公钥 (Public Key)</label>
                 <button @click="copy(kemKeys.publicKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <textarea readonly class="ck-result ck-key-hex !min-h-[120px] text-cyan-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.publicKey"></textarea>
+              <textarea readonly class="ck-result ck-key-hex !min-h-[96px] text-cyan-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.publicKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
                   {{ base64ByteLen(kemKeys.publicKey) + ' bytes' }}
@@ -168,7 +168,7 @@
           <div v-if="dsaKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
             <div class="flex-1 min-h-0 flex flex-col">
               <label class="ck-label text-amber-400 shrink-0">私钥 (Private Key)</label>
-              <textarea readonly class="ck-result ck-key-hex !min-h-[120px] text-amber-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.privateKey"></textarea>
+              <textarea readonly class="ck-result ck-key-hex !min-h-[96px] text-amber-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.privateKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
                   {{ base64ByteLen(dsaKeys.privateKey) + ' bytes' }}
@@ -177,7 +177,7 @@
             </div>
             <div class="flex-1 min-h-0 flex flex-col mt-2">
               <label class="ck-label text-cyan-400 shrink-0">公钥 (Public Key)</label>
-              <textarea readonly class="ck-result ck-key-hex !min-h-[120px] text-cyan-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.publicKey"></textarea>
+              <textarea readonly class="ck-result ck-key-hex !min-h-[96px] text-cyan-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.publicKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
                   {{ base64ByteLen(dsaKeys.publicKey) + ' bytes' }}
@@ -187,7 +187,7 @@
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="dsa.data" label="待签名数据 (hex)" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="dsa.data" label="待签名数据 (hex)" type="textarea" :rows="3" clearable />
         </div>
       </div>
 
@@ -271,7 +271,7 @@
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="slh.data" label="待签名数据 (hex)" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="slh.data" label="待签名数据 (hex)" type="textarea" :rows="3" clearable />
         </div>
       </div>
 
@@ -320,9 +320,9 @@
     </div>
 
     <!-- FALCON — 调研预览 -->
-    <div v-if="activeTab === 'falcon'" class="animate-fade-in grid grid-cols-2 gap-4 h-full overflow-hidden">
+    <div v-if="activeTab === 'falcon'" class="ck-workbench animate-fade-in">
       <!-- 左列: 算法说明 + 参数预览 -->
-      <div class="space-y-4 overflow-y-auto pr-1">
+      <div class="ck-stack">
         <!-- 状态横幅 -->
         <div class="ck-card flex items-start gap-4"
              :class="isDark ? 'border-violet-500/20 bg-violet-500/5' : 'border-violet-200 bg-violet-50'">
@@ -379,7 +379,7 @@
       </div>
 
       <!-- 右列: 算法原理 -->
-      <div class="ck-card overflow-y-auto ck-right-panel">
+      <div class="ck-card ck-right-panel">
         <p class="ck-section-title">算法原理 (FALCON)</p>
         <div class="text-xs space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
           <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -403,9 +403,9 @@
     </div>
 
     <!-- HQC — 调研预览 -->
-    <div v-if="activeTab === 'hqc'" class="animate-fade-in grid grid-cols-2 gap-4 h-full overflow-hidden">
+    <div v-if="activeTab === 'hqc'" class="ck-workbench animate-fade-in">
       <!-- 左列 -->
-      <div class="space-y-4 overflow-y-auto pr-1">
+      <div class="ck-stack">
         <!-- 状态横幅 -->
         <div class="ck-card flex items-start gap-4"
              :class="isDark ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-emerald-200 bg-emerald-50'">
@@ -460,7 +460,7 @@
       </div>
 
       <!-- 右列: 算法原理 -->
-      <div class="ck-card overflow-y-auto ck-right-panel">
+      <div class="ck-card ck-right-panel">
         <p class="ck-section-title">算法原理 (HQC)</p>
         <div class="text-xs space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
           <div class="p-3 rounded-xl border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">

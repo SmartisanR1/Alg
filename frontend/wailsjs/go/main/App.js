@@ -482,6 +482,10 @@ export function SelectFile() {
   return window['go']['main']['App']['SelectFile']();
 }
 
+export function SendPacket(arg1) {
+  return window['go']['main']['App']['SendPacket'](arg1);
+}
+
 export function StringToHex(arg1) {
   return window['go']['main']['App']['StringToHex'](arg1);
 }

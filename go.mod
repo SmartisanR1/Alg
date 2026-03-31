@@ -3,18 +3,20 @@ module cryptokit
 go 1.25.5
 
 require (
+	gitee.com/Trisia/gotlcp v1.4.5
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/cloudflare/circl v1.6.3
-	github.com/emmansun/gmsm v0.27.2
+	github.com/emmansun/gmsm v0.41.1
 	github.com/secure-io/siv-go v0.0.0-20180922214919-5ff40651e2c4
-	github.com/wailsapp/wails/v2 v2.11.0
+	github.com/wailsapp/wails/v2 v2.12.0
 	github.com/zeebo/blake3 v0.2.3
-	golang.org/x/crypto v0.47.0
+	golang.org/x/crypto v0.48.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	software.sslmate.com/src/go-pkcs12 v0.7.0
 )
 
 require (
+	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3 // indirect
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -40,7 +42,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wailsapp/go-webview2 v1.0.22 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
-	golang.org/x/net v0.48.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 )

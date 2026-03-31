@@ -1,5 +1,5 @@
 <template>
-  <PageLayout title="MAC / KDF" subtitle="CMAC · GMAC · Poly1305 · PBKDF2 · HKDF · bcrypt · scrypt · Argon2"
+  <PageLayout title="MAC 与 KDF" subtitle="CMAC · GMAC · Poly1305 · PBKDF2 · HKDF · bcrypt · scrypt · Argon2"
               icon-bg="bg-teal-500/20"
               :tabs="tabs" :active-tab="activeTab" @tab-change="activeTab = $event">
     <template #icon>
@@ -36,7 +36,7 @@
             <div v-if="macNonceHint" :class="['mt-1 text-xs', hintClass(macNonceHint)]">{{ macNonceHint }}</div>
           </div>
           <div class="mt-2">
-            <CryptoPanel v-model="mac.data" label="数据 (hex)" type="textarea" :rows="4" clearable />
+            <CryptoPanel v-model="mac.data" label="数据 (hex)" type="textarea" :rows="3" clearable />
             <div v-if="macDataHint" :class="['mt-1 text-xs', hintClass(macDataHint)]">{{ macDataHint }}</div>
           </div>
           <button @click="computeMAC" class="ck-btn-primary w-full justify-center mt-2">
@@ -50,7 +50,7 @@
           <div v-if="macResult.error" class="mt-2 text-xs text-red-400">{{ macResult.error }}</div>
         </div>
         <div class="ck-card">
-          <p class="ck-section-title">算法原理说明</p>
+          <p class="ck-section-title">算法说明</p>
           <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
               <p class="font-semibold text-violet-400 mb-1">{{ macPrinciple.title }}</p>

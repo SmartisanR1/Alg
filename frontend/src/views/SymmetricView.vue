@@ -9,9 +9,9 @@
 
 
     <!-- AES Tab -->
-    <div v-if="activeTab === 'aes'" class="grid grid-cols-3 gap-4 animate-fade-in h-full overflow-hidden">
+    <div v-if="activeTab === 'aes'" class="sym-workbench animate-fade-in">
       <!-- Left: params -->
-      <div class="space-y-3 flex flex-col min-h-0 overflow-y-auto">
+      <div class="space-y-3 sym-side">
         <div class="ck-card">
           <p class="ck-section-title">算法参数</p>
           <div class="grid grid-cols-2 gap-3">
@@ -49,7 +49,7 @@
           </div>
         </div>
 
-        <div class="ck-card space-y-3 flex-1 overflow-y-auto">
+        <div class="ck-card space-y-3">
           <p class="ck-section-title">密钥 & 参数</p>
           <div>
             <div class="flex items-center justify-between mb-1">
@@ -104,10 +104,10 @@
       </div>
 
       <!-- Middle: data + result -->
-      <div class="space-y-3 flex flex-col min-h-0">
-        <div class="ck-card shrink-0">
+      <div class="space-y-3 sym-main">
+        <div class="ck-card">
           <CryptoPanel v-model="aes.plaintext" label="明文" :placeholder="aes.inputFormat === 'text' ? '输入明文...' : '输入hex格式数据...'"
-                       clearable type="textarea" :rows="4" />
+                       clearable type="textarea" :rows="3" />
           <div v-if="aesLenHint" :class="['mt-1 text-xs', hintClass(aesLenHint)]">{{ aesLenHint }}</div>
         </div>
         <div class="flex gap-2 shrink-0">
@@ -117,6 +117,7 @@
           <button @click="decrypt" class="ck-btn-secondary flex-1 justify-center" :disabled="aesDisabled">
             <UnlockIcon class="w-3.5 h-3.5" /> 解密
           </button>
+          <button @click="openHelp('aes')" class="ck-btn-muted justify-center px-3">说明</button>
         </div>
         <div class="ck-card shrink-0">
           <CryptoPanel v-model="result.data" label="结果 (hex)" type="result"
@@ -136,123 +137,12 @@
         </div>
       </div>
 
-      <!-- Right: mode principles -->
-      <div class="ck-card flex flex-col min-h-0 overflow-y-auto ck-right-panel">
-        <p class="ck-section-title">{{ aes.mode }} 模式原理</p>
-        <div class="space-y-2 text-xs leading-relaxed flex-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-          <div class="p-2.5 rounded-lg border border-gray-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-gray-400 mb-1">输入长度</p>
-            <p>• Hex 输入长度需为偶数位</p>
-            <p>• NoPadding 时必须是 16 字节的倍数</p>
-            <p v-if="aes.inputFormat === 'text'">• 文本输入长度任意</p>
-          </div>
-          <div v-if="aes.mode === 'ECB'" class="space-y-2">
-            <div class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-violet-400 mb-1">电码本模式 (ECB)</p>
-              <p>最简单的分组模式，每个明文块独立加密，产生独立密文块，块间无依赖关系。</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-red-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-red-400 mb-1">⚠️ 安全警告</p>
-              <p>相同明文块总产生相同密文块，会泄露数据模式（如"企鹅效应"）。<strong class="text-red-300">不推荐用于实际加密。</strong></p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-gray-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-gray-400 mb-1">参数</p>
-              <p>• 无需 IV / Nonce</p>
-              <p>• 需要 PKCS7 / Zero 填充</p>
-              <p>• 支持并行加解密</p>
-            </div>
-          </div>
-
-          <div v-if="aes.mode === 'CBC'" class="space-y-2">
-            <div class="p-2.5 rounded-lg border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-emerald-400 mb-1">密文分组链模式 (CBC)</p>
-              <p>每块明文与<strong class="text-emerald-300">前一密文块 XOR</strong> 后再加密。第一块与 IV 异或，引入随机性。</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-blue-400 mb-1">特性</p>
-              <p>• 安全性好，相同明文→不同密文</p>
-              <p>• 串行加密，<strong class="text-blue-300">不可并行</strong></p>
-              <p>• 一块错误会传播到后续所有块</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-violet-400 mb-1">适用场景</p>
-              <p>文件加密、数据库加密，是目前最常用的块加密模式之一。</p>
-            </div>
-          </div>
-
-          <div v-if="aes.mode === 'CFB'" class="space-y-2">
-            <div class="p-2.5 rounded-lg border border-cyan-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-cyan-400 mb-1">密文反馈模式 (CFB)</p>
-              <p>将分组密码转化为<strong class="text-cyan-300">流密码</strong>。加密前一密文块产生的密钥流与明文 XOR。</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-emerald-400 mb-1">优势</p>
-              <p>• 无需对明文填充</p>
-              <p>• 适合流式加密（如网络传输）</p>
-              <p>• 解密可并行，加密不可并行</p>
-            </div>
-          </div>
-
-          <div v-if="aes.mode === 'OFB'" class="space-y-2">
-            <div class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-violet-400 mb-1">输出反馈模式 (OFB)</p>
-              <p>产生独立于明文的<strong class="text-violet-300">伪随机密钥流</strong>，再与明文 XOR。密钥流可预先生成。</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-blue-400 mb-1">特性</p>
-              <p>• 位错误不扩散到其他位</p>
-              <p>• 加解密均不可并行</p>
-              <p>• 适合噪声信道（如卫星通信）</p>
-            </div>
-          </div>
-
-          <div v-if="aes.mode === 'CTR'" class="space-y-2">
-            <div class="p-2.5 rounded-lg border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-emerald-400 mb-1">计数器模式 (CTR)</p>
-              <p>使用<strong class="text-emerald-300">递增计数器</strong>产生密钥流，与明文 XOR，将分组密码转化为流密码。</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-green-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-green-400 mb-1">优势</p>
-              <p>• <strong class="text-green-300">完全可并行化</strong></p>
-              <p>• 无需填充，支持随机访问</p>
-              <p>• 现代首选的非认证模式</p>
-            </div>
-          </div>
-
-          <div v-if="aes.mode === 'GCM'" class="space-y-2">
-            <div class="p-2.5 rounded-lg border border-cyan-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-cyan-400 mb-1">Galois/计数器模式 (GCM)</p>
-              <p><strong class="text-cyan-300">AEAD 认证加密模式</strong>：CTR 模式加密 + GMAC 伽罗瓦消息认证码。</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-green-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-green-400 mb-1">核心优势</p>
-              <p>• 一次完成加密+认证，防篡改</p>
-              <p>• 支持附加认证数据 (AAD)</p>
-              <p>• 硬件加速支持 (AES-NI)</p>
-              <p>• <strong class="text-green-300">TLS 1.3 / SSH 首选</strong></p>
-            </div>
-          </div>
-
-          <div v-if="aes.mode === 'CCM'" class="space-y-2">
-            <div class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-violet-400 mb-1">CTR+CBC-MAC 模式 (CCM)</p>
-              <p>CTR 模式加密 + CBC-MAC 认证，另一种 <strong class="text-violet-300">AEAD 模式</strong>。</p>
-            </div>
-            <div class="p-2.5 rounded-lg border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-blue-400 mb-1">特性</p>
-              <p>• 安全性与 GCM 相当</p>
-              <p>• 需要预知消息长度</p>
-              <p>• WiFi (802.11i) 和 IoT 常见</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- DES Tab -->
-    <div v-if="activeTab === 'des'" class="grid grid-cols-3 gap-4 animate-fade-in h-full overflow-hidden">
+    <div v-if="activeTab === 'des'" class="sym-workbench animate-fade-in">
       <!-- Left: params -->
-      <div class="space-y-3 flex flex-col min-h-0 overflow-y-auto">
+      <div class="space-y-3 sym-side">
         <div class="ck-card">
           <p class="ck-section-title">算法参数</p>
           <div class="grid grid-cols-2 gap-3">
@@ -278,7 +168,7 @@
             </div>
           </div>
         </div>
-        <div class="ck-card space-y-3 flex-1 overflow-y-auto">
+        <div class="ck-card space-y-3">
           <p class="ck-section-title">密钥 & 参数</p>
           <div>
             <div class="flex justify-between mb-1">
@@ -305,14 +195,15 @@
       </div>
 
       <!-- Middle: data + result -->
-      <div class="space-y-3 flex flex-col min-h-0">
-        <div class="ck-card flex-1 min-h-0">
-          <CryptoPanel v-model="des.plaintext" label="明文 (hex)" clearable type="textarea" :rows="5" />
+      <div class="space-y-3 sym-main">
+        <div class="ck-card">
+          <CryptoPanel v-model="des.plaintext" label="明文 (hex)" clearable type="textarea" :rows="3" />
           <div v-if="desLenHint" :class="['mt-1 text-xs', hintClass(desLenHint)]">{{ desLenHint }}</div>
         </div>
         <div class="flex gap-2 shrink-0">
           <button @click="desEncrypt" class="ck-btn-primary flex-1 justify-center" :disabled="desDisabled"><LockIcon class="w-3.5 h-3.5" /> 加密</button>
           <button @click="desDecrypt" class="ck-btn-secondary flex-1 justify-center" :disabled="desDisabled"><UnlockIcon class="w-3.5 h-3.5" /> 解密</button>
+          <button @click="openHelp('des')" class="ck-btn-muted justify-center px-3">说明</button>
         </div>
         <div class="ck-card shrink-0">
           <CryptoPanel v-model="desResult.data" label="结果 (hex)" type="result" :success="desResult.success" copyable />
@@ -320,52 +211,12 @@
         </div>
       </div>
 
-      <!-- Right: DES principles -->
-      <div class="ck-card flex flex-col min-h-0 overflow-y-auto ck-right-panel">
-        <p class="ck-section-title">{{ des.type }} 算法原理</p>
-        <div class="space-y-2 text-xs leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-          <div class="p-2.5 rounded-lg border border-gray-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-gray-400 mb-1">输入长度</p>
-            <p>• Hex 输入长度需为偶数位</p>
-            <p>• NoPadding 时必须是 8 字节的倍数</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-amber-400 mb-1">{{ des.type === '3DES' ? '三重DES (3DES/TDEA)' : '数据加密标准 (DES)' }}</p>
-            <p v-if="des.type === 'DES'">IBM 于 1975 年设计，1977 年成为美国联邦标准。Feistel 网络结构，16轮迭代。</p>
-            <p v-else>在 DES 基础上三次应用: 加密 → 解密 → 加密 (EDE)，有效密钥长度112或168位。</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-blue-400 mb-1">技术参数</p>
-            <p>• 分组长度: 64 位 (8 字节)</p>
-            <p v-if="des.type === 'DES'">• 密钥长度: 64 位 (8 字节, 有效56位)</p>
-            <p v-else>• 密钥长度: 192 位 (24 字节, 有效112/168位)</p>
-            <p>• 结构: Feistel 网络 ({{ des.type === '3DES' ? '48' : '16' }}轮)</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-red-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-red-400 mb-1">⚠️ 安全注意</p>
-            <p v-if="des.type === 'DES'"><strong class="text-red-300">DES 已不安全</strong>，56位密钥可在数小时内暴力破解。仅用于学习和遗留系统兼容。</p>
-            <p v-else>3DES 安全性尚可，但性能差，已逐渐被 <strong class="text-amber-300">AES</strong> 取代。NIST 于2023年正式弃用。</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-violet-400 mb-1">Feistel 结构</p>
-            <p>将64位数据分为左右32位，每轮将右半部分经过 F 函数和子密钥运算后与左半部分 XOR，再交换左右，保证可逆性。</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-emerald-400 mb-1">{{ des.mode }} 模式</p>
-            <p v-if="des.mode === 'ECB'">电码本模式：每块独立加密，<span class="text-red-300">不推荐</span>。</p>
-            <p v-else-if="des.mode === 'CBC'">密文链模式：前一密文块参与当前块加密，需要 IV，安全性好。</p>
-            <p v-else-if="des.mode === 'CFB'">密文反馈模式：将分组密码变为流密码，无需填充。</p>
-            <p v-else-if="des.mode === 'OFB'">输出反馈模式：产生独立密钥流，错误不扩散。</p>
-            <p v-else-if="des.mode === 'CTR'">计数器模式：可并行计算，现代推荐非认证模式。</p>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ChaCha20 Tab -->
-    <div v-if="activeTab === 'chacha'" class="grid grid-cols-3 gap-4 animate-fade-in h-full overflow-hidden">
+    <div v-if="activeTab === 'chacha'" class="sym-workbench animate-fade-in">
       <!-- Left: params -->
-      <div class="space-y-3 flex flex-col min-h-0 overflow-y-auto">
+      <div class="space-y-3 sym-side">
         <div class="ck-card">
           <p class="ck-section-title">算法参数</p>
           <div>
@@ -378,7 +229,7 @@
             </select>
           </div>
         </div>
-        <div class="ck-card space-y-3 flex-1 overflow-y-auto">
+        <div class="ck-card space-y-3">
           <p class="ck-section-title">密钥 & 参数</p>
           <div>
             <div class="flex justify-between mb-1">
@@ -420,14 +271,15 @@
       </div>
 
       <!-- Middle: data + result -->
-      <div class="space-y-3 flex flex-col min-h-0">
-        <div class="ck-card flex-1 min-h-0">
-          <CryptoPanel v-model="chacha.data" label="数据 (hex)" clearable type="textarea" :rows="5" />
+      <div class="space-y-3 sym-main">
+        <div class="ck-card">
+          <CryptoPanel v-model="chacha.data" label="数据 (hex)" clearable type="textarea" :rows="3" />
           <div v-if="chachaLenHint" :class="['mt-1 text-xs', hintClass(chachaLenHint)]">{{ chachaLenHint }}</div>
         </div>
         <div class="flex gap-2 shrink-0">
           <button @click="chachaEncrypt" class="ck-btn-primary flex-1 justify-center" :disabled="chachaDisabled"><LockIcon class="w-3.5 h-3.5" /> 加密</button>
           <button @click="chachaDecrypt" class="ck-btn-secondary flex-1 justify-center" :disabled="chachaDisabled"><UnlockIcon class="w-3.5 h-3.5" /> 解密</button>
+          <button @click="openHelp('chacha')" class="ck-btn-muted justify-center px-3">说明</button>
         </div>
         <div class="ck-card shrink-0">
           <CryptoPanel v-model="chachaResult.data" label="结果 (hex)" type="result" :success="chachaResult.success" copyable />
@@ -436,48 +288,11 @@
         </div>
       </div>
 
-      <!-- Right: ChaCha20 principles -->
-      <div class="ck-card flex flex-col min-h-0 overflow-y-auto ck-right-panel">
-        <p class="ck-section-title">{{ chacha.type }} 算法原理</p>
-        <div class="space-y-2 text-xs leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-          <div class="p-2.5 rounded-lg border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-emerald-400 mb-1">ChaCha20 流密码</p>
-            <p>由 Daniel J. Bernstein 设计。基于 <strong class="text-emerald-300">ARX 操作</strong>（加法-旋转-异或），纯软件实现极快。</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-blue-400 mb-1">核心参数</p>
-            <p>• 密钥: 256 位 (32 字节)</p>
-            <p v-if="chacha.type.startsWith('X')">• Nonce: 192 位 (24 字节, 扩展版)</p>
-            <p v-else>• Nonce: 96 位 (12 字节)</p>
-            <p>• 计数器: 32 位 (每块递增)</p>
-            <p>• 块大小: 512 位 (64 字节)</p>
-            <p>• 输入数据长度: 任意字节 (Hex 需偶数位)</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-cyan-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-cyan-400 mb-1">Quarter Round 函数</p>
-            <p>核心是 20 轮 Quarter Round (4次ARX运算)，对4个32位字进行混淆扩散，确保雪崩效应。</p>
-          </div>
-          <div v-if="chacha.type.includes('Poly1305')" class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-violet-400 mb-1">Poly1305 认证 (AEAD)</p>
-            <p>组合使用一次性消息认证码 Poly1305，提供加密+完整性认证，防篡改。<strong class="text-violet-300">RFC 8439 标准</strong>，TLS/SSH 广泛使用。</p>
-          </div>
-          <div v-if="chacha.type.startsWith('X')" class="p-2.5 rounded-lg border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-amber-400 mb-1">XChaCha20 扩展版</p>
-            <p>将 Nonce 从 96 位扩展至 <strong class="text-amber-300">192 位</strong>，极大降低随机 Nonce 碰撞概率，适合大规模随机加密场景。</p>
-          </div>
-          <div class="p-2.5 rounded-lg border border-green-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-semibold text-green-400 mb-1">优势</p>
-            <p>• 无需 AES 硬件指令，抗侧信道攻击</p>
-            <p>• 可完全并行计算，高性能</p>
-            <p>• Google 推动其成为 TLS 1.3 标准算法</p>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- RC4 Tab -->
-    <div v-if="activeTab === 'rc4'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'rc4'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">RC4 参数</p>
           <div>
@@ -495,7 +310,7 @@
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="rc4.data" label="数据 (hex)" type="textarea" :rows="5" clearable />
+          <CryptoPanel v-model="rc4.data" label="数据 (hex)" type="textarea" :rows="3" clearable />
           <div v-if="rc4LenHint" :class="['mt-1 text-xs', hintClass(rc4LenHint)]">{{ rc4LenHint }}</div>
         </div>
         <div class="flex gap-2">
@@ -508,12 +323,12 @@
         </div>
       </div>
 
-      <div class="space-y-3 ck-right-panel flex flex-col min-h-0">
-        <div class="ck-card shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="ck-card">
           <CryptoPanel v-model="rc4Result.data" label="结果 (hex)" type="result" :success="rc4Result.success" copyable />
           <div v-if="rc4Result.error" class="mt-2 text-xs text-red-400">{{ rc4Result.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">说明</p>
           <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <p>• RC4 为流密码，加密解密过程相同。</p>
@@ -525,8 +340,8 @@
     </div>
 
     <!-- SIV Tab -->
-    <div v-if="activeTab === 'siv'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'siv'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">AES-SIV 参数</p>
           <div>
@@ -573,7 +388,7 @@
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="siv.data" label="数据 (hex)" type="textarea" :rows="5" clearable />
+          <CryptoPanel v-model="siv.data" label="数据 (hex)" type="textarea" :rows="3" clearable />
           <div v-if="sivLenHint" :class="['mt-1 text-xs', hintClass(sivLenHint)]">{{ sivLenHint }}</div>
         </div>
         <div class="flex gap-2">
@@ -586,12 +401,12 @@
         </div>
       </div>
 
-      <div class="space-y-3 ck-right-panel flex flex-col min-h-0">
-        <div class="ck-card shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="ck-card">
           <CryptoPanel v-model="sivResult.data" label="结果 (hex)" type="result" :success="sivResult.success" copyable />
           <div v-if="sivResult.error" class="mt-2 text-xs text-red-400">{{ sivResult.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">说明</p>
           <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <p>• AES-SIV / AES-GCM-SIV 为抗 Nonce 复用的 AEAD。</p>
@@ -603,8 +418,8 @@
     </div>
 
     <!-- FPE Tab -->
-    <div v-if="activeTab === 'fpe'" class="grid grid-cols-2 gap-4 animate-fade-in h-full overflow-hidden">
-      <div class="space-y-3 overflow-y-auto pr-1">
+    <div v-if="activeTab === 'fpe'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">FPE 参数</p>
           <div class="grid grid-cols-2 gap-2">
@@ -662,7 +477,7 @@
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="fpe.data" label="待处理数据" type="textarea" :rows="4" clearable />
+          <CryptoPanel v-model="fpe.data" label="待处理数据" type="textarea" :rows="3" clearable />
           <div v-if="fpeLenHint" :class="['mt-1 text-xs', hintClass(fpeLenHint)]">{{ fpeLenHint }}</div>
         </div>
         <div class="flex gap-2">
@@ -675,12 +490,12 @@
         </div>
       </div>
 
-      <div class="space-y-3 ck-right-panel flex flex-col min-h-0">
-        <div class="ck-card shrink-0">
+      <div class="ck-stack ck-right-panel">
+        <div class="ck-card">
           <CryptoPanel v-model="fpeResult.data" label="结果" type="result" :success="fpeResult.success" copyable />
           <div v-if="fpeResult.error" class="mt-2 text-xs text-red-400">{{ fpeResult.error }}</div>
         </div>
-        <div class="ck-card flex-1 overflow-y-auto">
+        <div class="ck-card">
           <p class="ck-section-title">说明</p>
           <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <p>• FPE 会保持数据格式不变，例如银行卡号加密后仍是同长度数字。</p>
@@ -692,13 +507,111 @@
         </div>
       </div>
     </div>
+
+    <transition name="fade">
+      <div v-if="helpOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="helpOpen = false">
+        <div class="help-modal animate-in zoom-in-95 duration-200"
+             @click.stop>
+          <div class="flex justify-between items-center px-5 pt-5 pb-3 border-b" :class="isDark ? 'border-dark-border' : 'border-slate-200'">
+            <h3 class="text-[15px] font-semibold flex items-center gap-2">
+              <InfoIcon class="w-4 h-4 text-sky-400" /> {{ helpTitle }}
+            </h3>
+            <button @click="helpOpen = false" class="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
+              <XIcon class="w-4 h-4 text-dark-muted" />
+            </button>
+          </div>
+          <div class="px-5 pt-4 pb-5 text-[13px] leading-6 space-y-4" :class="isDark ? 'text-dark-muted' : 'text-slate-600'">
+            <template v-if="helpType === 'aes'">
+              <div class="help-hero">
+                <p class="text-sm font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES 是现代默认对称算法</p>
+                <p>当前配置为 <span class="help-inline-kbd">AES-{{ aes.keySize }}</span> + <span class="help-inline-kbd">{{ aes.mode }}</span>。如果你只是做常规业务加密，优先用 GCM；如果要兼容旧系统，再考虑 CBC。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">输入与填充</p>
+                  <p>Hex 输入必须是偶数位；使用 <span class="help-inline-kbd">NoPadding</span> 时，数据长度必须正好是 16 字节的倍数。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">密钥与参数</p>
+                  <p>ECB 不需要 IV；CBC/CFB/OFB/CTR 通常需要 IV；GCM/CCM 使用 Nonce，可选再附加 AAD 做认证保护。</p>
+                </div>
+              </div>
+              <div class="help-note">
+                <p class="help-note-title">{{ aes.mode }} 模式怎么选</p>
+                <p v-if="aes.mode === 'ECB'">每个分组独立处理，最容易理解，但会暴露重复明文块的结构，只适合测试或兼容旧接口，不建议业务数据直接使用。</p>
+                <p v-else-if="aes.mode === 'CBC'">传统工程里最常见的模式之一，兼容性强，适合文件和数据库场景。注意 IV 不能重复，且通常需要配合额外 MAC 才能防篡改。</p>
+                <p v-else-if="aes.mode === 'CFB'">把分组密码转换成流式处理方式，不要求块对齐，适合边到边传输，但新项目里通常会优先考虑更现代的 CTR 或 GCM。</p>
+                <p v-else-if="aes.mode === 'OFB'">通过独立密钥流工作，位错误不会连带扩散，但也因此更依赖正确的参数管理，工程上没有 GCM 那么常见。</p>
+                <p v-else-if="aes.mode === 'CTR'">性能好、可并行、支持随机访问，适合高吞吐处理；但它只负责机密性，不负责完整性，通常要再配认证机制。</p>
+                <p v-else-if="aes.mode === 'GCM'">现代首选。一次完成加密和完整性校验，适合接口、会话、文件交换等绝大多数业务场景，只要保证 Nonce 不重复即可。</p>
+                <p v-else-if="aes.mode === 'CCM'">同样是认证加密，常见于嵌入式、无线和 IoT 协议。它更偏标准化场景，但对消息长度和处理方式限制也更多。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">实战建议</p>
+                  <p>新项目优先选 GCM；兼容旧系统选 CBC；如果要流式高性能处理可考虑 CTR，但要额外补完整性校验。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">常见误区</p>
+                  <p>不要重复使用同一组 Key + IV/Nonce；不要把 ECB 当通用模式；不要在 NoPadding 下直接喂任意长度数据。</p>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="helpType === 'des'">
+              <div class="help-hero">
+                <p class="text-sm font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ des.type === 'DES' ? 'DES 已属于遗留算法' : '3DES 主要用于老系统兼容' }}</p>
+                <p v-if="des.type === 'DES'">它现在更适合教学或历史数据兼容，不应再作为新系统的正式加密方案。</p>
+                <p v-else>3DES 还能在部分金融或遗留设备中见到，但性能和安全边界都明显落后于 AES。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">模式选择</p>
+                  <p v-if="des.mode === 'ECB'">ECB 不需要 IV，但会直接暴露重复块形状，除非做兼容测试，否则不建议用。</p>
+                  <p v-else-if="des.mode === 'CBC'">CBC 是遗留系统里最常见的选项，兼容性相对最好，也是这类算法里最稳妥的工程选择。</p>
+                  <p v-else-if="des.mode === 'CFB'">CFB 可以做流式处理，不要求块对齐，更适合持续输入输出的旧式通道加密。</p>
+                  <p v-else-if="des.mode === 'OFB'">OFB 使用独立密钥流，错误不扩散，但现在实际场景已经不多。</p>
+                  <p v-else-if="des.mode === 'CTR'">CTR 让旧算法也能做并行处理，不过如果能选，通常应直接换到 AES-CTR 或 AES-GCM。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">迁移建议</p>
+                  <p>如果你现在还在处理 DES / 3DES，最好把它理解成“兼容接口工具”而不是“主力算法页”，新系统应优先迁移到 AES。</p>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="helpType === 'chacha'">
+              <div class="help-hero">
+                <p class="text-sm font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ chacha.type }}</p>
+                <p>ChaCha20 系列在纯软件环境下速度非常好，特别适合移动端、容器环境或没有 AES 硬件加速的场景。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">参数要点</p>
+                  <p>密钥固定 32 字节；普通版 Nonce 通常为 12 字节；XChaCha20 扩展到 24 字节，更适合大规模随机生成 Nonce 的场景。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">什么时候选它</p>
+                  <p>如果你在意跨平台软件性能、实现简洁度和现代协议兼容性，ChaCha20-Poly1305 往往是非常好的选择。</p>
+                </div>
+              </div>
+              <div v-if="chacha.type.includes('Poly1305')" class="help-note">
+                <p class="help-note-title">Poly1305 认证</p>
+                <p>带 Poly1305 的版本不只是“加密”，还会一起校验消息是否被改过，因此更适合接口请求、会话数据和安全通信。</p>
+              </div>
+            </template>
+          </div>
+          <div class="px-5 pb-5 flex justify-end">
+            <button @click="helpOpen = false" class="ck-btn-muted px-5">关闭</button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </PageLayout>
 </template>
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { LockIcon, UnlockIcon, CopyIcon, AlertCircleIcon } from 'lucide-vue-next'
+import { LockIcon, UnlockIcon, CopyIcon, AlertCircleIcon, InfoIcon, XIcon } from 'lucide-vue-next'
 import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import { AESEncrypt, AESDecrypt, DESEncrypt, DESDecrypt, ChaCha20Encrypt, ChaCha20Decrypt, RC4Encrypt, RC4Decrypt, SIVEncrypt, SIVDecrypt, FPEEncrypt, FPEDecrypt } from '../../wailsjs/go/main/App'
@@ -716,6 +629,18 @@ const tabs = [
   { id: 'fpe', label: 'FPE' },
 ]
 const activeTab = ref('aes')
+const helpOpen = ref(false)
+const helpType = ref('aes')
+const helpTitle = computed(() => {
+  if (helpType.value === 'des') return `${des.type} 使用说明`
+  if (helpType.value === 'chacha') return `${chacha.type} 使用说明`
+  return `AES-${aes.keySize} ${aes.mode} 使用说明`
+})
+
+function openHelp(type) {
+  helpType.value = type
+  helpOpen.value = true
+}
 
 // AES state
 const aes = reactive({
@@ -1166,3 +1091,23 @@ async function fpeDecrypt() {
   fpeResult.data = r.data; fpeResult.error = r.error; fpeResult.success = r.success
 }
 </script>
+
+<style scoped>
+.sym-workbench {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.sym-side,
+.sym-main {
+  min-width: 0;
+}
+
+@media (max-width: 1080px) {
+  .sym-workbench {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

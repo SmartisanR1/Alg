@@ -7,49 +7,49 @@
     </template>
 
     <!-- MAC -->
-    <div v-if="activeTab === 'mac'" class="grid grid-cols-2 gap-3 animate-fade-in">
-      <div class="space-y-2">
+    <div v-if="activeTab === 'mac'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-2">
           <p class="ck-section-title">3DES Retail MAC</p>
-          <CryptoPanel v-model="retail.key" label="密钥 (Hex)" type="input" placeholder="K1K2 或 K1K2K3..." /> />
-          <CryptoPanel v-model="retail.data" label="数据 (Hex)" type="textarea" :rows="3" clearable /> />
+          <CryptoPanel v-model="retail.key" label="密钥 (Hex)" type="input" placeholder="K1K2 或 K1K2K3..." />
+          <CryptoPanel v-model="retail.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
           <div class="flex gap-2">
             <select v-model="retail.padding" class="ck-select flex-1">
               <option value="ISO9797-1-P2">P2 (0x80...)</option>
               <option value="ISO9797-1-P1">P1 (0x00...)</option>
             </select>
-            <button @click="doRetailMAC" class="ck-btn-primary px-3">计算 MAC</button>
+            <button @click="doRetailMAC" class="ck-btn-primary justify-center shrink-0">计算 MAC</button>
           </div>
         </div>
 
         <div class="ck-card space-y-2">
           <p class="ck-section-title">SM4-CBC-MAC</p>
-          <CryptoPanel v-model="sm4mac.key" label="密钥 (Hex)" type="input" placeholder="32位Hex..." /> />
-          <CryptoPanel v-model="sm4mac.data" label="数据 (Hex)" type="textarea" :rows="3" clearable /> />
+          <CryptoPanel v-model="sm4mac.key" label="密钥 (Hex)" type="input" placeholder="32位Hex..." />
+          <CryptoPanel v-model="sm4mac.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
           <div class="flex gap-2">
             <select v-model="sm4mac.padding" class="ck-select flex-1">
               <option value="ISO9797-1-P2">P2 (0x80...)</option>
               <option value="ISO9797-1-P1">P1</option>
             </select>
-            <button @click="doSM4MAC" class="ck-btn-secondary px-3">SM4-CBC-MAC</button>
+            <button @click="doSM4MAC" class="ck-btn-secondary justify-center shrink-0">SM4-CBC-MAC</button>
           </div>
         </div>
 
         <div class="ck-card space-y-2">
           <p class="ck-section-title">SM4-CMAC</p>
-          <CryptoPanel v-model="sm4cmac.key" label="密钥 (Hex)" type="input" placeholder="32位Hex..." /> />
-          <CryptoPanel v-model="sm4cmac.data" label="数据 (Hex)" type="textarea" :rows="3" clearable /> />
+          <CryptoPanel v-model="sm4cmac.key" label="密钥 (Hex)" type="input" placeholder="32位Hex..." />
+          <CryptoPanel v-model="sm4cmac.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
           <div class="flex gap-2">
             <select v-model="sm4cmac.padding" class="ck-select flex-1">
               <option value="ISO9797-1-P2">P2 (0x80...)</option>
               <option value="ISO9797-1-P1">P1</option>
             </select>
-            <button @click="doSM4CMAC" class="ck-btn-success px-3">SM4-CMAC</button>
+            <button @click="doSM4CMAC" class="ck-btn-primary justify-center shrink-0">SM4-CMAC</button>
           </div>
         </div>
       </div>
 
-      <div class="space-y-2">
+      <div class="ck-stack">
         <div class="ck-card">
           <CryptoPanel v-model="retailResult.data" label="Retail MAC" type="result" :success="retailResult.success" copyable compact />
           <div v-if="retailResult.error" class="mt-1 text-xs text-red-400">{{ retailResult.error }}</div>
@@ -63,16 +63,19 @@
           <div v-if="sm4cmacResult.error" class="mt-1 text-xs text-red-400">{{ sm4cmacResult.error }}</div>
         </div>
         <div class="ck-card">
-          <p class="ck-section-title text-xs">算法原理</p>
-          <div class="text-[10px] space-y-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="p-1.5 rounded border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-violet-400 font-medium">Retail MAC</span>: K1 CBC-MAC → K2 解密 → K3 加密
+          <p class="ck-section-title">算法原理</p>
+          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div class="ck-note-card">
+              <p class="ck-note-title text-violet-400">Retail MAC</p>
+              <p>先做 CBC-MAC，再经过 K2 解密和 K3 加密，常见于传统银行卡报文认证。</p>
             </div>
-            <div class="p-1.5 rounded border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-emerald-400 font-medium">SM4-CBC-MAC</span>: IV=0 → CBC → 取最后密文
+            <div class="ck-note-card">
+              <p class="ck-note-title text-emerald-400">SM4-CBC-MAC</p>
+              <p>以全零 IV 做 CBC 链运算，最后一个密文分组即为认证结果，适合国密场景。</p>
             </div>
-            <div class="p-1.5 rounded border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-amber-400 font-medium">SM4-CMAC</span>: 子密钥K1/K2 → CBC-MAC
+            <div class="ck-note-card">
+              <p class="ck-note-title text-amber-400">SM4-CMAC</p>
+              <p>基于子密钥派生做分组认证，结构更规范，适合需要稳定消息认证的金融报文。</p>
             </div>
           </div>
         </div>
@@ -80,8 +83,8 @@
     </div>
 
     <!-- PIN -->
-    <div v-if="activeTab === 'pin'" class="grid grid-cols-2 gap-3 animate-fade-in">
-      <div class="space-y-2">
+    <div v-if="activeTab === 'pin'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-2">
           <p class="ck-section-title">PIN Block 生成</p>
           <select v-model="pin.format" class="ck-select">
@@ -92,7 +95,7 @@
             <input v-model="pin.pin" class="ck-input font-mono" placeholder="PIN (4-12位)" />
             <input v-model="pin.pan" class="ck-input font-mono" placeholder="PAN" />
           </div>
-          <button @click="genPINBlock" class="ck-btn-primary w-full text-xs py-1.5">生成 PIN Block</button>
+          <button @click="genPINBlock" class="ck-btn-primary w-full justify-center">生成 PIN Block</button>
         </div>
 
         <div class="ck-card space-y-2">
@@ -103,25 +106,25 @@
             <option value="SM2">SM2</option>
           </select>
           <div class="relative">
-            <CryptoPanel v-if="pinCryptoMode !== 'SM2'" v-model="pin.key" label="密钥 (Hex)" type="input" :placeholder="pinCryptoMode === 'SM4' ? '32位...' : '32/48位...'" /> />
-            <CryptoPanel v-if="pinCryptoMode === 'SM2'" v-model="sm2pin.key" label="SM2密钥 (Hex)" type="input" placeholder="公钥/私钥Hex..." /> />
-            <button v-if="pinCryptoMode !== 'SM2'" @click="genPINKey" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
-            <button v-if="pinCryptoMode === 'SM2'" @click="genSM2Key" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-if="pinCryptoMode !== 'SM2'" v-model="pin.key" label="密钥 (Hex)" type="input" :placeholder="pinCryptoMode === 'SM4' ? '32位...' : '32/48位...'" />
+            <CryptoPanel v-if="pinCryptoMode === 'SM2'" v-model="sm2pin.key" label="SM2密钥 (Hex)" type="input" placeholder="公钥/私钥Hex..." />
+            <button v-if="pinCryptoMode !== 'SM2'" @click="genPINKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
+            <button v-if="pinCryptoMode === 'SM2'" @click="genSM2Key" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
-          <CryptoPanel v-model="pin.block" label="PIN Block (Hex)" type="input" placeholder="8字节..." /> />
+          <CryptoPanel v-model="pin.block" label="PIN Block (Hex)" type="input" placeholder="8字节..." />
           <div class="grid grid-cols-2 gap-2">
-            <button v-if="pinCryptoMode === '3DES'" @click="encryptPINBlock" class="ck-btn-primary text-xs py-1.5">加密</button>
-            <button v-if="pinCryptoMode === 'SM4'" @click="sm4EncryptPIN" class="ck-btn-primary text-xs py-1.5">SM4加密</button>
-            <button v-if="pinCryptoMode === 'SM2'" @click="sm2EncryptPIN" class="ck-btn-primary text-xs py-1.5">SM2加密</button>
-            <button v-if="pinCryptoMode === '3DES'" @click="decryptPINBlock" class="ck-btn-secondary text-xs py-1.5">解密</button>
-            <button v-if="pinCryptoMode === 'SM4'" @click="sm4DecryptPIN" class="ck-btn-secondary text-xs py-1.5">SM4解密</button>
-            <button v-if="pinCryptoMode === 'SM2'" @click="sm2DecryptPIN" class="ck-btn-secondary text-xs py-1.5">SM2解密</button>
+            <button v-if="pinCryptoMode === '3DES'" @click="encryptPINBlock" class="ck-btn-primary justify-center">加密</button>
+            <button v-if="pinCryptoMode === 'SM4'" @click="sm4EncryptPIN" class="ck-btn-primary justify-center">SM4加密</button>
+            <button v-if="pinCryptoMode === 'SM2'" @click="sm2EncryptPIN" class="ck-btn-primary justify-center">SM2加密</button>
+            <button v-if="pinCryptoMode === '3DES'" @click="decryptPINBlock" class="ck-btn-secondary justify-center">解密</button>
+            <button v-if="pinCryptoMode === 'SM4'" @click="sm4DecryptPIN" class="ck-btn-secondary justify-center">SM4解密</button>
+            <button v-if="pinCryptoMode === 'SM2'" @click="sm2DecryptPIN" class="ck-btn-secondary justify-center">SM2解密</button>
           </div>
-          <button @click="parsePINBlock" class="ck-btn-success w-full text-xs py-1.5">解析 PIN</button>
+          <button @click="parsePINBlock" class="ck-btn-muted w-full justify-center">解析 PIN</button>
         </div>
       </div>
 
-      <div class="space-y-2">
+      <div class="ck-stack">
         <div class="ck-card">
           <CryptoPanel v-model="pinResult.block" label="PIN Block" type="result" :success="pinResult.success" copyable compact />
           <div v-if="pinResult.error" class="mt-1 text-xs text-red-400">{{ pinResult.error }}</div>
@@ -135,16 +138,19 @@
           <div v-if="pinParse.error" class="mt-1 text-xs text-red-400">{{ pinParse.error }}</div>
         </div>
         <div class="ck-card">
-          <p class="ck-section-title text-xs">算法原理</p>
-          <div class="text-[10px] space-y-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="p-1.5 rounded border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-violet-400 font-medium">ISO-0</span>: P1||L||PIN||PADDING ⊕ P2||PAN(右12位)
+          <p class="ck-section-title">算法原理</p>
+          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div class="ck-note-card">
+              <p class="ck-note-title text-violet-400">ISO-0</p>
+              <p>把 PIN 字段和 PAN 右侧 12 位做异或，属于最常见的卡联机 PIN Block 组织方式。</p>
             </div>
-            <div class="p-1.5 rounded border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-emerald-400 font-medium">ISO-3</span>: P3||L||PIN||RANDOM ⊕ P2||PAN
+            <div class="ck-note-card">
+              <p class="ck-note-title text-emerald-400">ISO-3</p>
+              <p>在填充区引入随机值，结构和 ISO-0 类似，但更适合需要随机掩码的场景。</p>
             </div>
-            <div class="p-1.5 rounded border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-amber-400 font-medium">示例</span>: PIN=1234, PAN=6222... → Field: 041234FFFFFFFFF ⊕ 000002...
+            <div class="ck-note-card">
+              <p class="ck-note-title text-amber-400">使用提醒</p>
+              <p>生成、加解密、解析 PIN Block 时，PIN 长度、PAN 截取规则和密钥算法必须保持一致。</p>
             </div>
           </div>
         </div>
@@ -152,13 +158,13 @@
     </div>
 
     <!-- CVV / PVV -->
-    <div v-if="activeTab === 'cvv'" class="grid grid-cols-2 gap-3 animate-fade-in">
-      <div class="space-y-2">
+    <div v-if="activeTab === 'cvv'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-2">
           <p class="ck-section-title">CVV / CVC / CVN / CSC</p>
           <div class="relative">
-            <CryptoPanel v-model="cvv.cvk" label="CVK (Hex)" type="input" placeholder="32/48位..." /> />
-            <button @click="genCVK" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-model="cvv.cvk" label="CVK (Hex)" type="input" placeholder="32/48位..." />
+            <button @click="genCVK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
           <input v-model="cvv.pan" class="ck-input font-mono" placeholder="PAN" />
           <div class="grid grid-cols-2 gap-2">
@@ -170,26 +176,26 @@
               <option :value="3">3位</option>
               <option :value="4">4位</option>
             </select>
-            <button @click="doCVV" class="ck-btn-primary col-span-2 text-xs py-1.5">计算 CVV</button>
+            <button @click="doCVV" class="ck-btn-primary col-span-2 justify-center">计算 CVV</button>
           </div>
         </div>
 
         <div class="ck-card space-y-2">
           <p class="ck-section-title">PVV (Visa PIN Verification)</p>
           <div class="relative">
-            <CryptoPanel v-model="pvv.pvk" label="PVK (Hex)" type="input" placeholder="32/48位..." /> />
-            <button @click="genPVK" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-model="pvv.pvk" label="PVK (Hex)" type="input" placeholder="32/48位..." />
+            <button @click="genPVK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
           <div class="grid grid-cols-3 gap-2">
             <input v-model="pvv.pvki" class="ck-input font-mono" placeholder="PVKI" />
             <input v-model="pvv.pin" class="ck-input font-mono" placeholder="PIN" />
             <input v-model="pvv.pan11" class="ck-input font-mono" placeholder="PAN11" />
           </div>
-          <button @click="doPVV" class="ck-btn-secondary w-full text-xs py-1.5">计算 PVV</button>
+          <button @click="doPVV" class="ck-btn-secondary w-full justify-center">计算 PVV</button>
         </div>
       </div>
 
-      <div class="space-y-2">
+      <div class="ck-stack">
         <div class="ck-card">
           <CryptoPanel v-model="cvvResult.cvv" label="CVV 结果" type="result" :success="cvvResult.success" copyable compact />
           <div v-if="cvvResult.error" class="mt-1 text-xs text-red-400">{{ cvvResult.error }}</div>
@@ -199,13 +205,15 @@
           <div v-if="pvvResult.error" class="mt-1 text-xs text-red-400">{{ pvvResult.error }}</div>
         </div>
         <div class="ck-card">
-          <p class="ck-section-title text-xs">算法原理</p>
-          <div class="text-[10px] space-y-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="p-1.5 rounded border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-violet-400 font-medium">CVV</span>: PAN||Exp||Svc → BCD → 3DES ECB → XOR → 十进制化
+          <p class="ck-section-title">算法原理</p>
+          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div class="ck-note-card">
+              <p class="ck-note-title text-violet-400">CVV / CVC</p>
+              <p>将卡号、有效期和服务代码组织后做 3DES 运算，再转换成十进制校验值，用于卡面校验。</p>
             </div>
-            <div class="p-1.5 rounded border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-emerald-400 font-medium">PVV</span>: PVKI||PIN||PAN11 → BCD → 3DES → 十进制化表 → 取前4位
+            <div class="ck-note-card">
+              <p class="ck-note-title text-emerald-400">PVV</p>
+              <p>把 PVKI、PIN 和 PAN11 组合后做 3DES，再映射成十进制口令校验值，用于 PIN 验证体系。</p>
             </div>
           </div>
         </div>
@@ -213,49 +221,49 @@
     </div>
 
     <!-- Key Diversification -->
-    <div v-if="activeTab === 'kdv'" class="grid grid-cols-2 gap-3 animate-fade-in">
-      <div class="space-y-2">
+    <div v-if="activeTab === 'kdv'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-2">
           <p class="ck-section-title">EMV UDK 分散</p>
           <div class="relative">
-            <CryptoPanel v-model="udk.mdk" label="MDK (Hex)" type="input" placeholder="32/48位..." /> />
-            <button @click="genMDK" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-model="udk.mdk" label="MDK (Hex)" type="input" placeholder="32/48位..." />
+            <button @click="genMDK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <input v-model="udk.pan" class="ck-input font-mono" placeholder="PAN" />
             <input v-model="udk.psn" class="ck-input font-mono" placeholder="PSN (2位)" />
           </div>
-          <button @click="doUDK" class="ck-btn-primary w-full text-xs py-1.5">分散计算</button>
+          <button @click="doUDK" class="ck-btn-primary w-full justify-center">分散计算</button>
         </div>
 
         <div class="ck-card space-y-2">
           <p class="ck-section-title">Double One Way (DOW)</p>
           <div class="relative">
-            <CryptoPanel v-model="dow.key" label="Key (Hex)" type="input" placeholder="32/48位..." /> />
-            <button @click="genDOWKey" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-model="dow.key" label="Key (Hex)" type="input" placeholder="32/48位..." />
+            <button @click="genDOWKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
           <div class="relative">
-            <CryptoPanel v-model="dow.data" label="Data (Hex)" type="input" placeholder="16位Hex..." /> />
-            <button @click="genDOWData" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-model="dow.data" label="Data (Hex)" type="input" placeholder="16位Hex..." />
+            <button @click="genDOWData" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
-          <button @click="doDOW" class="ck-btn-secondary w-full text-xs py-1.5">计算 DOW</button>
+          <button @click="doDOW" class="ck-btn-secondary w-full justify-center">计算 DOW</button>
         </div>
 
         <div class="ck-card space-y-2">
           <p class="ck-section-title">SM4 UDK 分散</p>
           <div class="relative">
-            <CryptoPanel v-model="sm4udk.mdk" label="SM4 MDK (Hex)" type="input" placeholder="32位..." /> />
-            <button @click="genSM4MDK" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-model="sm4udk.mdk" label="SM4 MDK (Hex)" type="input" placeholder="32位..." />
+            <button @click="genSM4MDK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <input v-model="sm4udk.pan" class="ck-input font-mono" placeholder="PAN" />
             <input v-model="sm4udk.psn" class="ck-input font-mono" placeholder="PSN" />
           </div>
-          <button @click="doSM4UDK" class="ck-btn-success w-full text-xs py-1.5">SM4分散计算</button>
+          <button @click="doSM4UDK" class="ck-btn-primary w-full justify-center">SM4分散计算</button>
         </div>
       </div>
 
-      <div class="space-y-2">
+      <div class="ck-stack">
         <div class="ck-card">
           <CryptoPanel v-model="udkResult.udk" label="UDK (Hex)" type="result" :success="udkResult.success" copyable compact />
           <div v-if="udkResult.left" class="mt-1 text-[10px] text-emerald-400">L: {{ udkResult.left }} R: {{ udkResult.right }}</div>
@@ -272,13 +280,15 @@
           <div v-if="sm4udkResult.error" class="mt-1 text-xs text-red-400">{{ sm4udkResult.error }}</div>
         </div>
         <div class="ck-card">
-          <p class="ck-section-title text-xs">算法原理</p>
-          <div class="text-[10px] space-y-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="p-1.5 rounded border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-violet-400 font-medium">UDK</span>: Left=Enc(MDK, PAN14||PSN||F), Right=Enc(MDK, XOR)
+          <p class="ck-section-title">算法原理</p>
+          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div class="ck-note-card">
+              <p class="ck-note-title text-violet-400">UDK / DOW</p>
+              <p>按 PAN、PSN 或业务数据做一次或多次派生运算，把主密钥转换成设备级、卡级或会话级密钥。</p>
             </div>
-            <div class="p-1.5 rounded border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-amber-400 font-medium">SM4 UDK</span>: 同UDK流程，使用SM4算法
+            <div class="ck-note-card">
+              <p class="ck-note-title text-amber-400">SM4 UDK</p>
+              <p>沿用 UDK 思路，但将底层分组算法替换为 SM4，适合国密合规体系中的分散密钥计算。</p>
             </div>
           </div>
         </div>
@@ -286,21 +296,21 @@
     </div>
 
     <!-- EMV -->
-    <div v-if="activeTab === 'emv'" class="grid grid-cols-2 gap-3 animate-fade-in">
-      <div class="space-y-2">
+    <div v-if="activeTab === 'emv'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-2">
           <p class="ck-section-title">ARQC / AC / Script MAC</p>
           <div class="relative">
-            <CryptoPanel v-model="emv.key" label="Session Key (Hex)" type="input" placeholder="32/48位..." /> />
-            <button @click="genSessionKey" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-model="emv.key" label="Session Key (Hex)" type="input" placeholder="32/48位..." />
+            <button @click="genSessionKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
-          <CryptoPanel v-model="emv.data" label="CDOL/Script (Hex)" type="textarea" :rows="3" clearable /> />
+          <CryptoPanel v-model="emv.data" label="CDOL/Script (Hex)" type="textarea" :rows="3" clearable />
           <div class="flex gap-2">
             <select v-model="emv.padding" class="ck-select flex-1">
               <option value="ISO9797-1-P2">P2</option>
               <option value="ISO9797-1-P1">P1</option>
             </select>
-            <button @click="doARQC" class="ck-btn-primary px-3">计算 AC</button>
+            <button @click="doARQC" class="ck-btn-primary justify-center shrink-0">计算 AC</button>
           </div>
         </div>
 
@@ -311,9 +321,9 @@
             <option value="SM4">SM4</option>
           </select>
           <div class="relative">
-            <CryptoPanel v-if="cryptoMode === '3DES'" v-model="tdes.key" label="Key (Hex)" type="input" placeholder="32/48位..." /> />
-            <CryptoPanel v-if="cryptoMode === 'SM4'" v-model="sm4crypto.key" label="SM4 Key (Hex)" type="input" placeholder="32位..." /> />
-            <button @click="genCryptoKey" class="absolute right-8 top-1/2 -translate-y-1/2 text-xs text-violet-400">⚡</button>
+            <CryptoPanel v-if="cryptoMode === '3DES'" v-model="tdes.key" label="Key (Hex)" type="input" placeholder="32/48位..." />
+            <CryptoPanel v-if="cryptoMode === 'SM4'" v-model="sm4crypto.key" label="SM4 Key (Hex)" type="input" placeholder="32位..." />
+            <button @click="genCryptoKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <select v-model="tdes.mode" class="ck-select">
@@ -325,16 +335,16 @@
               <option value="ISO9797-1-P1">P1</option>
             </select>
           </div>
-          <CryptoPanel v-if="tdes.mode === 'CBC'" v-model="tdes.iv" label="IV (Hex)" type="input" placeholder="16/32位..." /> />
-          <CryptoPanel v-model="tdes.data" label="数据 (Hex)" type="textarea" :rows="3" clearable /> />
+          <CryptoPanel v-if="tdes.mode === 'CBC'" v-model="tdes.iv" label="IV (Hex)" type="input" placeholder="16/32位..." />
+          <CryptoPanel v-model="tdes.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
           <div class="grid grid-cols-2 gap-2">
-            <button @click="doEncrypt" class="ck-btn-primary text-xs py-1.5">加密</button>
-            <button @click="doDecrypt" class="ck-btn-secondary text-xs py-1.5">解密</button>
+            <button @click="doEncrypt" class="ck-btn-primary justify-center">加密</button>
+            <button @click="doDecrypt" class="ck-btn-secondary justify-center">解密</button>
           </div>
         </div>
       </div>
 
-      <div class="space-y-2">
+      <div class="ck-stack">
         <div class="ck-card">
           <CryptoPanel v-model="emvResult.data" label="ARQC/AC (Hex)" type="result" :success="emvResult.success" copyable compact />
           <div v-if="emvResult.error" class="mt-1 text-xs text-red-400">{{ emvResult.error }}</div>
@@ -345,16 +355,15 @@
           <div v-if="cryptoResult.error" class="mt-1 text-xs text-red-400">{{ cryptoResult.error }}</div>
         </div>
         <div class="ck-card">
-          <p class="ck-section-title text-xs">算法原理</p>
-          <div class="text-[10px] space-y-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="p-1.5 rounded border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-violet-400 font-medium">ARQC/AC</span>: Retail MAC(Session Key, CDOL数据)
+          <p class="ck-section-title">算法原理</p>
+          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div class="ck-note-card">
+              <p class="ck-note-title text-violet-400">ARQC / AC</p>
+              <p>使用会话密钥对交易数据做 MAC 计算，结果通常用于联机交易认证或发卡行风险控制。</p>
             </div>
-            <div class="p-1.5 rounded border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-amber-400 font-medium">3DES</span>: 分组64位, 16/24字节密钥, ECB/CBC模式
-            </div>
-            <div class="p-1.5 rounded border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <span class="text-emerald-400 font-medium">SM4</span>: 分组128位, 16字节密钥, ECB/CBC模式
+            <div class="ck-note-card">
+              <p class="ck-note-title text-amber-400">3DES / SM4</p>
+              <p>金融数据加密既可能走传统 3DES，也可能走国密 SM4，关键在于模式、填充和 IV 管理保持一致。</p>
             </div>
           </div>
         </div>

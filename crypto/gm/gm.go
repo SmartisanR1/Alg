@@ -499,7 +499,7 @@ func SM9GenerateMasterKey() SM9MasterKeyResult {
 	if err != nil {
 		return SM9MasterKeyResult{Error: "序列化SM9主私钥失败: " + err.Error()}
 	}
-	pubBytes, err := masterKey.Public().MarshalASN1()
+	pubBytes, err := masterKey.PublicKey().MarshalASN1()
 	if err != nil {
 		return SM9MasterKeyResult{Error: "序列化SM9主公钥失败: " + err.Error()}
 	}
@@ -526,8 +526,7 @@ func SM9GenerateEncKey(masterPub string, uid string) SM9KeyResult {
 	if err != nil {
 		return SM9KeyResult{Error: "序列化用户密钥失败: " + err.Error()}
 	}
-	// EncryptMasterPrivateKey 通过 Public() 返回 *EncryptMasterPublicKey
-	pubBytes, err := masterKey.Public().MarshalASN1()
+	pubBytes, err := masterKey.PublicKey().MarshalASN1()
 	if err != nil {
 		return SM9KeyResult{Error: "序列化主公钥失败: " + err.Error()}
 	}
@@ -544,8 +543,8 @@ func SM9Encrypt(req SM9Request) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的主公钥: " + err.Error()}
 	}
-	var masterPub sm9.EncryptMasterPublicKey
-	if err := masterPub.UnmarshalASN1(pubBytes); err != nil {
+	masterPub, err := sm9.UnmarshalEncryptMasterPublicKeyASN1(pubBytes)
+	if err != nil {
 		return symmetric.CryptoResult{Error: "解析SM9加密主公钥失败: " + err.Error()}
 	}
 	dataBytes, err := hex.DecodeString(req.Data)
@@ -554,7 +553,7 @@ func SM9Encrypt(req SM9Request) symmetric.CryptoResult {
 	}
 	// EncryptASN1 使用 SM4-CBC + SM3 KDF，hid=0x02 为加密标识
 	const hidEncrypt byte = 0x02
-	ct, err := sm9.EncryptASN1(rand.Reader, &masterPub, []byte(req.UID), hidEncrypt, dataBytes, nil)
+	ct, err := sm9.EncryptASN1(rand.Reader, masterPub, []byte(req.UID), hidEncrypt, dataBytes, nil)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "SM9加密失败: " + err.Error()}
 	}
@@ -567,15 +566,15 @@ func SM9Decrypt(req SM9Request) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的用户私钥: " + err.Error()}
 	}
-	var userPriv sm9.EncryptPrivateKey
-	if err := userPriv.UnmarshalASN1(privBytes); err != nil {
+	userPriv, err := sm9.UnmarshalEncryptPrivateKeyASN1(privBytes)
+	if err != nil {
 		return symmetric.CryptoResult{Error: "解析SM9用户私钥失败: " + err.Error()}
 	}
 	dataBytes, err := hex.DecodeString(req.Data)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的数据: " + err.Error()}
 	}
-	pt, err := sm9.DecryptASN1(&userPriv, []byte(req.UID), dataBytes)
+	pt, err := sm9.DecryptASN1(userPriv, []byte(req.UID), dataBytes)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "SM9解密失败: " + err.Error()}
 	}
@@ -588,8 +587,8 @@ func SM9Sign(req SM9SignRequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的用户私钥: " + err.Error()}
 	}
-	var userPriv sm9.SignPrivateKey
-	if err := userPriv.UnmarshalASN1(privBytes); err != nil {
+	userPriv, err := sm9.UnmarshalSignPrivateKeyASN1(privBytes)
+	if err != nil {
 		return symmetric.CryptoResult{Error: "解析SM9签名私钥失败: " + err.Error()}
 	}
 	dataBytes, err := hex.DecodeString(req.Data)
@@ -597,7 +596,7 @@ func SM9Sign(req SM9SignRequest) symmetric.CryptoResult {
 		return symmetric.CryptoResult{Error: "无效的数据: " + err.Error()}
 	}
 	// 直接使用 ASN.1 编码签名接口，避免手动处理 (h,s) 对
-	sigBytes, err := sm9.SignASN1(rand.Reader, &userPriv, dataBytes)
+	sigBytes, err := sm9.SignASN1(rand.Reader, userPriv, dataBytes)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "序列化签名失败: " + err.Error()}
 	}
@@ -610,8 +609,8 @@ func SM9Verify(req SM9VerifyRequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的主公钥: " + err.Error()}
 	}
-	var masterPub sm9.SignMasterPublicKey
-	if err := masterPub.UnmarshalASN1(pubBytes); err != nil {
+	masterPub, err := sm9.UnmarshalSignMasterPublicKeyASN1(pubBytes)
+	if err != nil {
 		return symmetric.CryptoResult{Error: "解析SM9签名主公钥失败: " + err.Error()}
 	}
 	dataBytes, _ := hex.DecodeString(req.Data)
@@ -621,7 +620,7 @@ func SM9Verify(req SM9VerifyRequest) symmetric.CryptoResult {
 	}
 	// 使用 VerifyASN1 / Verify，hid=0x01 为签名标识
 	const hidSign byte = 0x01
-	valid := sm9.VerifyASN1(&masterPub, []byte(req.UID), hidSign, dataBytes, sigBytes)
+	valid := sm9.VerifyASN1(masterPub, []byte(req.UID), hidSign, dataBytes, sigBytes)
 	if !valid {
 		return symmetric.CryptoResult{Success: true, Data: "false", Error: "SM9签名验证失败"}
 	}
