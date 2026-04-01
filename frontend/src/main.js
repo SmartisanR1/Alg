@@ -32,7 +32,7 @@ const prefetchViews = () => {
   // 只预取最常用的几个视图，减少首屏后的加载压力
   import('./views/AsymmetricView.vue')
   import('./views/HashView.vue')
-  import('./views/GMView.vue')
+  import('./views/SymmetricView.vue')
 }
 if ('requestIdleCallback' in window) {
   // 等待 3 秒后或浏览器空闲时预取，不影响首屏响应

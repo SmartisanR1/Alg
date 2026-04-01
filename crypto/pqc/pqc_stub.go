@@ -8,25 +8,25 @@ package pqc
 
 import "cryptokit/crypto/symmetric"
 
-// FALCON — NTRU格紧凑签名，目前无成熟纯Go实现
-// 后端返回特殊标记 "__NOT_IMPLEMENTED__" 供前端识别并展示友好UI
+// FALCON — NTRU格紧凑签名 (FIPS 206)
+// circl 1.6.3 尚未正式导出 Falcon 的标准 FIPS 实现 API
 func FalconKeyGen(paramSet string) PQCKeyResult {
-	return PQCKeyResult{Error: "__NOT_IMPLEMENTED__"}
+	return PQCKeyResult{Error: "__ADAPTING_FIPS_206__"}
 }
 func FalconSign(req SLHDSARequest) symmetric.CryptoResult {
-	return symmetric.CryptoResult{Error: "__NOT_IMPLEMENTED__"}
+	return symmetric.CryptoResult{Error: "__ADAPTING_FIPS_206__"}
 }
 func FalconVerify(req SLHDSAVerifyRequest) symmetric.CryptoResult {
-	return symmetric.CryptoResult{Error: "__NOT_IMPLEMENTED__"}
+	return symmetric.CryptoResult{Error: "__ADAPTING_FIPS_206__"}
 }
 
-// HQC — 准循环码KEM，目前无成熟纯Go实现
+// HQC — 准循环码密钥封装 (NIST Round 4)
 func HQCKeyGen(paramSet string) PQCKeyResult {
-	return PQCKeyResult{Error: "__NOT_IMPLEMENTED__"}
+	return PQCKeyResult{Error: "__AWAITING_STABLE_IMPLEMENTATION__"}
 }
 func HQCEncapsulate(req MLKEMRequest) PQCEncapResult {
-	return PQCEncapResult{Error: "__NOT_IMPLEMENTED__"}
+	return PQCEncapResult{Error: "__AWAITING_STABLE_IMPLEMENTATION__"}
 }
 func HQCDecapsulate(req MLKEMDecapRequest) symmetric.CryptoResult {
-	return symmetric.CryptoResult{Error: "__NOT_IMPLEMENTED__"}
+	return symmetric.CryptoResult{Error: "__AWAITING_STABLE_IMPLEMENTATION__"}
 }

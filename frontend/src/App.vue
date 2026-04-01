@@ -8,61 +8,42 @@
          isFullscreen ? 'fullscreen'   : 'windowed',
        ]">
 
-    <!-- Title bar (for Wails frameless feel) -->
-    <div class="titlebar-drag flex items-center justify-between px-4 shrink-0 border-b relative z-[100]"
-         :class="[
-           isDark ? 'border-dark-border bg-dark-surface' : 'border-light-border bg-white',
-           isMac ? 'h-12' : 'h-11'
-         ]">
+     <!-- Title bar (for Wails frameless feel) - Only on Mac -->
+     <div v-if="isMac" class="titlebar-drag flex items-center justify-between px-4 shrink-0 border-b relative z-[100]"
+          :class="[
+            isDark ? 'border-dark-border bg-dark-surface' : 'border-light-border bg-white',
+            'h-12'
+          ]">
 
-      <!-- Mac Traffic Lights Placeholder + Logo section -->
-      <div class="flex items-center h-full">
-        <!-- Mac Traffic Lights Placeholder -->
-        <div v-if="isMac" class="w-[80px] h-full shrink-0 pointer-events-none"></div>
+       <!-- Mac Traffic Lights Placeholder + Logo section -->
+       <div class="flex items-center h-full">
+         <!-- Mac Traffic Lights Placeholder -->
+         <div class="w-[80px] h-full shrink-0 pointer-events-none"></div>
 
-        <!-- Logo section -->
-        <div class="flex items-center gap-2.5 titlebar-nodrag transition-all duration-300"
-             :class="isMac ? 'ml-1' : 'ml-0'">
-          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <ShieldCheckIcon class="w-4 h-4 text-white" />
-          </div>
-          <div class="flex flex-col -space-y-0.5">
-            <span class="text-sm font-bold tracking-tight" :class="isDark ? 'text-white' : 'text-gray-800'">CryptoKit</span>
-            <span class="text-[9px] font-semibold text-indigo-500/90 tracking-wider uppercase">Secure Toolkit</span>
-          </div>
-        </div>
-      </div>
+         <!-- Logo section -->
+         <div class="flex items-center gap-2.5 titlebar-nodrag transition-all duration-300 ml-1">
+           <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+             <ShieldCheckIcon class="w-4 h-4 text-white" />
+           </div>
+           <div class="flex flex-col -space-y-0.5">
+             <span class="text-sm font-bold tracking-tight" :class="isDark ? 'text-white' : 'text-gray-800'">CryptoKit</span>
+             <span class="text-[9px] font-semibold text-indigo-500/90 tracking-wider uppercase">Secure Toolkit</span>
+           </div>
+         </div>
+       </div>
 
-      <!-- Search & Theme -->
-      <div class="flex items-center gap-2 titlebar-nodrag" :class="!isMac ? 'mr-[112px]' : ''">
-        <div class="relative group/search hidden md:block">
-          <SearchIcon class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" :class="isDark ? 'text-dark-muted' : 'text-slate-400'" />
-          <input v-model="search" type="text" placeholder="快速搜索算法..."
-                 class="w-44 lg:w-56 h-8 pl-8 pr-9 text-xs rounded-xl border outline-none transition-all search-input"
-                 :class="isDark ? 'bg-dark-bg border-dark-border' : 'bg-gray-100 border-transparent focus:bg-white focus:border-light-accent'" />
-
-          <!-- Search Results Dropdown -->
-          <div v-if="search" class="absolute left-0 top-10 w-full z-[100] rounded-xl border shadow-2xl overflow-hidden"
-               :class="isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-light-border shadow-gray-200'">
-            <div v-if="filteredAlgos.length === 0" class="p-4 text-center text-xs" :class="isDark ? 'text-dark-muted' : 'text-slate-400'">未找到相关算法</div>
-            <router-link v-for="algo in filteredAlgos" :key="algo.path" :to="algo.path"
-                         @click="search = ''"
-                         class="flex items-center gap-3 px-4 py-2.5 text-xs hover:bg-violet-500/10 transition-colors">
-              <component :is="algo.icon" class="w-3.5 h-3.5 text-violet-400" />
-              <span>{{ algo.label }}</span>
-            </router-link>
-          </div>
-        </div>
-        <button @click="showHistory = !showHistory" class="titlebar-icon-btn relative">
-          <HistoryIcon class="w-4 h-4" :class="isDark ? 'text-dark-muted' : 'text-slate-500'" />
-          <span v-if="history.length" class="absolute top-1 right-1 w-1.5 h-1.5 bg-violet-500 rounded-full"></span>
-        </button>
-        <button @click="handleToggleTheme" class="titlebar-icon-btn">
-          <SunIcon v-if="isDark" class="w-4 h-4 text-amber-400" />
-          <MoonIcon v-else class="w-4 h-4 text-violet-400" />
-        </button>
-      </div>
-    </div>
+       <!-- Theme & History -->
+       <div class="flex items-center gap-2 titlebar-nodrag">
+         <button @click="showHistory = !showHistory" class="titlebar-icon-btn relative">
+           <HistoryIcon class="w-4 h-4" :class="isDark ? 'text-dark-muted' : 'text-slate-500'" />
+           <span v-if="history.length" class="absolute top-1 right-1 w-1.5 h-1.5 bg-violet-500 rounded-full"></span>
+         </button>
+         <button @click="handleToggleTheme" class="titlebar-icon-btn">
+           <SunIcon v-if="isDark" class="w-4 h-4 text-amber-400" />
+           <MoonIcon v-else class="w-4 h-4 text-violet-400" />
+         </button>
+       </div>
+     </div>
 
     <!-- Transparent overlay: close history when clicking outside the panel -->
     <div v-if="showHistory" class="fixed inset-0 z-40" @click="showHistory = false" style="background:transparent"></div>
@@ -93,38 +74,55 @@
     <!-- Main Content -->
     <div class="flex-1 overflow-hidden flex flex-col app-shell" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
       <section class="app-topbar-region shrink-0 px-2.5 pt-2 pb-1.5">
-        <div class="top-shell">
-        <div class="compact-toolbar" :class="isDark ? 'compact-toolbar-dark' : 'compact-toolbar-light'">
-          <div class="toolbar-inline">
-            <label class="toolbar-group-select">
-              <span class="toolbar-select-label">分类</span>
-              <select
-                :value="activeGroup.label"
-                class="toolbar-select"
-                @change="handleGroupSelect($event.target.value)"
-              >
-                <option v-for="group in navGroups" :key="group.label" :value="group.label">{{ group.label }}</option>
-              </select>
-            </label>
-
-            <router-link
-              v-for="item in activeGroup.items"
-              :key="item.path"
-              :to="item.path"
-              v-slot="{ isActive }"
-            >
-              <div class="tool-pill" :class="{ active: isActive }">
-                <component :is="item.icon" class="w-3.5 h-3.5 shrink-0" />
-                <span class="truncate">{{ item.label }}</span>
-              </div>
-            </router-link>
+        <div class="top-shell max-w-[1280px] mx-auto">
+        <div class="compact-toolbar flex items-center justify-between" :class="isDark ? 'compact-toolbar-dark' : 'compact-toolbar-light'">
+          <!-- Windows/Linux Logo (Only when titlebar is hidden) -->
+          <div v-if="!isMac" class="flex items-center gap-2 px-2 shrink-0 border-r border-dark-border/20 mr-2">
+            <div class="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/10">
+              <ShieldCheckIcon class="w-3.5 h-3.5 text-white" />
+            </div>
+            <span class="text-xs font-bold tracking-tight" :class="isDark ? 'text-white' : 'text-gray-800'">CryptoKit</span>
           </div>
+
+          <!-- 扁平化功能菜单 -->
+          <div class="toolbar-inline-scroll flex-1">
+            <div class="flex items-center gap-1.5 px-1">
+              <template v-for="(group, gIdx) in navGroups" :key="group.label">
+                <!-- 组间分割线 -->
+                <div v-if="gIdx > 0" class="w-[1px] h-4 mx-1 opacity-20" :class="isDark ? 'bg-white' : 'bg-black'"></div>
+                
+                <router-link
+                  v-for="item in group.items"
+                  :key="item.path"
+                  :to="item.path"
+                  v-slot="{ isActive }"
+                >
+                  <div class="tool-pill-new" :class="{ active: isActive }" v-tooltip="item.desc">
+                    <component :is="item.icon" class="w-3.5 h-3.5 shrink-0" />
+                    <span class="truncate">{{ item.label }}</span>
+                  </div>
+                </router-link>
+              </template>
+            </div>
+          </div>
+
+           <!-- Windows/Linux Controls (Theme, History) -->
+           <div v-if="!isMac" class="flex items-center gap-1.5 pl-2 border-l border-dark-border/20 ml-2 shrink-0">
+             <button @click="showHistory = !showHistory" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors relative">
+               <HistoryIcon class="w-3.5 h-3.5" :class="isDark ? 'text-dark-muted' : 'text-slate-500'" />
+               <span v-if="history.length" class="absolute top-1.5 right-1.5 w-1 h-1 bg-violet-500 rounded-full"></span>
+             </button>
+             <button @click="handleToggleTheme" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+               <SunIcon v-if="isDark" class="w-3.5 h-3.5 text-amber-400" />
+               <MoonIcon v-else class="w-3.5 h-3.5 text-violet-400" />
+             </button>
+           </div>
         </div>
         </div>
       </section>
 
       <main class="app-main-region flex-1 overflow-y-auto relative px-2.5 pb-2.5">
-        <div class="page-shell">
+        <div class="page-shell max-w-[1280px] mx-auto">
         <div class="page-stage min-h-full" :class="isDark ? 'page-stage-dark' : 'page-stage-light'">
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
@@ -220,25 +218,9 @@ const filteredAlgos = computed(() => {
   ).slice(0, 8)
 })
 
-const routeGroup = computed(() => {
+const activeGroup = computed(() => {
   return navGroups.find(group => group.items.some(item => item.path === route.path)) || navGroups[0]
 })
-
-const activeGroup = computed(() => {
-  return navGroups.find(group => group.label === selectedGroupLabel.value) || routeGroup.value
-})
-
-const selectGroup = (group) => {
-  selectedGroupLabel.value = group.label
-  if (!group.items.some(item => item.path === route.path)) {
-    router.push(group.items[0].path)
-  }
-}
-
-const handleGroupSelect = (label) => {
-  const group = navGroups.find(item => item.label === label)
-  if (group) selectGroup(group)
-}
 
 // ── 生命周期 ────────────────────────────────────────────────
 onMounted(async () => {
@@ -259,48 +241,48 @@ onMounted(async () => {
   // 主题自动切换
   updateThemeByTime()
   setInterval(updateThemeByTime, 60000)
-
-
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkFullscreen)
-  // no document click listeners needed (overlay handles close)
 })
 
 // ── 导航结构 ────────────────────────────────────────────────
 const navGroups = [
   {
-    label: '对称加密',
+    label: '联调',
     items: [
-      { path: '/symmetric', label: '对称算法', icon: LockIcon, desc: 'AES / DES / ChaCha20', badge: '国际' },
-      { path: '/gm', label: '国密算法', icon: FlagIcon, desc: 'SM4 / SM3 / SM2', badge: '国密' },
-      { path: '/finance', label: '金融算法', icon: FingerprintIcon, desc: 'PIN / MAC / 分散', badge: '行业' },
+      { path: '/packet', label: '报文收发', icon: SendIcon, desc: 'TCP / TLS / TLCP 联调', badge: '核心' },
     ]
   },
   {
-    label: '非对称体系',
+    label: '对称',
     items: [
-      { path: '/asymmetric', label: '公钥算法', icon: KeyIcon, desc: 'RSA / ECC / EdDSA', badge: '国际' },
+      { path: '/symmetric', label: '对称算法', icon: LockIcon, desc: 'AES / SM4 / ZUC / 3DES', badge: '分组' },
+      { path: '/finance', label: '金融算法', icon: FingerprintIcon, desc: 'PIN / MAC / 密钥分散', badge: '行业' },
+    ]
+  },
+  {
+    label: '非对称',
+    items: [
+      { path: '/asymmetric', label: '公钥算法', icon: KeyIcon, desc: 'RSA / SM2 / SM9 / ECC', badge: '公钥' },
+      { path: '/cert', label: '证书管理', icon: ShieldCheckIcon, desc: 'X.509 / CSR / 证书链', badge: 'PKI' },
       { path: '/pqc', label: '后量子', icon: AtomIcon, desc: 'FIPS 203 / 204 / 205', badge: 'PQC' },
-      { path: '/gmpqc', label: '国密 PQC', icon: ZapIcon, desc: '调研与对比', badge: '探索' },
-      { path: '/cert', label: '证书管理', icon: ShieldCheckIcon, desc: 'X.509 / CSR / PEM', badge: 'PKI' },
     ]
   },
   {
-    label: '摘要与认证',
+    label: '摘要',
     items: [
-      { path: '/hash', label: 'Hash / HMAC', icon: HashIcon, desc: 'SHA / BLAKE / HMAC', badge: '摘要' },
-      { path: '/mac', label: 'MAC / KDF', icon: ShieldHalfIcon, desc: 'CMAC / HKDF / PBKDF2', badge: 'KDF' },
+      { path: '/hash', label: '哈希摘要', icon: HashIcon, desc: 'SHA系列 / SM3 / BLAKE', badge: '哈希' },
+      { path: '/mac', label: 'MAC / KDF', icon: ShieldHalfIcon, desc: 'HMAC / HKDF / PBKDF2', badge: '认证' },
     ]
   },
   {
-    label: '工具与文件',
+    label: '工具',
     items: [
-      { path: '/packet', label: '报文收发', icon: SendIcon, desc: 'TCP 长度头 / 文件发送', badge: '联调' },
-      { path: '/tools', label: '转换工具', icon: WrenchIcon, desc: 'Base64 / Hex / URL', badge: '通用' },
-      { path: '/bigint', label: '大数运算', icon: CalculatorIcon, desc: '模运算 / 进制 / 扩展欧几里得', badge: '数学' },
-      { path: '/file', label: '文件加解密', icon: FileIcon, desc: '文件流与落盘处理', badge: '文件' },
+      { path: '/tools', label: '转换工具', icon: WrenchIcon, desc: 'Base64 / Hex / ASN.1', badge: '通用' },
+      { path: '/bigint', label: '大数运算', icon: CalculatorIcon, desc: '大数模幂 / 进制转换', badge: '数学' },
+      { path: '/file', label: '文件加密', icon: FileIcon, desc: '文件流加解密', badge: '文件' },
     ]
   }
 ]
@@ -308,7 +290,7 @@ const navGroups = [
 watch(
   () => route.path,
   () => {
-    selectedGroupLabel.value = routeGroup.value.label
+    selectedGroupLabel.value = activeGroup.value.label
   },
   { immediate: true }
 )
@@ -316,9 +298,39 @@ watch(
 
 <style>
 .compact-toolbar {
-  @apply rounded-2xl border px-2.5 py-2;
+  @apply rounded-2xl border px-2 py-1.5;
   backdrop-filter: blur(18px);
 }
+
+.toolbar-inline-scroll {
+  @apply overflow-x-auto;
+  scrollbar-width: none; /* Firefox */
+}
+.toolbar-inline-scroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.tool-pill-new {
+  @apply flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[12px] font-medium transition-all cursor-pointer whitespace-nowrap;
+  border: 1px solid transparent;
+}
+
+.app-container.dark .tool-pill-new {
+   @apply text-dark-muted hover:text-white hover:bg-white/5 rounded-none;
+ }
+ .app-container.light .tool-pill-new {
+   @apply text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-none;
+ }
+ 
+ .tool-pill-new.active {
+   @apply shadow-sm;
+ }
+ .app-container.dark .tool-pill-new.active {
+   @apply bg-violet-500/20 text-violet-400 border-violet-500/30;
+ }
+ .app-container.light .tool-pill-new.active {
+   @apply bg-white text-violet-600 border-slate-200;
+ }
 
 .top-shell,
 .page-shell {

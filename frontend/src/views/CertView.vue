@@ -35,30 +35,30 @@
     </transition>
 
     <!-- Certificate Parsing -->
-    <div v-show="activeTab === 'parse'" class="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-show="activeTab === 'parse'" class="flex flex-col lg:flex-row gap-4 animate-fade-in h-full">
+      <div class="w-full lg:w-[280px] space-y-3 shrink-0">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">PEM 证书解析</p>
           <div class="flex gap-2 mb-2">
-            <button @click="uploadCertFile" class="ck-btn-secondary flex-1 justify-center text-xs py-1.5">
-              <UploadIcon class="w-3.5 h-3.5" /> 上传证书文件
+            <button @click="uploadCertFile" class="ck-btn-secondary flex-1 justify-center text-[11px] py-1.5">
+              <UploadIcon class="w-3.5 h-3.5" /> 上传证书
             </button>
           </div>
           <CryptoPanel v-model="certInput" label="证书内容 (PEM)" type="textarea" :rows="10" placeholder="粘贴 -----BEGIN CERTIFICATE----- ..." />
-          <button @click="parseCert" class="ck-btn-primary w-full justify-center">解析证书</button>
+          <button @click="parseCert" class="ck-btn-primary w-full justify-center py-2">解析证书</button>
         </div>
       </div>
-      <div class="space-y-3">
+      <div class="flex-1 min-w-0">
         <div class="ck-card h-full flex flex-col">
-          <CryptoPanel v-model="certResult.data" label="解析结果" type="result" :success="certResult.success" copyable />
+          <CryptoPanel v-model="certResult.data" label="解析详情 (X.509 结构化数据)" type="result" :success="certResult.success" copyable />
           <div v-if="certResult.error" class="mt-2 text-xs text-red-400">{{ certResult.error }}</div>
         </div>
       </div>
     </div>
 
     <!-- CSR Generation -->
-    <div v-show="activeTab === 'csr'" class="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-show="activeTab === 'csr'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-4">
           <p class="ck-section-title">CSR 请求信息</p>
           <div class="grid grid-cols-2 gap-3">
@@ -95,16 +95,16 @@
               </select>
             </div>
           </div>
-          <button @click="genCSR" class="ck-btn-primary w-full justify-center">生成 CSR</button>
+          <button @click="genCSR" class="ck-btn-primary w-full justify-center py-2">生成 CSR</button>
         </div>
       </div>
-      <div class="space-y-3">
-        <div class="ck-card h-full flex flex-col">
+      <div class="ck-stack">
+        <div class="ck-card flex flex-col">
           <CryptoPanel v-model="csrResult.data" label="生成的 CSR (PEM)" type="result" :success="csrResult.success" copyable />
           <div v-if="csrResult.error" class="mt-2 text-xs text-red-400">{{ csrResult.error }}</div>
           <div v-if="csrResult.success" class="mt-4 flex gap-2">
-            <button @click="downloadFile(csrResult.data, 'request.csr')" class="ck-btn-success flex-1 justify-center">
-              <DownloadIcon class="w-3.5 h-3.5" /> 下载 CSR (.csr)
+            <button @click="downloadFile(csrResult.data, 'request.csr')" class="ck-btn-success flex-1 justify-center text-xs">
+              <DownloadIcon class="w-3.5 h-3.5" /> 下载 CSR
             </button>
           </div>
         </div>
@@ -112,8 +112,8 @@
     </div>
 
     <!-- CSR Signing -->
-    <div v-show="activeTab === 'sign'" class="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-show="activeTab === 'sign'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-4">
           <p class="ck-section-title">上传 CSR 签发</p>
           <CryptoPanel v-model="signReq.csr" label="CSR 内容 (PEM)" type="textarea" :rows="4" placeholder="粘贴 -----BEGIN CERTIFICATE REQUEST----- ..." />
@@ -197,16 +197,16 @@
               <option value="SM2">国密 SM2</option>
             </select>
           </div>
-          <button @click="signCSR" class="ck-btn-primary w-full justify-center">签发证书</button>
+          <button @click="signCSR" class="ck-btn-primary w-full justify-center py-2">签发证书</button>
         </div>
       </div>
-      <div class="space-y-3">
-        <div class="ck-card h-full flex flex-col">
+      <div class="ck-stack">
+        <div class="ck-card flex flex-col">
           <CryptoPanel v-model="signResult.data" label="生成的证书 (PEM)" type="result" :success="signResult.success" copyable />
           <div v-if="signResult.error" class="mt-2 text-xs text-red-400">{{ signResult.error }}</div>
           <div v-if="signResult.success" class="mt-4 flex gap-2">
-            <button @click="downloadFile(signResult.data, 'certificate.cer')" class="ck-btn-success flex-1 justify-center">
-              <DownloadIcon class="w-3.5 h-3.5" /> 下载证书 (.cer)
+            <button @click="downloadFile(signResult.data, 'certificate.cer')" class="ck-btn-success flex-1 justify-center text-xs">
+              <DownloadIcon class="w-3.5 h-3.5" /> 下载证书
             </button>
           </div>
         </div>
@@ -335,7 +335,7 @@
               </button>
             </div>
           </div>
-          <div class="ck-result !min-h-[96px] !p-2 !text-[10px] break-all overflow-y-auto font-mono"
+          <div class="ck-result !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono"
                :class="{'text-emerald-400/90': selfResult.success}">
             {{ selfResult.cert || '等待生成...' }}
           </div>
@@ -351,7 +351,7 @@
               </button>
             </div>
           </div>
-          <div class="ck-result !min-h-[96px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-violet-400/90">
+          <div class="ck-result !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-violet-400/90">
             {{ selfResult.csr || '等待生成...' }}
           </div>
         </div>
@@ -366,7 +366,7 @@
               </button>
             </div>
           </div>
-          <div class="ck-result !min-h-[96px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-amber-400/90">
+          <div class="ck-result !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-amber-400/90">
             {{ selfResult.key || '等待生成...' }}
           </div>
         </div>
@@ -388,7 +388,7 @@
 
     <!-- Dual Certificate (GM/T 0010) -->
     <div v-show="activeTab === 'dual'" class="ck-workbench animate-fade-in">
-      <div class="ck-stack">
+      <div class="ck-stack overflow-y-auto pr-1 custom-scrollbar">
         <div class="ck-card space-y-4">
           <div class="flex justify-between items-center">
             <p class="ck-section-title">国密双证书签发 (签名+加密)</p>
@@ -420,7 +420,7 @@
 
           <div class="flex items-center gap-2">
             <button @click="dualShowAdvanced = !dualShowAdvanced" class="text-[11px] text-violet-400 flex items-center gap-1 hover:text-violet-300 transition-colors">
-              <SettingsIcon class="w-3 h-3" /> 扩展高级选项 (符合 gmcert.org 标准)
+              <SettingsIcon class="w-3 h-3" /> 高级选项 (符合 gmcert.org 标准)
               <ChevronDownIcon class="w-3 h-3 transition-transform" :class="{'rotate-180': dualShowAdvanced}" />
             </button>
           </div>
@@ -452,45 +452,57 @@
             </div>
           </transition>
 
-          <button @click="genDualCerts" class="ck-btn-primary w-full justify-center mt-2">立即签发双证书及信封</button>
+          <button @click="genDualCerts" class="ck-btn-primary w-full justify-center mt-2 shadow-lg shadow-violet-500/10">立即签发双证书及信封</button>
+        </div>
+        
+        <!-- Inline Principle for Dual Cert -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0">
+          <p class="ck-section-title text-violet-400">双证书体系说明 (GM/T 0010)</p>
+          <div class="text-[11px] space-y-2 leading-relaxed opacity-80" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <p>• <b>签名证书:</b> 用于身份认证，私钥由用户生成并严密保管。</p>
+            <p>• <b>加密证书:</b> 用于加密通信，密钥对由 CA 生成并托管，通过数字信封下发。</p>
+            <p>• <b>合规性:</b> 符合国密 GM/T 0010 及国标 GB/T 35275 标准。</p>
+          </div>
         </div>
       </div>
 
-      <div class="ck-stack">
+      <div class="ck-stack h-full flex flex-col">
         <div v-if="dualResult.success" class="flex-1 min-h-0 flex flex-col space-y-3 animate-fade-in">
-          <div class="grid grid-cols-2 gap-3 flex-1 min-h-0">
+          <div class="grid grid-cols-2 gap-3 shrink-0">
             <div class="ck-card flex flex-col p-2.5">
               <div class="flex justify-between items-center mb-1.5">
-                <span class="text-[10px] font-bold text-emerald-400">签名证书 (Sign Cert)</span>
+                <span class="text-[10px] font-bold text-emerald-400">签名证书</span>
                 <button @click="downloadFile(dualResult.signCert, 'sign.cer')" class="text-[9px] text-emerald-400 underline">下载</button>
               </div>
-              <textarea readonly class="ck-result flex-1 !text-[9px] font-mono resize-none bg-transparent border-none outline-none" v-model="dualResult.signCert"></textarea>
+              <textarea readonly class="ck-result !min-h-[100px] !text-[9px] font-mono resize-none bg-transparent border-none outline-none overflow-y-auto" v-model="dualResult.signCert"></textarea>
             </div>
             <div class="ck-card flex flex-col p-2.5">
               <div class="flex justify-between items-center mb-1.5">
-                <span class="text-[10px] font-bold text-cyan-400">加密证书 (Enc Cert)</span>
+                <span class="text-[10px] font-bold text-cyan-400">加密证书</span>
                 <button @click="downloadFile(dualResult.encryptCert, 'encrypt.cer')" class="text-[9px] text-cyan-400 underline">下载</button>
               </div>
-              <textarea readonly class="ck-result flex-1 !text-[9px] font-mono resize-none bg-transparent border-none outline-none" v-model="dualResult.encryptCert"></textarea>
+              <textarea readonly class="ck-result !min-h-[100px] !text-[9px] font-mono resize-none bg-transparent border-none outline-none overflow-y-auto" v-model="dualResult.encryptCert"></textarea>
             </div>
           </div>
+          
           <div class="ck-card flex-1 min-h-0 flex flex-col p-3">
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-center mb-2 shrink-0">
               <span class="text-[11px] font-bold text-amber-400 flex items-center gap-1.5">
-                <ShieldCheckIcon class="w-3.5 h-3.5" /> 加密私钥信封 (GM/T 0010 Envelope)
+                <ShieldCheckIcon class="w-3.5 h-3.5" /> 加密私钥信封
               </span>
-              <button @click="downloadFile(dualResult.enwrappedKey, 'enc_key.env')" class="ck-copy-btn !bg-amber-500/10 !text-amber-400">下载</button>
+              <button @click="downloadFile(dualResult.enwrappedKey, 'enc_key.env')" class="ck-copy-btn !bg-amber-500/10 !text-amber-400">下载 .env</button>
             </div>
-            <textarea readonly class="ck-result flex-1 !text-[10px] font-mono resize-none bg-transparent border-none outline-none" v-model="dualResult.enwrappedKey"></textarea>
+            <textarea readonly class="ck-result flex-1 !text-[10px] font-mono resize-none bg-transparent border-none outline-none overflow-y-auto" v-model="dualResult.enwrappedKey"></textarea>
           </div>
-          <div class="ck-card h-24 flex flex-col p-3">
-            <div class="flex justify-between items-center mb-2">
+          
+          <div class="ck-card shrink-0 flex flex-col p-3">
+            <div class="flex justify-between items-center mb-2 shrink-0">
               <span class="text-[11px] font-bold text-violet-400 flex items-center gap-1.5">
-                <KeyIcon class="w-3.5 h-3.5" /> 签名私钥 (Sign Key - PEM)
+                <KeyIcon class="w-3.5 h-3.5" /> 签名私钥 (PEM)
               </span>
-              <button @click="downloadFile(dualResult.signKey, 'sign.key')" class="ck-copy-btn !bg-violet-500/10 !text-violet-400">下载</button>
+              <button @click="downloadFile(dualResult.signKey, 'sign.key')" class="ck-copy-btn !bg-violet-500/10 !text-violet-400">下载 .key</button>
             </div>
-            <textarea readonly class="ck-result flex-1 !text-[10px] font-mono resize-none bg-transparent border-none outline-none" v-model="dualResult.signKey"></textarea>
+            <textarea readonly class="ck-result !min-h-[60px] !max-h-[100px] !text-[10px] font-mono resize-none bg-transparent border-none outline-none overflow-y-auto" v-model="dualResult.signKey"></textarea>
           </div>
         </div>
         <div v-else class="ck-card h-full flex flex-col items-center justify-center text-dark-muted space-y-4 border-dashed opacity-60">

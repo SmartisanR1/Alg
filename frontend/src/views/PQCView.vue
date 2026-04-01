@@ -233,87 +233,83 @@
     </div>
 
     <!-- SLH-DSA -->
-    <div v-if="activeTab === 'slhdsa'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
+    <div v-if="activeTab === 'slhdsa'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card">
           <div class="flex items-center gap-2 mb-3">
             <span class="ck-badge-green">FIPS 205</span>
             <p class="text-sm font-medium">SLH-DSA (SPHINCS+) — 无状态签名</p>
           </div>
-          <label class="ck-label">参数集</label>
-          <select v-model="slh.paramSet" class="ck-select mb-3">
-            <option v-for="p in slhParams" :key="p.name" :value="p.name">
-              {{ p.name }} ({{ p.security }})
-            </option>
-          </select>
-          <button @click="genSLHKey" class="ck-btn-primary w-full justify-center mb-3">
-            <KeyIcon class="w-3.5 h-3.5" /> 生成签名密钥对
-          </button>
-          <div v-if="slhKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
-            <div class="flex-1 min-h-0 flex flex-col">
-              <label class="ck-label text-amber-400 shrink-0">私钥 (Private Key)</label>
-              <textarea readonly class="ck-result ck-key-hex !min-h-[80px] text-amber-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="slhKeys.privateKey"></textarea>
-              <div class="flex gap-3 mt-1">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
-                  {{ base64ByteLen(slhKeys.privateKey) + ' bytes' }}
-                </span>
-              </div>
+          <div class="flex gap-2 items-end mb-3">
+            <div class="flex-1">
+              <label class="ck-label">参数集选择</label>
+              <select v-model="slh.paramSet" class="ck-select">
+                <option v-for="p in slhParams" :key="p.name" :value="p.name">
+                  {{ p.name }} ({{ p.security }})
+                </option>
+              </select>
             </div>
-            <div class="flex-1 min-h-0 flex flex-col mt-2">
-              <label class="ck-label text-cyan-400 shrink-0">公钥 (Public Key)</label>
-              <textarea readonly class="ck-result ck-key-hex !min-h-[80px] text-cyan-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="slhKeys.publicKey"></textarea>
-              <div class="flex gap-3 mt-1">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
-                  {{ base64ByteLen(slhKeys.publicKey) + ' bytes' }}
-                </span>
+            <button @click="genSLHKey" class="ck-btn-primary px-6 py-2">
+              <KeyIcon class="w-3.5 h-3.5" /> 生成密钥
+            </button>
+          </div>
+          
+          <div v-if="slhKeys.publicKey" class="space-y-3 animate-in fade-in duration-300">
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="ck-label !mb-0 text-amber-400">私钥 (Private Key)</label>
+                <button @click="copy(slhKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
+              <div class="ck-result !min-h-[42px] !max-h-[60px] text-amber-300 text-[10px] font-mono leading-tight bg-amber-500/5 border-amber-500/10">
+                {{ slhKeys.privateKey }}
+              </div>
+              <div class="mt-1 text-[9px] opacity-40 font-mono">Size: {{ base64ByteLen(slhKeys.privateKey) }} bytes</div>
             </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="ck-label !mb-0 text-cyan-400">公钥 (Public Key)</label>
+                <button @click="copy(slhKeys.publicKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
+              </div>
+              <div class="ck-result !min-h-[42px] !max-h-[60px] text-cyan-300 text-[10px] font-mono leading-tight bg-cyan-500/5 border-cyan-500/10">
+                {{ slhKeys.publicKey }}
+              </div>
+              <div class="mt-1 text-[9px] opacity-40 font-mono">Size: {{ base64ByteLen(slhKeys.publicKey) }} bytes</div>
+            </div>
+          </div>
+          <div v-else class="py-10 flex flex-col items-center justify-center text-dark-muted opacity-30 border-2 border-dashed border-dark-border rounded-xl">
+             <KeyIcon class="w-8 h-8 mb-2" />
+             <p class="text-[11px]">SLH-DSA 密钥尺寸极小 (通常 32-64B)</p>
           </div>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="slh.data" label="待签名数据 (hex)" type="textarea" :rows="3" clearable />
+          <CryptoPanel v-model="slh.data" label="待签名数据 (Hex)" type="textarea" :rows="2" clearable />
         </div>
       </div>
 
-      <div class="space-y-3 ck-right-panel">
+      <div class="ck-stack ck-right-panel">
         <div class="flex gap-2">
-          <button @click="slhSign" :disabled="!slhKeys.privateKey" class="ck-btn-primary flex-1 justify-center">
+          <button @click="slhSign" :disabled="!slhKeys.privateKey" class="ck-btn-primary flex-1 justify-center py-2">
             <PenIcon class="w-3.5 h-3.5" /> 签名
           </button>
           <button @click="slhVerify" :disabled="!slhKeys.publicKey || !slhResult.data"
-                  class="ck-btn-secondary flex-1 justify-center">
+                  class="ck-btn-secondary flex-1 justify-center py-2">
             <CheckCircleIcon class="w-3.5 h-3.5" /> 验签
           </button>
         </div>
         <div class="ck-card">
-          <CryptoPanel v-model="slhResult.data" label="签名 (hex, 截断显示)" type="result"
+          <CryptoPanel v-model="slhResult.data" label="签名结果 (截断显示)" type="result"
                        :success="slhResult.success" copyable />
-          <div v-if="slhResult.error" class="mt-2 text-xs"
-               :class="slhResult.data === 'true' ? 'text-emerald-400' : 'text-red-400'">
-            {{ slhResult.error || (slhResult.data === 'true' ? '✅ 签名验证通过' : '') }}
+          <div v-if="slhResult.error || slhResult.success !== null" class="mt-2 text-[11px] font-bold"
+               :class="slhResult.success ? 'text-emerald-400' : 'text-red-400'">
+            {{ slhResult.error || (slhResult.success ? '✅ 签名验证通过' : '❌ 签名验证失败') }}
           </div>
         </div>
-        <div class="ck-card">
-          <p class="ck-section-title">参数对比</p>
-          <div class="overflow-x-auto">
-            <table class="w-full text-xs">
-              <thead><tr :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-                <th class="text-left pb-1">参数集</th>
-                <th class="text-right pb-1">公钥</th>
-                <th class="text-right pb-1">签名</th>
-                <th class="text-right pb-1">安全</th>
-              </tr></thead>
-              <tbody :class="isDark ? 'text-dark-text' : 'text-light-text'">
-                <tr v-for="r in slhParams" :key="r.name" class="border-t"
-                    :class="[isDark ? 'border-dark-border' : 'border-light-border',
-                             slh.paramSet === r.name ? (isDark ? 'text-emerald-300' : 'text-emerald-600') : '']">
-                  <td class="py-1 font-mono text-[10px]">{{ r.name }}</td>
-                  <td class="text-right">{{ r.pubKey }}</td>
-                  <td class="text-right">{{ r.sig }}</td>
-                  <td class="text-right">{{ r.security }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="ck-card bg-gradient-to-br from-emerald-500/5 to-transparent border-emerald-500/10">
+          <p class="ck-section-title text-emerald-400">算法特性 (SLH-DSA)</p>
+          <div class="text-[11px] space-y-2 leading-relaxed opacity-80">
+            <p>• <b>安全性:</b> 仅依赖哈希函数的抗碰撞性，极其稳健。</p>
+            <p>• <b>尺寸:</b> 公私钥极小，但签名尺寸较大 (KB级别)。</p>
+            <p>• <b>应用:</b> 适用于根证书签名、固件签名等对安全性要求极高但签名频率较低的场景。</p>
           </div>
         </div>
       </div>
@@ -335,46 +331,16 @@
               FALCON — NTRU格紧凑签名算法
             </p>
             <p class="text-xs leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-              目前 Go 生态系统中尚无成熟的纯 Go FALCON 实现。该算法依赖高精度浮点运算，
-              直接翻译为 Go 存在正确性风险，主流实现均为 C 参考代码。
+              FIPS 206 标准已于 2024 年发布。目前 Go 社区（如 Cloudflare Circl）正在适配正式版的 FIPS API。本工具将随社区稳定版发布第一时间同步更新。
             </p>
           </div>
         </div>
 
-        <!-- 参数集信息 -->
-        <div class="ck-card">
-          <p class="ck-section-title">参数集规格</p>
-          <div class="space-y-2">
-            <div v-for="p in falconParamInfo" :key="p.name"
-                 class="flex items-center justify-between p-2.5 rounded-xl border text-xs"
-                 :class="isDark ? 'border-dark-border bg-dark-bg/50' : 'border-light-border bg-gray-50'">
-              <span class="font-bold text-violet-400">{{ p.name }}</span>
-              <div class="flex gap-3 text-right" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-                <span>公钥 <b class="text-cyan-400">{{ p.pk }}</b></span>
-                <span>签名 <b class="text-amber-400">{{ p.sig }}</b></span>
-                <span class="ck-badge-purple">{{ p.nist }}</span>
-              </div>
-            </div>
+        <div class="ck-card flex flex-col items-center justify-center py-12 text-dark-muted space-y-3 opacity-60 border-dashed">
+          <div class="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center">
+            <SettingsIcon class="w-6 h-6 text-violet-400 animate-spin-slow" />
           </div>
-        </div>
-
-        <!-- 路线图 -->
-        <div class="ck-card">
-          <p class="ck-section-title">集成路线图</p>
-          <div class="space-y-2 text-xs" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="flex gap-2 items-start">
-              <span class="text-emerald-400 shrink-0 mt-0.5">✅</span>
-              <span>ML-DSA (Dilithium) — 已上线，纯 Go，via cloudflare/circl</span>
-            </div>
-            <div class="flex gap-2 items-start">
-              <span class="text-emerald-400 shrink-0 mt-0.5">✅</span>
-              <span>SLH-DSA (SPHINCS+) — 已上线，纯 Go，via cloudflare/circl</span>
-            </div>
-            <div class="flex gap-2 items-start">
-              <span class="text-amber-400 shrink-0 mt-0.5">🔄</span>
-              <span>FALCON — 跟踪 <a href="#" class="text-violet-400 underline">filippo.io/mlkem768</a> 等纯 Go PQC 库进展，计划随官方库成熟后接入</span>
-            </div>
-          </div>
+          <p class="text-xs">正在适配 FIPS 206 标准 API...</p>
         </div>
       </div>
 
@@ -418,44 +384,16 @@
               HQC — 准循环码密钥封装
             </p>
             <p class="text-xs leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-              HQC 目前处于 NIST PQC 第四轮候选阶段，Go 生态尚无稳定的纯 Go 实现。
-              与 ML-KEM 的格密码路线不同，HQC 基于纠错码，是重要的算法多样性补充。
+              HQC 已入选 NIST 第四轮。目前 Go 仅有基于 CGO 的 liboqs 绑定，纯 Go 实现尚在开发中。本工具优先保证跨平台无依赖，待稳定实现发布后即刻上线。
             </p>
           </div>
         </div>
 
-        <!-- 参数对比 -->
-        <div class="ck-card">
-          <p class="ck-section-title">参数集规格</p>
-          <div class="space-y-2">
-            <div v-for="p in hqcParamInfo" :key="p.name"
-                 class="flex items-center justify-between p-2.5 rounded-xl border text-xs"
-                 :class="isDark ? 'border-dark-border bg-dark-bg/50' : 'border-light-border bg-gray-50'">
-              <span class="font-bold text-emerald-400">{{ p.name }}</span>
-              <div class="flex gap-3 text-right" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-                <span>公钥 <b class="text-cyan-400">{{ p.pk }}</b></span>
-                <span>密文 <b class="text-amber-400">{{ p.ct }}</b></span>
-                <span class="ck-badge-green">{{ p.nist }}</span>
-              </div>
-            </div>
+        <div class="ck-card flex flex-col items-center justify-center py-12 text-dark-muted space-y-3 opacity-60 border-dashed">
+          <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+            <SettingsIcon class="w-6 h-6 text-emerald-400 animate-spin-slow" />
           </div>
-        </div>
-
-        <!-- 与 ML-KEM 对比 -->
-        <div class="ck-card">
-          <p class="ck-section-title">HQC vs ML-KEM 对比</p>
-          <div class="space-y-2 text-xs" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="grid grid-cols-3 gap-1 text-center text-[10px] font-bold pb-1 border-b"
-                 :class="isDark ? 'border-dark-border text-dark-muted' : 'border-light-border text-light-muted'">
-              <span>指标</span><span class="text-cyan-400">ML-KEM-768</span><span class="text-emerald-400">HQC-192</span>
-            </div>
-            <div v-for="row in hqcCompare" :key="row.label"
-                 class="grid grid-cols-3 gap-1 text-center text-[11px]">
-              <span>{{ row.label }}</span>
-              <span :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ row.mlkem }}</span>
-              <span :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ row.hqc }}</span>
-            </div>
-          </div>
+          <p class="text-xs">等待 NIST 标准化及稳定 Go 实现...</p>
         </div>
       </div>
 
@@ -488,7 +426,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { AtomIcon, KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, XCircleIcon, CopyIcon, InfoIcon, XIcon } from 'lucide-vue-next'
+import { AtomIcon, KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, XCircleIcon, CopyIcon, InfoIcon, XIcon, SettingsIcon } from 'lucide-vue-next'
 import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import {

@@ -7,6 +7,62 @@
       <LockIcon class="w-4 h-4 text-blue-400" />
     </template>
 
+    <template #extra>
+      <div class="flex gap-2">
+        <button @click="openHelp(activeTab)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 transition-all text-xs font-medium border border-sky-500/20">
+          <InfoIcon class="w-3.5 h-3.5" /> 使用说明
+        </button>
+        <button @click="showPrinciple = true" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 transition-all text-xs font-medium border border-violet-500/20">
+          <ShieldCheckIcon class="w-3.5 h-3.5" /> 算法原理
+        </button>
+      </div>
+    </template>
+
+    <!-- Principle Modal (HQC Style) -->
+    <transition name="fade">
+      <div v-if="showPrinciple" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPrinciple = false">
+        <div class="ck-card max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[85vh]" :class="isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'">
+          <div class="flex justify-between items-center p-4 border-b shrink-0" :class="isDark ? 'border-dark-border' : 'border-gray-100'">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <ShieldCheckIcon class="w-4 h-4 text-violet-400" /> {{ currentPrinciple.title }}
+            </h3>
+            <button @click="showPrinciple = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
+              <XIcon class="w-4 h-4 text-dark-muted" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div class="space-y-5">
+              <div v-for="(section, idx) in parsedPrinciples" :key="idx" 
+                   class="p-4 rounded-xl border transition-all hover:shadow-md"
+                   :class="[
+                     idx % 3 === 0 ? (isDark ? 'bg-violet-500/5 border-violet-500/10' : 'bg-violet-50 border-violet-100') :
+                     idx % 3 === 1 ? (isDark ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-emerald-50 border-emerald-100') :
+                     (isDark ? 'bg-blue-500/5 border-blue-500/10' : 'bg-blue-50 border-blue-100')
+                   ]">
+                <p class="font-bold mb-2.5 text-sm flex items-center gap-2"
+                   :class="[
+                     idx % 3 === 0 ? 'text-violet-400' :
+                     idx % 3 === 1 ? 'text-emerald-400' :
+                     'text-blue-400'
+                   ]">
+                  <span class="w-1.5 h-1.5 rounded-full" :class="idx % 3 === 0 ? 'bg-violet-400' : idx % 3 === 1 ? 'bg-emerald-400' : 'bg-blue-400'"></span>
+                  {{ section.title }}
+                </p>
+                <div class="text-xs leading-relaxed space-y-2 opacity-90" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
+                  <p v-for="(line, lIdx) in section.content" :key="lIdx" class="flex items-start gap-2">
+                    <span v-if="line.startsWith('•')" class="mt-1.5 w-1 h-1 rounded-full bg-current shrink-0 opacity-40"></span>
+                    <span>{{ line.startsWith('•') ? line.substring(1).trim() : line }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 border-t shrink-0 flex justify-end bg-gray-50/50 dark:bg-dark-bg/20" :class="isDark ? 'border-dark-border' : 'border-gray-100'">
+            <button @click="showPrinciple = false" class="ck-btn-primary px-8 py-2 shadow-lg shadow-violet-500/20">确认并返回</button>
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <!-- AES Tab -->
     <div v-if="activeTab === 'aes'" class="sym-workbench animate-fade-in">
@@ -24,7 +80,10 @@
               </select>
             </div>
             <div>
-              <label class="ck-label">加密模式</label>
+              <div class="flex items-center gap-1.5 mb-1">
+                <label class="ck-label !mb-0">加密模式</label>
+                <button @click="openHelp('aes-mode')" class="ck-mini-trigger"><InfoIcon class="w-3 h-3"/></button>
+              </div>
               <select v-model="aes.mode" class="ck-select">
                 <option>ECB</option><option>CBC</option><option>CFB</option>
                 <option>OFB</option><option>CTR</option><option>GCM</option>
@@ -32,7 +91,10 @@
               </select>
             </div>
             <div>
-              <label class="ck-label">填充方式</label>
+              <div class="flex items-center gap-1.5 mb-1">
+                <label class="ck-label !mb-0">填充方式</label>
+                <button @click="openHelp('aes-padding')" class="ck-mini-trigger"><InfoIcon class="w-3 h-3"/></button>
+              </div>
               <select v-model="aes.padding" class="ck-select"
                       :disabled="['CTR','GCM','CCM','CFB','OFB'].includes(aes.mode)">
                 <option>PKCS7</option><option>Zero</option>
@@ -104,39 +166,247 @@
       </div>
 
       <!-- Middle: data + result -->
-      <div class="space-y-3 sym-main">
-        <div class="ck-card">
+      <div class="sym-main">
+        <div class="ck-card flex-1 min-h-0 flex flex-col">
           <CryptoPanel v-model="aes.plaintext" label="明文" :placeholder="aes.inputFormat === 'text' ? '输入明文...' : '输入hex格式数据...'"
                        clearable type="textarea" :rows="3" />
           <div v-if="aesLenHint" :class="['mt-1 text-xs', hintClass(aesLenHint)]">{{ aesLenHint }}</div>
-        </div>
-        <div class="flex gap-2 shrink-0">
-          <button @click="encrypt" class="ck-btn-primary flex-1 justify-center" :disabled="aesDisabled">
-            <LockIcon class="w-3.5 h-3.5" /> 加密
-          </button>
-          <button @click="decrypt" class="ck-btn-secondary flex-1 justify-center" :disabled="aesDisabled">
-            <UnlockIcon class="w-3.5 h-3.5" /> 解密
-          </button>
-          <button @click="openHelp('aes')" class="ck-btn-muted justify-center px-3">说明</button>
+          <div class="flex gap-2 shrink-0 mt-3">
+            <button @click="encrypt" class="ck-btn-primary flex-1 justify-center py-2" :disabled="aesDisabled">
+              <LockIcon class="w-3.5 h-3.5" /> 加密
+            </button>
+            <button @click="decrypt" class="ck-btn-secondary flex-1 justify-center py-2" :disabled="aesDisabled">
+              <UnlockIcon class="w-3.5 h-3.5" /> 解密
+            </button>
+          </div>
         </div>
         <div class="ck-card shrink-0">
-          <CryptoPanel v-model="result.data" label="结果 (hex)" type="result"
-                       :success="result.success" copyable />
-          <div v-if="result.extra" class="mt-2">
+          <CryptoPanel v-model="result.data" label="运算结果 (Hex)" type="result" :success="result.success" copyable />
+          <div v-if="result.extra" class="mt-2 animate-in fade-in zoom-in-95 duration-200">
             <div class="flex items-center justify-between mb-1">
               <label class="ck-label !mb-0 text-amber-400">自动生成的 {{ ['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV' }}</label>
-              <button @click="copyExtra" class="ck-copy-btn text-amber-400">
-                <CopyIcon class="w-3 h-3" /> 复制
-              </button>
+              <button @click="copyExtra" class="ck-copy-btn text-amber-400"><CopyIcon class="w-3 h-3" /> 复制</button>
             </div>
             <div class="ck-result !min-h-0 text-amber-300">{{ result.extra }}</div>
           </div>
-          <div v-if="result.error" class="mt-2 text-xs text-red-400 flex items-center gap-1">
+          <div v-if="result.error" class="mt-2 text-xs text-red-400 flex items-center gap-1 animate-in slide-in-from-top-1">
             <AlertCircleIcon class="w-3.5 h-3.5 shrink-0" /> {{ result.error }}
           </div>
         </div>
-      </div>
+        
+        <!-- Algorithm Principles - Inline & Detailed -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0">
+          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
+           <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                 <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                 <span>{{ p.substring(1).trim() }}</span>
+               </p>
+               <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+             </div>
+           </div>
+         </div>
+       </div>
 
+     </div>
+
+     <!-- SM4 Tab -->
+     <div v-if="activeTab === 'sm4'" class="sym-workbench animate-fade-in">
+       <div class="space-y-3 sym-side">
+         <div class="ck-card">
+           <p class="ck-section-title">算法参数</p>
+           <div class="grid grid-cols-2 gap-3">
+             <div>
+               <label class="ck-label">工作模式</label>
+               <select v-model="sm4.mode" class="ck-select">
+                 <option>ECB</option><option>CBC</option><option>CFB</option><option>OFB</option><option>CTR</option><option>GCM</option>
+               </select>
+             </div>
+             <div>
+               <label class="ck-label">填充方式</label>
+               <select v-model="sm4.padding" class="ck-select" :disabled="sm4.mode === 'GCM'">
+                 <option>PKCS7</option><option>Zero</option><option>NoPadding</option>
+               </select>
+             </div>
+           </div>
+         </div>
+         <div class="ck-card space-y-3">
+           <p class="ck-section-title">密钥 & 参数</p>
+           <div>
+             <div class="flex justify-between mb-1">
+               <label class="ck-label !mb-0 text-amber-400">密钥 (Key / 16-byte Hex)</label>
+               <button @click="genSM4Key" class="text-xs text-violet-400">⚡ 随机生成</button>
+             </div>
+             <input v-model="sm4.key" class="ck-input font-mono ck-trim-space text-xs" placeholder="输入 32 位 Hex..." />
+           </div>
+           <div v-if="sm4.mode !== 'ECB' && sm4.mode !== 'GCM'">
+             <div class="flex justify-between mb-1">
+               <label class="ck-label !mb-0 text-cyan-400">初始化向量 (IV / 16-byte Hex)</label>
+               <button @click="genSM4IV" class="text-xs text-violet-400">⚡ 随机生成</button>
+             </div>
+             <input v-model="sm4.iv" class="ck-input font-mono ck-trim-space text-xs" placeholder="输入 32 位 Hex..." />
+           </div>
+           <div v-if="sm4.mode === 'GCM'" class="space-y-3">
+             <div>
+               <div class="flex justify-between mb-1">
+                 <label class="ck-label !mb-0 text-cyan-400">Nonce (12-byte Hex)</label>
+                 <button @click="genSM4Nonce" class="text-xs text-violet-400">⚡ 随机生成</button>
+               </div>
+               <input v-model="sm4.nonce" class="ck-input font-mono ck-trim-space text-xs" />
+             </div>
+             <div>
+               <label class="ck-label">附加认证数据 (AAD / 可选 Hex)</label>
+               <input v-model="sm4.aad" class="ck-input font-mono ck-trim-space text-xs" />
+             </div>
+           </div>
+         </div>
+       </div>
+       <div class="sym-main">
+         <div class="ck-card flex-1 min-h-0 flex flex-col">
+           <CryptoPanel v-model="sm4.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
+           <div class="grid grid-cols-2 gap-2 shrink-0 mt-3">
+             <button @click="doSM4Encrypt" class="ck-btn-primary justify-center py-2"><LockIcon class="w-3.5 h-3.5" /> 加密</button>
+             <button @click="doSM4Decrypt" class="ck-btn-secondary justify-center py-2"><UnlockIcon class="w-3.5 h-3.5" /> 解密</button>
+           </div>
+         </div>
+         <div class="ck-card shrink-0">
+           <CryptoPanel v-model="sm4Result.data" label="运算结果 (Hex)" type="result" :success="sm4Result.success" copyable />
+           <div v-if="sm4Result.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ sm4Result.error }}</div>
+         </div>
+         <!-- Principle Card -->
+         <div class="ck-card bg-gradient-to-br from-emerald-500/5 to-transparent border-emerald-500/10 shrink-0">
+           <p class="ck-section-title text-emerald-400">{{ currentPrinciple.title }}</p>
+           <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                 <span class="mt-1.5 w-1 h-1 rounded-full bg-emerald-400 shrink-0"></span>
+                 <span>{{ p.substring(1).trim() }}</span>
+               </p>
+               <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-emerald-400/90 mt-1' : ''">{{ p }}</p>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+
+    <!-- ZUC Tab -->
+    <div v-if="activeTab === 'zuc'" class="sym-workbench animate-fade-in">
+      <div class="space-y-3 sym-side">
+        <div class="ck-card">
+          <p class="ck-section-title">算法参数</p>
+          <div>
+            <label class="ck-label">算法版本</label>
+            <select v-model="zuc.type" class="ck-select">
+              <option value="ZUC-128">ZUC-128 (4G/LTE)</option>
+              <option value="ZUC-256">ZUC-256 (5G 增强)</option>
+            </select>
+          </div>
+        </div>
+        <div class="ck-card space-y-3">
+          <p class="ck-section-title">密钥 & 参数</p>
+          <div>
+            <div class="flex justify-between mb-1">
+              <label class="ck-label !mb-0 text-amber-400">密钥 (Key / Hex)</label>
+              <button @click="genZUCKey" class="text-xs text-violet-400">⚡ 生成</button>
+            </div>
+            <input v-model="zuc.key" class="ck-input font-mono ck-trim-space text-xs" :placeholder="zuc.type === 'ZUC-256' ? '64位 Hex' : '32位 Hex'" />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <label class="ck-label !mb-0 text-cyan-400">向量 (IV / Hex)</label>
+              <button @click="genZUCIV" class="text-xs text-violet-400">⚡ 生成</button>
+            </div>
+            <input v-model="zuc.iv" class="ck-input font-mono ck-trim-space text-xs" :placeholder="zuc.type === 'ZUC-256' ? '50位 Hex' : '32位 Hex'" />
+          </div>
+        </div>
+      </div>
+      <div class="sym-main">
+        <div class="ck-card flex-1 min-h-0 flex flex-col">
+          <CryptoPanel v-model="zuc.data" label="待加/解密数据 (Hex)" type="textarea" :rows="3" clearable />
+          <button @click="doZUCEncrypt" class="ck-btn-primary w-full justify-center shrink-0 py-2 mt-3 shadow-lg shadow-violet-500/10">
+            <ZapIcon class="w-3.5 h-3.5" /> 执行 ZUC 变换
+          </button>
+        </div>
+        <div class="ck-card shrink-0">
+          <CryptoPanel v-model="zucResult.data" label="变换结果 (Hex)" type="result" :success="zucResult.success" copyable />
+          <div v-if="zucResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ zucResult.error }}</div>
+        </div>
+        <!-- Principle Card -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0">
+          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Envelope Tab -->
+    <div v-if="activeTab === 'envelope'" class="sym-workbench animate-fade-in">
+      <div class="sym-side space-y-3 overflow-y-auto pr-1 custom-scrollbar">
+        <div class="ck-card space-y-4">
+          <p class="ck-section-title">制作数字信封 (密封)</p>
+          <div class="space-y-3">
+            <div>
+              <label class="ck-label text-amber-400 text-[11px]">发送方私钥 (PEM/Hex)</label>
+              <textarea v-model="envelope.senderPriv" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Private Key..."></textarea>
+            </div>
+            <div>
+              <label class="ck-label text-cyan-400 text-[11px]">接收方公钥 (PEM/Hex)</label>
+              <textarea v-model="envelope.receiverPub" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Public Key..."></textarea>
+            </div>
+            <button @click="makeEnvelope" class="ck-btn-primary w-full justify-center shadow-lg shadow-violet-500/10">
+              <PackageIcon class="w-3.5 h-3.5" /> 制作并导出信封
+            </button>
+          </div>
+        </div>
+        <div class="ck-card space-y-4">
+          <p class="ck-section-title">拆解数字信封 (开封)</p>
+          <div class="space-y-3">
+            <div>
+              <label class="ck-label text-amber-400 text-[11px]">接收方私钥 (PEM/Hex)</label>
+              <textarea v-model="envelope.receiverPriv" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Private Key..."></textarea>
+            </div>
+            <div>
+              <label class="ck-label text-cyan-400 text-[11px]">发送方公钥 (PEM/Hex)</label>
+              <textarea v-model="envelope.senderPub" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Public Key..."></textarea>
+            </div>
+            <button @click="openEnvelope" class="ck-btn-secondary w-full justify-center">
+              <PackageOpenIcon class="w-3.5 h-3.5" /> 拆解并验证数据
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="sym-main h-full flex flex-col">
+        <div class="ck-card flex-1 min-h-0 flex flex-col">
+          <p class="ck-section-title">报文数据</p>
+          <CryptoPanel v-model="envelope.data" label="待密封数据 / 待拆解信封 (Hex)" type="textarea" :rows="4" clearable />
+        </div>
+        <div class="ck-card shrink-0 mt-3">
+          <CryptoPanel v-model="envelopeResult.data" label="处理结果 (Hex)" type="result" :success="envelopeResult.success" copyable />
+          <div v-if="envelopeResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ envelopeResult.error }}</div>
+        </div>
+        <!-- Principle Card -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
+          <p class="ck-section-title text-violet-400">数字信封原理 (SM2+SM4)</p>
+          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in principles.envelope.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- DES Tab -->
@@ -271,20 +541,33 @@
       </div>
 
       <!-- Middle: data + result -->
-      <div class="space-y-3 sym-main">
-        <div class="ck-card">
-          <CryptoPanel v-model="chacha.data" label="数据 (hex)" clearable type="textarea" :rows="3" />
+      <div class="sym-main">
+        <div class="ck-card flex-1 min-h-0 flex flex-col">
+          <CryptoPanel v-model="chacha.data" label="数据 (Hex)" clearable type="textarea" :rows="3" />
           <div v-if="chachaLenHint" :class="['mt-1 text-xs', hintClass(chachaLenHint)]">{{ chachaLenHint }}</div>
-        </div>
-        <div class="flex gap-2 shrink-0">
-          <button @click="chachaEncrypt" class="ck-btn-primary flex-1 justify-center" :disabled="chachaDisabled"><LockIcon class="w-3.5 h-3.5" /> 加密</button>
-          <button @click="chachaDecrypt" class="ck-btn-secondary flex-1 justify-center" :disabled="chachaDisabled"><UnlockIcon class="w-3.5 h-3.5" /> 解密</button>
-          <button @click="openHelp('chacha')" class="ck-btn-muted justify-center px-3">说明</button>
+          <div class="flex gap-2 shrink-0 mt-3">
+            <button @click="chachaEncrypt" class="ck-btn-primary flex-1 justify-center py-2" :disabled="chachaDisabled"><LockIcon class="w-3.5 h-3.5" /> 加密</button>
+            <button @click="chachaDecrypt" class="ck-btn-secondary flex-1 justify-center py-2" :disabled="chachaDisabled"><UnlockIcon class="w-3.5 h-3.5" /> 解密</button>
+            <button @click="openHelp('chacha')" class="ck-btn-secondary px-3" title="详细帮助"><InfoIcon class="w-3.5 h-3.5" /></button>
+          </div>
         </div>
         <div class="ck-card shrink-0">
-          <CryptoPanel v-model="chachaResult.data" label="结果 (hex)" type="result" :success="chachaResult.success" copyable />
-          <div v-if="chachaResult.extra" class="mt-2 text-xs text-amber-400">自动生成 Nonce: {{ chachaResult.extra }}</div>
-          <div v-if="chachaResult.error" class="mt-2 text-xs text-red-400">{{ chachaResult.error }}</div>
+          <CryptoPanel v-model="chachaResult.data" label="运算结果 (Hex)" type="result" :success="chachaResult.success" copyable />
+          <div v-if="chachaResult.extra" class="mt-2 text-[10px] text-amber-400 font-mono bg-amber-500/5 p-1.5 rounded border border-amber-500/10">自动生成 Nonce: {{ chachaResult.extra }}</div>
+          <div v-if="chachaResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ chachaResult.error }}</div>
+        </div>
+        <!-- Principle Card -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0">
+          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -323,17 +606,22 @@
         </div>
       </div>
 
-      <div class="ck-stack ck-right-panel">
-        <div class="ck-card">
-          <CryptoPanel v-model="rc4Result.data" label="结果 (hex)" type="result" :success="rc4Result.success" copyable />
-          <div v-if="rc4Result.error" class="mt-2 text-xs text-red-400">{{ rc4Result.error }}</div>
+      <div class="ck-stack ck-right-panel h-full flex flex-col">
+        <div class="ck-card flex-1 min-h-0">
+          <CryptoPanel v-model="rc4Result.data" label="运算结果 (Hex)" type="result" :success="rc4Result.success" copyable />
+          <div v-if="rc4Result.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ rc4Result.error }}</div>
         </div>
-        <div class="ck-card">
-          <p class="ck-section-title">说明</p>
-          <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <p>• RC4 为流密码，加密解密过程相同。</p>
-            <p>• 不建议用于新系统，仅作兼容性/学习用途。</p>
-            <p>• 输入数据长度任意 (Hex 需偶数位)。</p>
+        <!-- Principle Card -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
+          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -401,17 +689,22 @@
         </div>
       </div>
 
-      <div class="ck-stack ck-right-panel">
-        <div class="ck-card">
-          <CryptoPanel v-model="sivResult.data" label="结果 (hex)" type="result" :success="sivResult.success" copyable />
-          <div v-if="sivResult.error" class="mt-2 text-xs text-red-400">{{ sivResult.error }}</div>
+      <div class="ck-stack ck-right-panel h-full flex flex-col">
+        <div class="ck-card flex-1 min-h-0">
+          <CryptoPanel v-model="sivResult.data" label="运算结果 (Hex)" type="result" :success="sivResult.success" copyable />
+          <div v-if="sivResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ sivResult.error }}</div>
         </div>
-        <div class="ck-card">
-          <p class="ck-section-title">说明</p>
-          <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <p>• AES-SIV / AES-GCM-SIV 为抗 Nonce 复用的 AEAD。</p>
-            <p>• AES-SIV 支持空 Nonce，AES-GCM-SIV 需 12 字节 Nonce。</p>
-            <p>• 输入数据长度任意 (Hex 需偶数位)。</p>
+        <!-- Principle Card -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
+          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -490,19 +783,23 @@
         </div>
       </div>
 
-      <div class="ck-stack ck-right-panel">
-        <div class="ck-card">
-          <CryptoPanel v-model="fpeResult.data" label="结果" type="result" :success="fpeResult.success" copyable />
-          <div v-if="fpeResult.error" class="mt-2 text-xs text-red-400">{{ fpeResult.error }}</div>
+      <div class="ck-stack ck-right-panel h-full flex flex-col">
+        <div class="ck-card flex-1 min-h-0">
+          <CryptoPanel v-model="fpeResult.data" label="运算结果" type="result" :success="fpeResult.success" copyable />
+          <div v-if="fpeResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ fpeResult.error }}</div>
         </div>
-        <div class="ck-card">
-          <p class="ck-section-title">说明</p>
-          <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <p>• FPE 会保持数据格式不变，例如银行卡号加密后仍是同长度数字。</p>
-            <p>• 字符集必须与数据匹配，不能包含重复字符。</p>
-            <p>• FF1/FF3-1 均为 NIST 标准模式，FF3-1 使用 7 字节 Tweak。</p>
-            <p>• AES 支持 16/24/32 字节密钥，SM4 固定 16 字节密钥。</p>
-            <p>• 输入长度: ≥ {{ fpeMinLen }}；最大 {{ fpeMaxLen }}</p>
+        <!-- Principle Card -->
+        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
+          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
+            <p class="pt-1 opacity-70 italic font-mono text-[9px]">输入限制: 长度 ≥ {{ fpeMinLen }}；最大 {{ fpeMaxLen }}</p>
           </div>
         </div>
       </div>
@@ -609,19 +906,28 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { LockIcon, UnlockIcon, CopyIcon, AlertCircleIcon, InfoIcon, XIcon } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
+import { LockIcon, UnlockIcon, CopyIcon, AlertCircleIcon, InfoIcon, XIcon, ZapIcon, PackageIcon, PackageOpenIcon, ShieldCheckIcon } from 'lucide-vue-next'
 import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
-import { AESEncrypt, AESDecrypt, DESEncrypt, DESDecrypt, ChaCha20Encrypt, ChaCha20Decrypt, RC4Encrypt, RC4Decrypt, SIVEncrypt, SIVDecrypt, FPEEncrypt, FPEDecrypt } from '../../wailsjs/go/main/App'
+import {
+  AESEncrypt, AESDecrypt, DESEncrypt, DESDecrypt, ChaCha20Encrypt, ChaCha20Decrypt,
+  RC4Encrypt, RC4Decrypt, SIVEncrypt, SIVDecrypt, FPEEncrypt, FPEDecrypt,
+  SM4Encrypt, SM4Decrypt, ZUCEncrypt, MakeGMEnvelope, OpenGMEnvelope
+} from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
 const store = useAppStore()
+const route = useRoute()
 const { isDark } = storeToRefs(store)
 
 const tabs = [
   { id: 'aes', label: 'AES' },
+  { id: 'sm4', label: 'SM4' },
+  { id: 'zuc', label: 'ZUC' },
+  { id: 'envelope', label: '数字信封' },
   { id: 'des', label: 'DES / 3DES' },
   { id: 'chacha', label: 'ChaCha20' },
   { id: 'siv', label: 'AES-SIV' },
@@ -629,11 +935,103 @@ const tabs = [
   { id: 'fpe', label: 'FPE' },
 ]
 const activeTab = ref('aes')
+
+// ── 算法原理 ────────────────────────────────────────────────
+const showPrinciple = ref(false)
+const principles = {
+  'aes-mode': {
+    title: 'AES 加密模式选择指南',
+    content: 'ECB (电子密码本): 最简单，每个块独立加密。缺点：相同明文块产生相同密文块，安全性低，仅限测试使用。\nCBC (密码分组链接): 最常用模式之一。每个明文块与前一个密文块异或后再加密。优点：安全性高，隐藏明文模式；缺点：无法并行，需 IV。\nCFB/OFB (反馈模式): 将分组密码转换为流密码。适合实时流数据，不需填充。\nCTR (计数器模式): 将计数器加密后与明文异或。优点：高性能、可并行、支持随机访问，是现代协议常用模式。\nGCM (伽罗瓦/计数器模式): 现代首选。提供加密的同时提供完整性校验 (AEAD)，安全性与性能平衡最佳。'
+  },
+  'aes-padding': {
+    title: '对称加密填充方式说明',
+    content: 'PKCS7: 最通用标准。填充字节的值等于填充的字节数。例如缺 3 字节则填充 03 03 03。\nZero Padding: 填充 0x00。注意：若明文末尾本身有 0x00，解密后可能无法区分填充。\nISO10126: 填充随机字节，最后一个字节记录填充长度。安全性略高于 PKCS7。\nNoPadding: 不填充。要求输入明文长度必须是分组长度 (AES 为 16 字节) 的整数倍。'
+  },
+  aes: {
+    title: 'AES (高级加密标准) 原理',
+    content: '设计背景: 旨在取代 DES，采用 Rijndael 算法，是目前全球应用最广的对称加密标准。\n核心流程: 经过字节替代 (SubBytes)、行移位 (ShiftRows)、列混淆 (MixColumns) 和轮密钥加 (AddRoundKey) 的多轮迭代。\n安全强度:\n• AES-128: 10 轮迭代\n• AES-192: 12 轮迭代\n• AES-256: 14 轮迭代\n模式建议:\n• GCM: 现代首选，带认证的加密 (AEAD)，性能高且防篡改。\n• CBC: 传统常用，需配合 MAC 才能防篡改。'
+  },
+  sm4: {
+    title: 'SM4 (国密分组加密) 原理',
+    content: '设计背景: 我国自主设计的第一个商用分组密码标准 (GM/T 0002)。\n技术特征:\n• 分组长度: 128 位\n• 密钥长度: 128 位\n• 迭代轮数: 32 轮\n• 算法结构: 非平衡 Feistel 网络结构，但实际上是一种全分组置换。\n应用场景: 广泛用于金融、政务、物联网等需要符合国家密码标准合规的场景。'
+  },
+  zuc: {
+    title: 'ZUC (祖冲之算法) 原理',
+    content: '设计背景: 面向 3GPP LTE 移动通信系统的序列密码 (流密码) 标准。\n技术特征:\n• 结构: 由线性反馈移位寄存器 (LFSR)、比特重组 (BR) 和非线性函数 F 组成。\n• 版本: ZUC-128 (4G) 和 ZUC-256 (5G 增强安全)。\n应用场景: 移动网络数据加密和完整性保护。流密码具有极高的软件处理性能，且不会产生长度扩展。'
+  },
+  envelope: {
+    title: '数字信封 (SM2 + SM4) 原理',
+    content: '设计目标: 解决大规模数据传输时的密钥分发问题。\n核心步骤:\n1. 密封 (封包): 发送方生成随机对称密钥 (SM4)，用它加密大数据；然后用接收方的公钥 (SM2) 加密该 SM4 密钥。\n2. 拆解 (解包): 接收方先用自己的私钥解密出 SM4 密钥，再用该密钥解密大数据。\n优势: 兼具非对称加密的安全分发和对称加密的高效处理性能。'
+  },
+  des: {
+    title: 'DES / 3DES 原理',
+    content: 'DES: 1977 年标准，56 位密钥长度，目前已能被暴力破解，仅用于遗留系统兼容。\n3DES: 为增强安全，对数据进行三次 DES 运算。通常采用 K1-K2-K3 或 K1-K2-K1 三密钥模式。\n安全性: 3DES 的安全强度约为 112 位，虽然目前尚算安全，但计算效率远低于 AES，建议迁移至 AES 或 SM4。'
+  },
+  chacha: {
+    title: 'ChaCha20 原理',
+    content: '设计背景: 由 Daniel J. Bernstein 设计的流密码，旨在提供比 AES 更高的纯软件性能。\n技术特征:\n• 结构: 基于 ARX (Addition-Rotation-XOR) 设计，不依赖查表，天然防御侧信道攻击。\n• Poly1305: 常配合 Poly1305 构成 AEAD 模式。\n应用场景: TLS 1.3、移动端、以及没有硬件 AES 指令集的低端处理器。'
+  },
+  siv: {
+    title: 'AES-SIV (合成初始向量) 原理',
+    content: '设计目标: 解决传统 AEAD 模式下，一旦 Nonce 重复就会导致密钥泄漏的致命缺陷。\n工作方式: 采用“确定性”加密，IV 是由明文本身和附加数据经过 PRF 计算得到的。即使 Nonce 错误地重复，也只会泄漏“明文是否相同”，而不会泄漏密钥或明文内容。'
+  },
+  rc4: {
+    title: 'RC4 原理',
+    content: '设计背景: 曾经世界上最流行的流密码，结构极其简单（S盒交换）。\n安全性缺陷: 存在初始字节偏置等弱点，目前在所有主流协议 (如 TLS 1.2+) 中已被禁用。\n仅供参考: 除非维护极其古老的系统，否则绝不建议在新项目中使用。'
+  },
+  fpe: {
+    title: 'FPE (格式保持加密) 原理',
+    content: '设计目标: 加密后的密文与明文保持相同的格式和长度。例如：16位银行卡号加密后仍是16位数字。\n标准: 基于 NIST SP 800-38G 标准的 FF1 和 FF3-1 模式。\n应用场景: 数据库敏感字段脱敏、遗留系统数据库改造（无需修改字段定义长度）。'
+  }
+}
+const currentPrinciple = computed(() => principles[activeTab.value])
+
+const parsedPrinciples = computed(() => {
+  if (!currentPrinciple.value) return []
+  const lines = currentPrinciple.value.content.split('\n')
+  const sections = []
+  let currentSection = null
+
+  lines.forEach(line => {
+    if (line.includes(':') && !line.startsWith('•')) {
+      const [title, ...rest] = line.split(':')
+      currentSection = { title: title.trim(), content: [rest.join(':').trim()] }
+      sections.push(currentSection)
+    } else if (currentSection) {
+      if (line.trim()) currentSection.content.push(line.trim())
+    }
+  })
+
+  // Fallback if no colon titles found
+  if (sections.length === 0) {
+    return [{ title: '详细说明', content: lines.filter(l => l.trim()) }]
+  }
+  return sections
+})
+
+onMounted(() => {
+  if (route.query.tab) {
+    const tab = tabs.find(t => t.id === route.query.tab)
+    if (tab) activeTab.value = tab.id
+  }
+})
+
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && tabs.find(t => t.id === newTab)) {
+    activeTab.value = newTab
+  }
+})
 const helpOpen = ref(false)
 const helpType = ref('aes')
 const helpTitle = computed(() => {
   if (helpType.value === 'des') return `${des.type} 使用说明`
   if (helpType.value === 'chacha') return `${chacha.type} 使用说明`
+  if (helpType.value === 'sm4') return 'SM4 算法使用说明'
+  if (helpType.value === 'zuc') return 'ZUC 算法使用说明'
+  if (helpType.value === 'envelope') return '数字信封操作说明'
+  if (helpType.value === 'rc4') return 'RC4 使用说明'
+  if (helpType.value === 'siv') return 'AES-SIV 使用说明'
+  if (helpType.value === 'fpe') return 'FPE 格式保持加密说明'
   return `AES-${aes.keySize} ${aes.mode} 使用说明`
 })
 
@@ -818,6 +1216,76 @@ async function rc4Decrypt() {
   rc4.data = rc4.data.toUpperCase()
   const r = await RC4Decrypt({ key: rc4.key, data: rc4.data })
   rc4Result.data = r.data; rc4Result.error = r.error; rc4Result.success = r.success
+}
+
+// SM4 state
+const sm4 = reactive({ mode: 'CBC', padding: 'PKCS7', key: '', iv: '', nonce: '', aad: '', data: '' })
+const sm4Result = reactive({ data: '', error: '', extra: '', success: null })
+
+async function doSM4Encrypt() {
+  const cleanData = sm4.data.replace(/\s+/g, '')
+  if (sm4.padding === 'NoPadding' && cleanData.length % 32 !== 0) {
+    sm4Result.success = false
+    sm4Result.error = '错误：在 NoPadding 模式下，输入数据的长度必须是 16 字节（32 位 Hex）的倍数'
+    return
+  }
+  const r = await SM4Encrypt(sm4)
+  sm4Result.data = r.data; sm4Result.error = r.error; sm4Result.extra = r.extra; sm4Result.success = r.success
+}
+async function doSM4Decrypt() {
+  const cleanData = sm4.data.replace(/\s+/g, '')
+  if (cleanData.length % 32 !== 0) {
+    sm4Result.success = false
+    sm4Result.error = '错误：SM4 密文长度必须是 16 字节（32 位 Hex）的倍数'
+    return
+  }
+  const r = await SM4Decrypt(sm4)
+  sm4Result.data = r.data; sm4Result.error = r.error; sm4Result.extra = r.extra; sm4Result.success = r.success
+}
+function genSM4Key() { const b = new Uint8Array(16); crypto.getRandomValues(b); sm4.key = Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase() }
+function genSM4IV()  { const b = new Uint8Array(16); crypto.getRandomValues(b); sm4.iv  = Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase() }
+function genSM4Nonce(){ const b = new Uint8Array(12); crypto.getRandomValues(b); sm4.nonce= Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase() }
+
+// ZUC state
+const zuc = reactive({ type: 'ZUC-128', key: '', iv: '', data: '' })
+const zucResult = reactive({ data: '', error: '', success: null })
+
+async function doZUCEncrypt() {
+  const r = await ZUCEncrypt(zuc)
+  zucResult.data = r.data; zucResult.error = r.error; zucResult.success = r.success
+}
+function genZUCKey() {
+  const len = zuc.type === 'ZUC-256' ? 32 : 16
+  const b = new Uint8Array(len); crypto.getRandomValues(b)
+  zuc.key = Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()
+}
+function genZUCIV() {
+  const len = zuc.type === 'ZUC-256' ? 25 : 16
+  const b = new Uint8Array(len); crypto.getRandomValues(b)
+  zuc.iv = Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()
+}
+
+// Envelope state
+const envelope = reactive({ senderPriv: '', receiverPub: '', data: '', receiverPriv: '', senderPub: '', envelopeData: '' })
+const envelopeResult = reactive({ data: '', error: '', success: null })
+
+async function makeEnvelope() {
+  if (!envelope.senderPriv || !envelope.receiverPub || !envelope.data) {
+    envelopeResult.error = '请填写完整的发送方私钥、接收方公钥和待处理数据'
+    envelopeResult.success = false
+    return
+  }
+  const r = await MakeGMEnvelope(envelope)
+  envelopeResult.data = r.data; envelopeResult.error = r.error; envelopeResult.success = r.success
+}
+async function openEnvelope() {
+  if (!envelope.receiverPriv || !envelope.senderPub || !envelope.envelopeData) {
+    envelopeResult.error = '请填写完整的接收方私钥、发送方公钥和信封数据'
+    envelopeResult.success = false
+    return
+  }
+  const r = await OpenGMEnvelope(envelope)
+  envelopeResult.data = r.data; envelopeResult.error = r.error; envelopeResult.success = r.success
 }
 
 // FPE state
@@ -1095,14 +1563,24 @@ async function fpeDecrypt() {
 <style scoped>
 .sym-workbench {
   display: grid;
-  grid-template-columns: 264px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(460px, 1.4fr) 1fr;
+  gap: 16px;
   align-items: start;
+}
+
+@media (min-width: 1440px) {
+  .sym-workbench {
+    grid-template-columns: minmax(520px, 1.5fr) 1fr;
+    gap: 24px;
+  }
 }
 
 .sym-side,
 .sym-main {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 @media (max-width: 1080px) {

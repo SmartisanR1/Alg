@@ -393,15 +393,15 @@ func SLHDSASign(req SLHDSARequest) symmetric.CryptoResult {
 func SLHDSAVerify(req SLHDSAVerifyRequest) symmetric.CryptoResult {
 	pubBytes, err := hex.DecodeString(req.PublicKey)
 	if err != nil {
-		return symmetric.CryptoResult{Error: "无效的公钥: " + err.Error()}
+		return symmetric.CryptoResult{Error: "无效公钥: " + err.Error()}
 	}
 	msgBytes, err := hex.DecodeString(req.Data)
 	if err != nil {
-		return symmetric.CryptoResult{Error: "无效的数据: " + err.Error()}
+		return symmetric.CryptoResult{Error: "无效数据: " + err.Error()}
 	}
 	sigBytes, err := hex.DecodeString(req.Signature)
 	if err != nil {
-		return symmetric.CryptoResult{Error: "无效的签名: " + err.Error()}
+		return symmetric.CryptoResult{Error: "无效签名: " + err.Error()}
 	}
 
 	id, err := slhdsa.IDByName(req.ParamSet)

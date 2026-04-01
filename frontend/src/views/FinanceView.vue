@@ -3,8 +3,39 @@
               icon-bg="bg-indigo-500/20"
               :tabs="tabs" :active-tab="activeTab" @tab-change="activeTab = $event">
     <template #icon>
-      <ShieldIcon class="w-4 h-4 text-indigo-400" />
+      <FingerprintIcon class="w-4 h-4 text-amber-400" />
     </template>
+
+    <template #extra>
+      <button @click="showPrinciple = true" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 transition-all text-xs font-medium border border-violet-500/20">
+        <InfoIcon class="w-3.5 h-3.5" /> 算法原理
+      </button>
+    </template>
+
+    <!-- Principle Modal -->
+    <transition name="fade">
+      <div v-if="showPrinciple" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPrinciple = false">
+        <div class="ck-card max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200" :class="isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'">
+          <div class="flex justify-between items-center mb-4 border-b pb-3" :class="isDark ? 'border-dark-border' : 'border-gray-100'">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <InfoIcon class="w-4 h-4 text-violet-400" /> {{ currentPrinciple.title }}
+            </h3>
+            <button @click="showPrinciple = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
+              <XIcon class="w-4 h-4 text-dark-muted" />
+            </button>
+          </div>
+          <div class="text-xs leading-relaxed space-y-3" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2">{{ p }}</p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400 mt-2' : ''">{{ p }}</p>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end">
+            <button @click="showPrinciple = false" class="ck-btn-primary px-6">确定</button>
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <!-- MAC -->
     <div v-if="activeTab === 'mac'" class="ck-workbench animate-fade-in">
