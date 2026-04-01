@@ -35,17 +35,17 @@
               <div v-for="(section, idx) in parsedPrinciples" :key="idx" 
                    class="p-4 rounded-xl border transition-all hover:shadow-md"
                    :class="[
-                     idx % 3 === 0 ? (isDark ? 'bg-violet-500/5 border-violet-500/10' : 'bg-violet-50 border-violet-100') :
-                     idx % 3 === 1 ? (isDark ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-emerald-50 border-emerald-100') :
-                     (isDark ? 'bg-blue-500/5 border-blue-500/10' : 'bg-blue-50 border-blue-100')
+                     idx % 3 === 0 ? (isDark ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-emerald-50 border-emerald-100') :
+                     idx % 3 === 1 ? (isDark ? 'bg-blue-500/5 border-blue-500/10' : 'bg-blue-50 border-blue-100') :
+                     (isDark ? 'bg-violet-500/5 border-violet-500/10' : 'bg-violet-50 border-violet-100')
                    ]">
                 <p class="font-bold mb-2.5 text-sm flex items-center gap-2"
                    :class="[
-                     idx % 3 === 0 ? 'text-violet-400' :
-                     idx % 3 === 1 ? 'text-emerald-400' :
-                     'text-blue-400'
+                     idx % 3 === 0 ? 'text-emerald-400' :
+                     idx % 3 === 1 ? 'text-blue-400' :
+                     'text-violet-400'
                    ]">
-                  <span class="w-1.5 h-1.5 rounded-full" :class="idx % 3 === 0 ? 'bg-violet-400' : idx % 3 === 1 ? 'bg-emerald-400' : 'bg-blue-400'"></span>
+                  <span class="w-1.5 h-1.5 rounded-full" :class="idx % 3 === 0 ? 'bg-emerald-400' : idx % 3 === 1 ? 'bg-blue-400' : 'bg-violet-400'"></span>
                   {{ section.title }}
                 </p>
                 <div class="text-xs leading-relaxed space-y-2 opacity-90" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
@@ -195,25 +195,25 @@
         </div>
         
         <!-- Algorithm Principles - Inline & Detailed -->
-        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0">
+        <div class="ck-card shrink-0" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
           <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
-           <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
-               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                 <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
-                 <span>{{ p.substring(1).trim() }}</span>
-               </p>
-               <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
-             </div>
-           </div>
-         </div>
-       </div>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-     </div>
+    </div>
 
-     <!-- SM4 Tab -->
-     <div v-if="activeTab === 'sm4'" class="sym-workbench animate-fade-in">
-       <div class="space-y-3 sym-side">
+    <!-- SM4 Tab -->
+    <div v-if="activeTab === 'sm4'" class="sym-workbench animate-fade-in">
+      <div class="space-y-3 sym-side">
          <div class="ck-card">
            <p class="ck-section-title">算法参数</p>
            <div class="grid grid-cols-2 gap-3">
@@ -274,21 +274,21 @@
            <CryptoPanel v-model="sm4Result.data" label="运算结果 (Hex)" type="result" :success="sm4Result.success" copyable />
            <div v-if="sm4Result.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ sm4Result.error }}</div>
          </div>
-         <!-- Principle Card -->
-         <div class="ck-card bg-gradient-to-br from-emerald-500/5 to-transparent border-emerald-500/10 shrink-0">
-           <p class="ck-section-title text-emerald-400">{{ currentPrinciple.title }}</p>
-           <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
-               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                 <span class="mt-1.5 w-1 h-1 rounded-full bg-emerald-400 shrink-0"></span>
-                 <span>{{ p.substring(1).trim() }}</span>
-               </p>
-               <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-emerald-400/90 mt-1' : ''">{{ p }}</p>
-             </div>
-           </div>
-         </div>
-       </div>
-     </div>
+        <!-- Principle Card -->
+        <div class="ck-card shrink-0" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-emerald-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
+              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-emerald-400 shrink-0"></span>
+                <span>{{ p.substring(1).trim() }}</span>
+              </p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-emerald-400/90 mt-1' : ''">{{ p }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ZUC Tab -->
     <div v-if="activeTab === 'zuc'" class="sym-workbench animate-fade-in">
@@ -333,15 +333,15 @@
           <div v-if="zucResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ zucResult.error }}</div>
         </div>
         <!-- Principle Card -->
-        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0">
-          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
-          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+        <div class="ck-card shrink-0" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-blue-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-blue-400 shrink-0"></span>
                 <span>{{ p.substring(1).trim() }}</span>
               </p>
-              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-blue-400/90 mt-1' : ''">{{ p }}</p>
             </div>
           </div>
         </div>
@@ -349,61 +349,68 @@
     </div>
 
     <!-- Envelope Tab -->
-    <div v-if="activeTab === 'envelope'" class="sym-workbench animate-fade-in">
-      <div class="sym-side space-y-3 overflow-y-auto pr-1 custom-scrollbar">
+    <div v-if="activeTab === 'envelope'" class="ck-workbench animate-fade-in">
+      <div class="ck-stack">
         <div class="ck-card space-y-4">
-          <p class="ck-section-title">制作数字信封 (密封)</p>
-          <div class="space-y-3">
+          <p class="ck-section-title">加密 (制作数字信封)</p>
+          <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="ck-label text-amber-400 text-[11px]">发送方私钥 (PEM/Hex)</label>
-              <textarea v-model="envelope.senderPriv" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Private Key..."></textarea>
+              <label class="ck-label">发送方私钥 (SM2)</label>
+              <input v-model="envelope.senderPriv" class="ck-input font-mono ck-trim-space text-xs" placeholder="64位Hex (32字节)" />
             </div>
             <div>
-              <label class="ck-label text-cyan-400 text-[11px]">接收方公钥 (PEM/Hex)</label>
-              <textarea v-model="envelope.receiverPub" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Public Key..."></textarea>
+              <label class="ck-label">接收方公钥 (SM2)</label>
+              <input v-model="envelope.receiverPub" class="ck-input font-mono ck-trim-space text-xs" placeholder="64位Hex (32字节)" />
             </div>
-            <button @click="makeEnvelope" class="ck-btn-primary w-full justify-center shadow-lg shadow-violet-500/10">
-              <PackageIcon class="w-3.5 h-3.5" /> 制作并导出信封
-            </button>
+          </div>
+          <div>
+            <label class="ck-label">待加密数据</label>
+            <textarea v-model="envelope.data" rows="3" class="ck-textarea font-mono text-xs" placeholder="Hex 格式数据..."></textarea>
+          </div>
+          <button @click="makeEnvelope" class="ck-btn-primary w-full justify-center" :disabled="!envelope.senderPriv || !envelope.receiverPub || !envelope.data">
+            <LockIcon class="w-3.5 h-3.5" /> 生成数字信封
+          </button>
+          <div v-if="envelopeResult.error" class="text-xs text-red-400">{{ envelopeResult.error }}</div>
+          <div v-if="envelopeResult.data">
+            <label class="ck-label !mb-0 text-emerald-400">数字信封结果</label>
+            <textarea readonly :value="envelopeResult.data" rows="4" class="ck-result font-mono text-xs mt-1"></textarea>
           </div>
         </div>
+
         <div class="ck-card space-y-4">
-          <p class="ck-section-title">拆解数字信封 (开封)</p>
-          <div class="space-y-3">
+          <p class="ck-section-title">解密 (打开数字信封)</p>
+          <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="ck-label text-amber-400 text-[11px]">接收方私钥 (PEM/Hex)</label>
-              <textarea v-model="envelope.receiverPriv" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Private Key..."></textarea>
+              <label class="ck-label">接收方私钥 (SM2)</label>
+              <input v-model="envelope.receiverPriv" class="ck-input font-mono ck-trim-space text-xs" placeholder="64位Hex (32字节)" />
             </div>
             <div>
-              <label class="ck-label text-cyan-400 text-[11px]">发送方公钥 (PEM/Hex)</label>
-              <textarea v-model="envelope.senderPub" class="ck-textarea text-[10px] font-mono" rows="2" placeholder="SM2 Public Key..."></textarea>
+              <label class="ck-label">发送方公钥 (SM2)</label>
+              <input v-model="envelope.senderPub" class="ck-input font-mono ck-trim-space text-xs" placeholder="64位Hex (32字节)" />
             </div>
-            <button @click="openEnvelope" class="ck-btn-secondary w-full justify-center">
-              <PackageOpenIcon class="w-3.5 h-3.5" /> 拆解并验证数据
-            </button>
+          </div>
+          <div>
+            <label class="ck-label">数字信封数据</label>
+            <textarea v-model="envelope.envelopeData" rows="4" class="ck-textarea font-mono text-xs" placeholder="Hex 格式信封数据..."></textarea>
+          </div>
+          <button @click="openEnvelope" class="ck-btn-primary w-full justify-center" :disabled="!envelope.receiverPriv || !envelope.senderPub || !envelope.envelopeData">
+            <UnlockIcon class="w-3.5 h-3.5" /> 打开数字信封
+          </button>
+          <div v-if="envelopeResult.error" class="text-xs text-red-400">{{ envelopeResult.error }}</div>
+          <div v-if="envelopeResult.success && !envelopeResult.error">
+            <label class="ck-label !mb-0 text-emerald-400">解密结果</label>
+            <textarea readonly :value="envelopeResult.data" rows="3" class="ck-result font-mono text-xs mt-1"></textarea>
           </div>
         </div>
       </div>
-      <div class="sym-main h-full flex flex-col">
-        <div class="ck-card flex-1 min-h-0 flex flex-col">
-          <p class="ck-section-title">报文数据</p>
-          <CryptoPanel v-model="envelope.data" label="待密封数据 / 待拆解信封 (Hex)" type="textarea" :rows="4" clearable />
-        </div>
-        <div class="ck-card shrink-0 mt-3">
-          <CryptoPanel v-model="envelopeResult.data" label="处理结果 (Hex)" type="result" :success="envelopeResult.success" copyable />
-          <div v-if="envelopeResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ envelopeResult.error }}</div>
-        </div>
-        <!-- Principle Card -->
-        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
-          <p class="ck-section-title text-violet-400">数字信封原理 (SM2+SM4)</p>
-          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div v-for="(p, i) in principles.envelope.content.split('\n')" :key="i">
-              <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
-                <span>{{ p.substring(1).trim() }}</span>
-              </p>
-              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
-            </div>
+
+      <div class="ck-stack ck-right-panel h-full flex flex-col">
+        <div class="ck-card shrink-0" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-violet-400">数字信封 (SM2 + SM4) 原理</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <p>SM2 用于加密 SM4 密钥，SM4 用于加密实际数据。</p>
+            <p>• 发送方：随机生成会话密钥，用接收方 SM2 公钥加密会话密钥（形成数字信封），用 SM4 加密数据。</p>
+            <p>• 接收方：用 SM2 私钥解密信封得到会话密钥，再用 SM4 解密数据。</p>
           </div>
         </div>
       </div>
@@ -411,11 +418,10 @@
 
     <!-- DES Tab -->
     <div v-if="activeTab === 'des'" class="sym-workbench animate-fade-in">
-      <!-- Left: params -->
       <div class="space-y-3 sym-side">
         <div class="ck-card">
           <p class="ck-section-title">算法参数</p>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3">
             <div>
               <label class="ck-label">算法类型</label>
               <select v-model="des.type" class="ck-select">
@@ -445,8 +451,8 @@
               <label class="ck-label !mb-0">密钥 (hex)</label>
               <button @click="genDesKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <input v-model="des.key" :placeholder="des.type === '3DES' ? '48位Hex (24字节)' : '16位Hex (8字节)'" class="ck-input font-mono ck-trim-space" />
-            <div v-if="desKeyHint" :class="['mt-1 text-xs', hintClass(desKeyHint)]">{{ desKeyHint }}</div>
+            <input v-model="des.key" placeholder="48位Hex (24字节)或16位Hex (8字节)" class="ck-input font-mono ck-trim-space" />
+            <div v-if="desKeyHint" :class="['mt-1 text-xs', hintClass(desKeyHint)]"></div>
             <div v-if="des.key" class="flex gap-3 mt-1">
               <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
                 {{ (des.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
@@ -459,16 +465,15 @@
               <button @click="genDesIV" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
             <input v-model="des.iv" placeholder="16位Hex (8字节)" class="ck-input font-mono ck-trim-space" />
-            <div v-if="desIVHint" :class="['mt-1 text-xs', hintClass(desIVHint)]">{{ desIVHint }}</div>
+            <div v-if="desIVHint" :class="['mt-1 text-xs', hintClass(desIVHint)]"></div>
           </div>
         </div>
       </div>
 
-      <!-- Middle: data + result -->
       <div class="space-y-3 sym-main">
         <div class="ck-card">
           <CryptoPanel v-model="des.plaintext" label="明文 (hex)" clearable type="textarea" :rows="3" />
-          <div v-if="desLenHint" :class="['mt-1 text-xs', hintClass(desLenHint)]">{{ desLenHint }}</div>
+          <div v-if="desLenHint" :class="['mt-1 text-xs', hintClass(desLenHint)]"></div>
         </div>
         <div class="flex gap-2 shrink-0">
           <button @click="desEncrypt" class="ck-btn-primary flex-1 justify-center" :disabled="desDisabled"><LockIcon class="w-3.5 h-3.5" /> 加密</button>
@@ -477,10 +482,17 @@
         </div>
         <div class="ck-card shrink-0">
           <CryptoPanel v-model="desResult.data" label="结果 (hex)" type="result" :success="desResult.success" copyable />
-          <div v-if="desResult.error" class="mt-2 text-xs text-red-400">{{ desResult.error }}</div>
+          <div v-if="desResult.error" class="mt-2 text-xs text-red-400"></div>
+        </div>
+        <div class="ck-card shrink-0" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-rose-400">DES / 3DES 原理</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <p>DES: 1977年发布，56位密钥，已被暴力破解，不建议使用。</p>
+            <p>3DES: 三重 DES，168位密钥，向后兼容 DES，安全性有所提升但效率低。</p>
+            <p>它现在更适合教学或历史数据兼容，不应再作为新系统的正式加密方案。</p>
+          </div>
         </div>
       </div>
-
     </div>
 
     <!-- ChaCha20 Tab -->
@@ -557,15 +569,15 @@
           <div v-if="chachaResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ chachaResult.error }}</div>
         </div>
         <!-- Principle Card -->
-        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0">
-          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
-          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+        <div class="ck-card shrink-0" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-teal-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-teal-400 shrink-0"></span>
                 <span>{{ p.substring(1).trim() }}</span>
               </p>
-              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-teal-400/90 mt-1' : ''">{{ p }}</p>
             </div>
           </div>
         </div>
@@ -612,15 +624,15 @@
           <div v-if="rc4Result.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ rc4Result.error }}</div>
         </div>
         <!-- Principle Card -->
-        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
-          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
-          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+        <div class="ck-card shrink-0 mt-3" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-orange-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-orange-400 shrink-0"></span>
                 <span>{{ p.substring(1).trim() }}</span>
               </p>
-              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-orange-400/90 mt-1' : ''">{{ p }}</p>
             </div>
           </div>
         </div>
@@ -695,15 +707,15 @@
           <div v-if="sivResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ sivResult.error }}</div>
         </div>
         <!-- Principle Card -->
-        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
-          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
-          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+        <div class="ck-card shrink-0 mt-3" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-amber-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-amber-400 shrink-0"></span>
                 <span>{{ p.substring(1).trim() }}</span>
               </p>
-              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-amber-400/90 mt-1' : ''">{{ p }}</p>
             </div>
           </div>
         </div>
@@ -789,15 +801,15 @@
           <div v-if="fpeResult.error" class="mt-2 text-xs text-red-400 animate-in slide-in-from-top-1">{{ fpeResult.error }}</div>
         </div>
         <!-- Principle Card -->
-        <div class="ck-card bg-gradient-to-br from-violet-500/5 to-transparent border-violet-500/10 shrink-0 mt-3">
-          <p class="ck-section-title text-violet-400">{{ currentPrinciple.title }}</p>
-          <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+        <div class="ck-card shrink-0 mt-3" :class="isDark ? 'bg-dark-bg' : 'bg-gray-50'">
+          <p class="ck-section-title text-amber-400">{{ currentPrinciple.title }}</p>
+          <div class="text-[11px] space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div v-for="(p, i) in currentPrinciple.content.split('\n')" :key="i">
               <p v-if="p.startsWith('•')" class="pl-2.5 flex items-start gap-2">
-                <span class="mt-1.5 w-1 h-1 rounded-full bg-violet-400 shrink-0"></span>
+                <span class="mt-1.5 w-1 h-1 rounded-full bg-amber-400 shrink-0"></span>
                 <span>{{ p.substring(1).trim() }}</span>
               </p>
-              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-violet-400/90 mt-1' : ''">{{ p }}</p>
+              <p v-else-if="p.trim()" :class="p.includes(':') ? 'font-bold text-amber-400/90 mt-1' : ''">{{ p }}</p>
             </div>
             <p class="pt-1 opacity-70 italic font-mono text-[9px]">输入限制: 长度 ≥ {{ fpeMinLen }}；最大 {{ fpeMaxLen }}</p>
           </div>

@@ -64,6 +64,14 @@
     border-radius: 0;
   }
 
+  /* Windows platform: remove all border radius from main container */
+  .platform-windows.app-container {
+    border-radius: 0 !important;
+  }
+  .platform-windows.app-container > * {
+    border-radius: 0 !important;
+  }
+
   /* ============================================================
    * Deep fix for White Cards in Dark Mode
    * ============================================================ */
@@ -639,13 +647,13 @@
 
 @media (min-width: 1024px) {
   .ck-workbench {
-    grid-template-columns: minmax(460px, 1.4fr) 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (min-width: 1440px) {
   .ck-workbench {
-    grid-template-columns: minmax(520px, 1.5fr) 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 }
@@ -669,8 +677,12 @@
 
 .app-container.fullscreen .ck-result {
   min-height: 96px;
-  max-height: 260px;
-  font-size: 14px;
+}
+
+/* Certificate parsing result - expand with content */
+.cert-result .ck-result {
+  max-height: none;
+  min-height: 80px;
 }
 
 .app-container.fullscreen .ck-section-title {

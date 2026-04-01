@@ -30,15 +30,11 @@
              <span class="text-[9px] font-semibold text-indigo-500/90 tracking-wider uppercase">Secure Toolkit</span>
            </div>
          </div>
-       </div>
+        </div>
 
-       <!-- Theme & History -->
-       <div class="flex items-center gap-2 titlebar-nodrag">
-         <button @click="showHistory = !showHistory" class="titlebar-icon-btn relative">
-           <HistoryIcon class="w-4 h-4" :class="isDark ? 'text-dark-muted' : 'text-slate-500'" />
-           <span v-if="history.length" class="absolute top-1 right-1 w-1.5 h-1.5 bg-violet-500 rounded-full"></span>
-         </button>
-         <button @click="handleToggleTheme" class="titlebar-icon-btn">
+        <!-- Theme -->
+        <div class="flex items-center gap-2 titlebar-nodrag">
+          <button @click="handleToggleTheme" class="titlebar-icon-btn">
            <SunIcon v-if="isDark" class="w-4 h-4 text-amber-400" />
            <MoonIcon v-else class="w-4 h-4 text-violet-400" />
          </button>
@@ -76,13 +72,13 @@
       <section class="app-topbar-region shrink-0 px-2.5 pt-2 pb-1.5">
         <div class="top-shell max-w-[1280px] mx-auto">
         <div class="compact-toolbar flex items-center justify-between" :class="isDark ? 'compact-toolbar-dark' : 'compact-toolbar-light'">
-          <!-- Windows/Linux Logo (Only when titlebar is hidden) -->
-          <div v-if="!isMac" class="flex items-center gap-2 px-2 shrink-0 border-r border-dark-border/20 mr-2">
-            <div class="w-6 h-6 rounded-md bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/10">
-              <ShieldCheckIcon class="w-3.5 h-3.5 text-white" />
-            </div>
-            <span class="text-xs font-bold tracking-tight" :class="isDark ? 'text-white' : 'text-gray-800'">CryptoKit</span>
-          </div>
+           <!-- Windows/Linux Logo (Only when titlebar is hidden) -->
+           <div v-if="!isMac" class="flex items-center gap-2 px-2 shrink-0 border-r border-dark-border/20 mr-2">
+             <div class="w-6 h-6 bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/10 platform-windows:rounded-none" :class="isWindows ? '' : 'rounded-md'">
+               <ShieldCheckIcon class="w-3.5 h-3.5 text-white" />
+             </div>
+             <span class="text-xs font-bold tracking-tight" :class="isDark ? 'text-white' : 'text-gray-800'">CryptoKit</span>
+           </div>
 
           <!-- 扁平化功能菜单 -->
           <div class="toolbar-inline-scroll flex-1">
@@ -106,12 +102,8 @@
             </div>
           </div>
 
-           <!-- Windows/Linux Controls (Theme, History) -->
+           <!-- Windows/Linux Controls (Theme only) -->
            <div v-if="!isMac" class="flex items-center gap-1.5 pl-2 border-l border-dark-border/20 ml-2 shrink-0">
-             <button @click="showHistory = !showHistory" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors relative">
-               <HistoryIcon class="w-3.5 h-3.5" :class="isDark ? 'text-dark-muted' : 'text-slate-500'" />
-               <span v-if="history.length" class="absolute top-1.5 right-1.5 w-1 h-1 bg-violet-500 rounded-full"></span>
-             </button>
              <button @click="handleToggleTheme" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
                <SunIcon v-if="isDark" class="w-3.5 h-3.5 text-amber-400" />
                <MoonIcon v-else class="w-3.5 h-3.5 text-violet-400" />
@@ -408,8 +400,12 @@ watch(
 }
 
 .page-stage {
-  @apply rounded-[12px] border overflow-hidden;
+  @apply rounded-none border overflow-hidden;
   min-height: 100%;
+}
+
+.app-container.platform-windows .page-stage {
+  border-radius: 0;
 }
 
 .page-stage-dark {
@@ -461,4 +457,14 @@ watch(
   transform: translateY(4px);
 }
 
+/* Windows: outermost container square corners only */
+.app-container.platform-windows .compact-toolbar {
+  border-radius: 0;
+}
+.app-container.platform-windows .page-stage {
+  border-radius: 0;
+}
+.app-container.platform-windows {
+  border-radius: 0;
+}
 </style>

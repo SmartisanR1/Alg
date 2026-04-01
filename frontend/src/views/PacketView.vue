@@ -95,7 +95,7 @@
 
     <div class="ck-workbench animate-fade-in">
       <!-- Left side: Connection and Security -->
-      <div class="ck-stack overflow-y-auto pr-1 custom-scrollbar !min-w-[400px] !max-w-[400px]">
+      <div class="ck-stack overflow-y-auto pr-1 custom-scrollbar">
         <div class="ck-card space-y-4">
           <p class="ck-section-title">连接与协议</p>
           <div class="grid grid-cols-4 gap-2">

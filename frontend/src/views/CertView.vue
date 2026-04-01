@@ -36,7 +36,7 @@
 
     <!-- Certificate Parsing -->
     <div v-show="activeTab === 'parse'" class="flex flex-col lg:flex-row gap-4 animate-fade-in h-full">
-      <div class="w-full lg:w-[280px] space-y-3 shrink-0">
+      <div class="w-full lg:w-1/3 space-y-3 shrink-0">
         <div class="ck-card space-y-3">
           <p class="ck-section-title">PEM 证书解析</p>
           <div class="flex gap-2 mb-2">
@@ -49,7 +49,7 @@
         </div>
       </div>
       <div class="flex-1 min-w-0">
-        <div class="ck-card h-full flex flex-col">
+        <div class="ck-card h-full flex flex-col cert-result">
           <CryptoPanel v-model="certResult.data" label="解析详情 (X.509 结构化数据)" type="result" :success="certResult.success" copyable />
           <div v-if="certResult.error" class="mt-2 text-xs text-red-400">{{ certResult.error }}</div>
         </div>
@@ -98,8 +98,8 @@
           <button @click="genCSR" class="ck-btn-primary w-full justify-center py-2">生成 CSR</button>
         </div>
       </div>
-      <div class="ck-stack">
-        <div class="ck-card flex flex-col">
+      <div class="ck-stack !min-w-0">
+        <div class="ck-card flex flex-col cert-result">
           <CryptoPanel v-model="csrResult.data" label="生成的 CSR (PEM)" type="result" :success="csrResult.success" copyable />
           <div v-if="csrResult.error" class="mt-2 text-xs text-red-400">{{ csrResult.error }}</div>
           <div v-if="csrResult.success" class="mt-4 flex gap-2">
@@ -200,8 +200,8 @@
           <button @click="signCSR" class="ck-btn-primary w-full justify-center py-2">签发证书</button>
         </div>
       </div>
-      <div class="ck-stack">
-        <div class="ck-card flex flex-col">
+      <div class="ck-stack !min-w-0">
+        <div class="ck-card flex flex-col cert-result">
           <CryptoPanel v-model="signResult.data" label="生成的证书 (PEM)" type="result" :success="signResult.success" copyable />
           <div v-if="signResult.error" class="mt-2 text-xs text-red-400">{{ signResult.error }}</div>
           <div v-if="signResult.success" class="mt-4 flex gap-2">
@@ -324,7 +324,7 @@
           <button @click="genSelfSigned" class="ck-btn-primary w-full justify-center mt-2">立即签发并生成结果</button>
         </div>
       </div>
-      <div class="ck-stack">
+      <div class="ck-stack !min-w-0">
         <!-- Certificate Result -->
         <div class="ck-card">
           <div class="flex justify-between items-center mb-1">
@@ -466,7 +466,7 @@
         </div>
       </div>
 
-      <div class="ck-stack h-full flex flex-col">
+      <div class="ck-stack h-full flex flex-col !min-w-0">
         <div v-if="dualResult.success" class="flex-1 min-h-0 flex flex-col space-y-3 animate-fade-in">
           <div class="grid grid-cols-2 gap-3 shrink-0">
             <div class="ck-card flex flex-col p-2.5">
