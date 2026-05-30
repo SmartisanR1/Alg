@@ -67,7 +67,7 @@
                 <label class="input-label !mb-0 text-amber-200">私钥 (Private Key)</label>
                 <Button variant="tool" size="sm" @click="copy(kemKeys.privateKey)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-100 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.privateKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-200 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.privateKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                   {{ base64ByteLen(kemKeys.privateKey) + ' bytes' }}
@@ -79,7 +79,7 @@
                 <label class="input-label !mb-0 text-cyan-400">公钥 (Public Key)</label>
                 <Button variant="tool" size="sm" @click="copy(kemKeys.publicKey)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.publicKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-200 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.publicKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
                   {{ base64ByteLen(kemKeys.publicKey) + ' bytes' }}
@@ -98,14 +98,14 @@
           <div v-if="kemEncapResult.ciphertext" class="space-y-2">
             <div>
               <label class="input-label text-emerald-400">密文 (Ciphertext)</label>
-              <div class="result-area text-emerald-300 text-[10px]">{{ kemEncapResult.ciphertext?.slice(0,80) }}...</div>
+              <div class="result-area text-emerald-300 text-[12px]">{{ kemEncapResult.ciphertext?.slice(0,80) }}...</div>
             </div>
             <div>
               <div class="flex justify-between mb-1">
                 <label class="input-label !mb-0 text-yellow-200">共享密钥 (Shared Secret)</label>
                 <Button variant="tool" size="sm" @click="copy(kemEncapResult.sharedSecret)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <div class="result-area text-yellow-100 font-mono">{{ kemEncapResult.sharedSecret }}</div>
+              <div class="result-area text-yellow-200 font-mono">{{ kemEncapResult.sharedSecret }}</div>
             </div>
           </div>
         </Card>
@@ -119,7 +119,7 @@
               <label class="input-label !mb-0 text-yellow-200">恢复的共享密钥</label>
               <Button variant="tool" size="sm" @click="copy(kemDecapResult.data)"><CopyIcon class="w-3 h-3" /></Button>
             </div>
-            <div class="result-area text-yellow-100 font-mono">{{ kemDecapResult.data }}</div>
+            <div class="result-area text-yellow-200 font-mono">{{ kemDecapResult.data }}</div>
             <div class="mt-2 text-xs flex items-center gap-1"
                  :class="kemEncapResult.sharedSecret === kemDecapResult.data ? 'text-emerald-400' : 'text-red-400'">
               <CheckCircleIcon v-if="kemEncapResult.sharedSecret === kemDecapResult.data" class="w-3.5 h-3.5" />
@@ -178,7 +178,7 @@
           <div v-if="dsaKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
             <div class="flex-1 min-h-0 flex flex-col">
               <label class="input-label text-amber-200 shrink-0">私钥 (Private Key)</label>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-100 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.privateKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-200 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.privateKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                   {{ base64ByteLen(dsaKeys.privateKey) + ' bytes' }}
@@ -187,7 +187,7 @@
             </div>
             <div class="flex-1 min-h-0 flex flex-col mt-2">
               <label class="input-label text-cyan-400 shrink-0">公钥 (Public Key)</label>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.publicKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-200 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.publicKey"></textarea>
               <div class="flex gap-3 mt-1">
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
                   {{ base64ByteLen(dsaKeys.publicKey) + ' bytes' }}
@@ -269,7 +269,7 @@
                 <label class="input-label !mb-0 text-amber-200">私钥 (Private Key)</label>
                 <button @click="copy(slhKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[42px] !max-h-[60px] text-amber-100 text-[10px] font-mono leading-tight bg-amber-400/10 border-amber-400/20">
+              <div class="result-area !min-h-[42px] !max-h-[60px] text-amber-200 text-[12px] font-mono leading-tight bg-amber-400/10 border-amber-400/20">
                 {{ slhKeys.privateKey }}
               </div>
               <div class="mt-1 text-[9px] opacity-40 font-mono">Size: {{ base64ByteLen(slhKeys.privateKey) }} bytes</div>
@@ -279,7 +279,7 @@
                 <label class="input-label !mb-0 text-cyan-400">公钥 (Public Key)</label>
                 <button @click="copy(slhKeys.publicKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[42px] !max-h-[60px] text-cyan-300 text-[10px] font-mono leading-tight bg-cyan-500/5 border-cyan-500/10">
+              <div class="result-area !min-h-[42px] !max-h-[60px] text-cyan-200 text-[12px] font-mono leading-tight bg-cyan-500/5 border-cyan-500/10">
                 {{ slhKeys.publicKey }}
               </div>
               <div class="mt-1 text-[9px] opacity-40 font-mono">Size: {{ base64ByteLen(slhKeys.publicKey) }} bytes</div>
@@ -447,14 +447,14 @@
                 <label class="input-label !mb-0 text-amber-200">私钥</label>
                 <button @click="copy(xwingKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[64px] text-amber-100 text-[10px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingKeys.privateKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[64px] text-amber-200 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingKeys.privateKey"></textarea>
             </div>
             <div>
               <div class="flex justify-between mb-1">
                 <label class="input-label !mb-0 text-cyan-400">公钥 (1216B = ML-KEM-768 + X25519)</label>
                 <button @click="copy(xwingKeys.publicKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[64px] text-cyan-300 text-[10px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingKeys.publicKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[64px] text-cyan-200 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingKeys.publicKey"></textarea>
             </div>
           </div>
         </div>
@@ -463,16 +463,16 @@
           <div v-if="xwingEncapResult.ciphertext" class="space-y-2 animate-in fade-in">
             <div>
               <label class="input-label text-emerald-400">密文</label>
-              <textarea readonly class="result-area ck-key-hex !min-h-[48px] text-emerald-300 text-[10px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingEncapResult.ciphertext"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[48px] text-emerald-300 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingEncapResult.ciphertext"></textarea>
             </div>
             <div>
               <label class="input-label text-violet-400">共享密钥</label>
-              <div class="result-area ck-key-hex !min-h-0 text-violet-300 text-[10px] font-mono break-all">{{ xwingEncapResult.sharedSecret }}</div>
+              <div class="result-area ck-key-hex !min-h-0 text-violet-300 text-[12px] font-mono break-all">{{ xwingEncapResult.sharedSecret }}</div>
             </div>
             <button @click="xwingDecap" class="btn-warning w-full justify-center"><UnlockIcon class="w-3.5 h-3.5" /> 解封装 (Decapsulate)</button>
             <div v-if="xwingDecapResult.data || xwingDecapResult.error" class="animate-in fade-in">
               <label class="input-label" :class="xwingDecapResult.error ? 'text-red-400' : 'text-emerald-400'">解封装结果</label>
-              <div class="result-area ck-key-hex !min-h-0 text-[10px] font-mono break-all"
+              <div class="result-area ck-key-hex !min-h-0 text-[12px] font-mono break-all"
                    :class="xwingDecapResult.error ? 'text-red-400' : 'text-emerald-400'">
                 {{ xwingDecapResult.error || xwingDecapResult.data }}
               </div>

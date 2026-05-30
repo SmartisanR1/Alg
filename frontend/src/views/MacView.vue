@@ -208,7 +208,7 @@
           />
           <div v-if="kdfResult.extra" class="mt-2">
             <label class="input-label text-amber-200">使用的Salt</label>
-            <div class="result-area !min-h-0 text-amber-100 text-xs">{{ kdfResult.extra }}</div>
+            <div class="result-area !min-h-0 text-amber-200 text-xs">{{ kdfResult.extra }}</div>
           </div>
         </Card>
         <Card title="安全建议">

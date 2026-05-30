@@ -181,7 +181,7 @@
             <label class="input-label !mb-0 text-cyan-400">自动生成的 {{ ['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV' }}</label>
             <button @click="copyExtra" class="ck-copy-btn text-cyan-400"><CopyIcon class="w-3 h-3" /> 复制</button>
           </div>
-          <div class="result-area !min-h-0 text-cyan-300">{{ result.extra }}</div>
+          <div class="result-area !min-h-0 text-cyan-200">{{ result.extra }}</div>
         </div>
         
       </div>
