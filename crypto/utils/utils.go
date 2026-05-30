@@ -481,9 +481,13 @@ func BigIntOperation(req BigIntRequest) ToolResult {
 	if _, ok := b.SetString(req.B, 0); !ok {
 		return ToolResult{Error: "无效的 B"}
 	}
-	if req.N != "" {
+	hasModulus := req.N != ""
+	if hasModulus {
 		if _, ok := n.SetString(req.N, 0); !ok {
 			return ToolResult{Error: "无效的 N"}
+		}
+		if n.Sign() == 0 {
+			return ToolResult{Error: "模数 N 不能为 0"}
 		}
 	}
 
@@ -496,14 +500,16 @@ func BigIntOperation(req BigIntRequest) ToolResult {
 	case "mul":
 		res.Mul(a, b)
 	case "exp":
-		if n.Sign() == 0 {
-			res.Exp(a, b, nil)
-		} else {
+		if hasModulus {
 			res.Exp(a, b, n)
+		} else {
+			res.Exp(a, b, nil)
 		}
+	default:
+		return ToolResult{Error: "不支持的操作: " + req.Op}
 	}
 
-	if n.Sign() != 0 && req.Op != "exp" {
+	if hasModulus && req.Op != "exp" {
 		res.Mod(res, n)
 	}
 

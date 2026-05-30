@@ -48,6 +48,14 @@
             <Button variant="primary" class="justify-center text-xs" @click="doBigIntOp('mul')">(A * B) mod N</Button>
             <Button variant="download" class="justify-center text-xs" @click="doBigIntOp('exp')">(A ^ B) mod N</Button>
           </div>
+          <div v-if="biResult.data || biResult.error" class="p-3 rounded-lg border animate-in fade-in zoom-in-95 duration-200"
+               :class="biResult.error ? (isDark ? 'bg-red-500/5 border-red-500/20' : 'bg-red-50 border-red-200') : (isDark ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200')">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[11px] font-bold" :class="biResult.success ? 'text-emerald-400' : 'text-red-400'">{{ biResult.success ? '✓ 成功' : '✕ 失败' }}</span>
+              <Button variant="tool" size="sm" v-if="biResult.data" @click="copy(biResult.data)"><CopyIcon class="w-3 h-3" /></Button>
+            </div>
+            <div class="font-mono text-[11px] break-all leading-relaxed" :class="biResult.error ? 'text-red-400' : 'text-emerald-400'">{{ biResult.error || biResult.data }}</div>
+          </div>
         </Card>
 
         <Card title="进制转换 (高级)" class="space-y-4">
@@ -82,14 +90,6 @@
       <div class="space-y-3">
         <Card title="大数运算原理" class="flex flex-col overflow-hidden">
           <div class="space-y-2.5">
-            <div v-if="biResult.data || biResult.error" class="p-3 rounded-lg border animate-in fade-in zoom-in-95 duration-200"
-                 :class="biResult.error ? (isDark ? 'bg-red-500/5 border-red-500/20' : 'bg-red-50 border-red-200') : (isDark ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200')">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-[10px] font-bold" :class="biResult.success ? 'text-emerald-400' : 'text-red-400'">{{ biResult.success ? '✓ 成功' : '✕ 失败' }}</span>
-                <Button variant="tool" size="sm" v-if="biResult.data" @click="copy(biResult.data)"><CopyIcon class="w-3 h-3" /></Button>
-              </div>
-              <div class="font-mono text-[10px] break-all leading-relaxed" :class="biResult.error ? 'text-red-400' : 'text-emerald-400'">{{ biResult.error || biResult.data }}</div>
-            </div>
             <div class="p-3 rounded-lg border" :class="isDark ? 'bg-indigo-500/5 border-indigo-500/10' : 'bg-indigo-50 border-indigo-100'">
               <p class="text-[10px] font-bold text-indigo-400 mb-2">模运算 (Modular Arithmetic)</p>
               <div class="text-[10px] space-y-1.5 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
