@@ -55,26 +55,27 @@
             </Button>
           </div>
           
-          <!-- Show keys in a compact grid when generated -->
-          <div v-if="rsaKeys.privateKey" class="grid grid-cols-2 gap-3 animate-in fade-in">
+          <!-- Generated keys display -->
+          <div v-if="rsaKeys.privateKey" class="space-y-2 animate-in fade-in">
             <div>
-              <label class="input-label text-orange-300">私钥</label>
-              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-24 overflow-y-auto font-mono">
+              <label class="input-label text-orange-300">私钥 ({{ asymKeyFormat.toUpperCase() }})</label>
+              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex }}
               </div>
             </div>
             <div>
-              <label class="input-label text-cyan-300">公钥</label>
-              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-24 overflow-y-auto font-mono">
+              <label class="input-label text-cyan-200">公钥 ({{ asymKeyFormat.toUpperCase() }})</label>
+              <div class="result-area !min-h-0 !p-2 text-cyan-200 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? rsaKeys.publicKey : rsaKeys.pubHex }}
               </div>
             </div>
           </div>
         </Card>
-        <Card>
-          <div class="grid grid-cols-2 gap-3 mb-2">
+        
+        <Card title="算法参数">
+          <div class="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label class="input-label">填充模式 (Padding)</label>
+              <label class="input-label">填充模式</label>
               <Dropdown
                 v-model="rsa.padding"
                 :options="[
@@ -99,18 +100,22 @@
           </div>
           <div>
             <label class="input-label">密钥内容 (PEM/Hex)</label>
-            <textarea v-model="rsa.key" class="input text-[10px] font-mono" rows="3" placeholder="粘贴公钥(加密/验签)或私钥(解密/签名)..." />
+            <textarea v-model="rsa.key" class="input text-[11px] font-mono" rows="2" placeholder="粘贴公钥(加密/验签)或私钥(解密/签名)..." />
           </div>
-          <CryptoPanel v-model="rsa.data" label="待处理数据 (Hex)" type="textarea" :rows="3" clearable />
         </Card>
       </div>
       <div class="sym-main">
+        <Card title="数据输入">
+          <CryptoPanel v-model="rsa.data" label="待处理数据 (Hex)" type="textarea" :rows="4" clearable />
+        </Card>
+        
         <div class="grid grid-cols-2 gap-2">
           <Button variant="success" @click="rsaEncrypt"><LockIcon class="w-3.5 h-3.5"/>加密</Button>
           <Button variant="warning" @click="rsaDecrypt"><UnlockIcon class="w-3.5 h-3.5"/>解密</Button>
           <Button variant="success" @click="rsaSign"><PenIcon class="w-3.5 h-3.5"/>签名</Button>
           <Button variant="warning" @click="rsaVerify"><CheckCircleIcon class="w-3.5 h-3.5"/>验签</Button>
         </div>
+        
         <ResultArea
           v-model="rsaResult.data"
           label="运算结果"
@@ -147,13 +152,11 @@
               <KeyIcon class="w-3.5 h-3.5" /> 生成密钥对
             </Button>
           </div>
-          <div v-if="sm2Keys.privateKey" class="space-y-4 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+          <div v-if="sm2Keys.privateKey" class="space-y-3 animate-in fade-in">
             <div>
               <div class="flex justify-between mb-1.5">
                 <label class="input-label !mb-0 text-orange-300">私钥 ({{ asymKeyFormat === 'hex' ? '裸值32字节' : 'PEM' }})</label>
-                <div class="flex gap-2">
-                  <button @click="copy(asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
-                </div>
+                <button @click="copy(asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
               <div class="result-area !min-h-[80px] text-orange-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-amber-400/20 bg-orange-400/15">
                 {{ asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv }}
@@ -161,7 +164,7 @@
             </div>
             <div>
               <div class="flex justify-between mb-1.5">
-                <label class="input-label !mb-0 text-cyan-400">公钥 ({{ asymKeyFormat === 'hex' ? '裸值64字节 X||Y' : 'PEM' }})</label>
+                <label class="input-label !mb-0 text-cyan-200">公钥 ({{ asymKeyFormat === 'hex' ? '裸值64字节 X||Y' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? sm2Keys.publicKey : sm2Keys.rawPub)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
               <div class="result-area !min-h-[60px] text-cyan-200 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-cyan-500/10 bg-cyan-500/5">
@@ -175,44 +178,45 @@
           </div>
         </Card>
 
-        <div v-if="sm2Sub === 'enc'" class="flex flex-col flex-1 min-h-0 space-y-3">
-          <Card title="SM2 加密/解密配置">
-            <div class="grid grid-cols-1 gap-3">
-              <CryptoPanel v-model="sm2Enc.publicKey" label="公钥 (PEM/Hex) — 用于加密" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
-              <CryptoPanel v-model="sm2Enc.privateKey" label="私钥 (PEM/Hex) — 用于解密" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
-            </div>
-          </Card>
-          <Card>
-            <CryptoPanel v-model="sm2Enc.data" label="数据 (Hex)" type="textarea" :rows="2" clearable />
-          </Card>
-          <div class="flex gap-2 shrink-0">
-            <Button variant="success" class="flex-1" @click="sm2Encrypt"><LockIcon class="w-3.5 h-3.5" /> 加密</Button>
-            <Button variant="warning" class="flex-1" @click="sm2Decrypt"><UnlockIcon class="w-3.5 h-3.5" /> 解密</Button>
+        <Card v-if="sm2Sub === 'enc'" title="SM2 加密/解密配置">
+          <div class="grid grid-cols-1 gap-3">
+            <CryptoPanel v-model="sm2Enc.publicKey" label="公钥 (PEM/Hex) — 用于加密" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
+            <CryptoPanel v-model="sm2Enc.privateKey" label="私钥 (PEM/Hex) — 用于解密" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
           </div>
-        </div>
+        </Card>
 
-        <div v-if="sm2Sub === 'sign'" class="flex flex-col flex-1 min-h-0 space-y-3">
-          <Card title="SM2 签名/验签配置">
-            <div class="grid grid-cols-1 gap-3">
-              <CryptoPanel v-model="sm2Sign.privateKey" label="私钥 (PEM/Hex) — 用于签名" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
-              <CryptoPanel v-model="sm2Sign.publicKey" label="公钥 (PEM/Hex) — 用于验签" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
-              <div>
-                <label class="input-label">用户标识 (IDA / 可选)</label>
-                <Input v-model="sm2Sign.id" placeholder="默认: 1234567812345678" class="font-mono text-xs" />
-              </div>
+        <Card v-if="sm2Sub === 'sign'" title="SM2 签名/验签配置">
+          <div class="grid grid-cols-1 gap-3">
+            <CryptoPanel v-model="sm2Sign.privateKey" label="私钥 (PEM/Hex) — 用于签名" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
+            <CryptoPanel v-model="sm2Sign.publicKey" label="公钥 (PEM/Hex) — 用于验签" type="textarea" :rows="asymKeyFormat === 'hex' ? 2 : 3" clearable />
+            <div>
+              <label class="input-label">用户标识 (IDA / 可选)</label>
+              <Input v-model="sm2Sign.id" placeholder="默认: 1234567812345678" class="font-mono text-xs" />
             </div>
-          </Card>
-          <Card>
-            <CryptoPanel v-model="sm2Sign.data" label="待处理数据 (Hex)" type="textarea" :rows="2" clearable />
-          </Card>
-          <div class="flex gap-2 shrink-0">
-            <Button variant="success" class="flex-1" @click="doSM2Sign"><PenIcon class="w-3.5 h-3.5" /> 签名</Button>
-            <Button variant="warning" class="flex-1" @click="doSM2Verify"><CheckCircleIcon class="w-3.5 h-3.5" /> 验签</Button>
           </div>
-        </div>
+        </Card>
       </div>
 
       <div class="sym-main">
+        <!-- Data input for enc/sign modes -->
+        <Card v-if="sm2Sub === 'enc'" title="数据输入">
+          <CryptoPanel v-model="sm2Enc.data" label="待处理数据 (Hex)" type="textarea" :rows="4" clearable />
+        </Card>
+        <Card v-if="sm2Sub === 'sign'" title="数据输入">
+          <CryptoPanel v-model="sm2Sign.data" label="待处理数据 (Hex)" type="textarea" :rows="4" clearable />
+        </Card>
+
+        <!-- Action buttons -->
+        <div v-if="sm2Sub === 'enc'" class="grid grid-cols-2 gap-2">
+          <Button variant="success" @click="sm2Encrypt"><LockIcon class="w-3.5 h-3.5" /> 加密</Button>
+          <Button variant="warning" @click="sm2Decrypt"><UnlockIcon class="w-3.5 h-3.5" /> 解密</Button>
+        </div>
+        <div v-if="sm2Sub === 'sign'" class="grid grid-cols-2 gap-2">
+          <Button variant="success" @click="doSM2Sign"><PenIcon class="w-3.5 h-3.5" /> 签名</Button>
+          <Button variant="warning" @click="doSM2Verify"><CheckCircleIcon class="w-3.5 h-3.5" /> 验签</Button>
+        </div>
+
+        <!-- Result -->
         <ResultArea
           v-model="sm2Result.data"
           label="运算结果"
@@ -243,7 +247,7 @@
                 <div class="result-area ck-key-hex !min-h-0 text-orange-300 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9Master.privateKey }}</div>
               </div>
               <div>
-                <label class="input-label text-cyan-400">签名主公钥 (Hex)</label>
+                <label class="input-label text-cyan-200">签名主公钥 (Hex)</label>
                 <div class="result-area ck-key-hex !min-h-0 text-cyan-200 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9Master.publicKey }}</div>
               </div>
             </div>
@@ -253,7 +257,7 @@
                 <div class="result-area ck-key-hex !min-h-0 text-orange-300 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9EncMaster.privateKey }}</div>
               </div>
               <div>
-                <label class="input-label text-cyan-400">加密主公钥 (Hex)</label>
+                <label class="input-label text-cyan-200">加密主公钥 (Hex)</label>
                 <div class="result-area ck-key-hex !min-h-0 text-cyan-200 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9EncMaster.publicKey }}</div>
               </div>
             </div>
@@ -314,7 +318,7 @@
             </div>
             <div>
               <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-cyan-400">公钥 ({{ asymKeyFormat === 'hex' ? '裸值 X||Y' : 'PEM' }})</label>
+                <label class="input-label !mb-0 text-cyan-200">公钥 ({{ asymKeyFormat === 'hex' ? '裸值 X||Y' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
               <div class="result-area !min-h-0 text-cyan-200 !text-[12px] break-all max-h-32 overflow-y-auto font-mono">
@@ -369,7 +373,7 @@
               <div class="result-area !min-h-0 text-orange-300 text-[12px] font-mono break-all">{{ c25519.privateKey }}</div>
             </div>
             <div>
-              <label class="input-label text-cyan-400">公钥 (Hex)</label>
+              <label class="input-label text-cyan-200">公钥 (Hex)</label>
               <div class="result-area !min-h-0 text-cyan-200 text-[12px] font-mono break-all">{{ c25519.publicKey }}</div>
             </div>
           </div>

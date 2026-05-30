@@ -254,7 +254,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { SendIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, UploadIcon, CopyIcon, InfoIcon, XIcon } from 'lucide-vue-next'
+import { SendIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, UploadIcon, CopyIcon, InfoIcon, XIcon, ShieldCheckIcon } from 'lucide-vue-next'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'
@@ -271,18 +271,28 @@ const { isDark } = storeToRefs(store)
 const showPrinciple = ref(false)
 const showHelp = ref(false)
 
-// Principle content for HQC-style modal
+// Principle content for algorithm drawer
 const principleData = ref({
-  title: '报文联调工具说明',
-  content: `网络与安全
-• IPv4/IPv6: 自动适配地址格式。
-• TLS/TLCP: 支持标准 TLS 和国密 TLCP 协议。TLCP 需配置签名和加密两套证书。
-报文协议
-• 长度头: 自动在报文前添加 1/2/4 字节的大端序长度前缀。
-• 超时控制: 精确控制连接和响应的等待时间。
-高级功能
-• 文件模式: 支持发送超大文件报文，直接从磁盘流式读取，不占用前端内存。
-• 历史记录: 自动保存最近 20 次成功发送的配置和报文快照。`
+  title: '报文发送原理',
+  content: `TCP 明文传输:
+TCP (Transmission Control Protocol) 提供可靠的、面向连接的字节流服务。数据以明文形式在网络中传输，不提供任何加密保护。
+• 三次握手: 建立可靠连接，确保双方都能收发数据。
+• 流量控制: 通过滑动窗口机制防止接收方缓冲区溢出。
+• 适用场景: 内网环境、对安全性要求不高的调试场景。
+
+TLS 安全传输:
+TLS (Transport Layer Security) 是广泛使用的传输层安全协议，保护数据在传输过程中的机密性和完整性。
+• 握手过程: 协商加密套件、验证证书、交换会话密钥。
+• 加密算法: 支持 AES-GCM、ChaCha20-Poly1305 等现代加密算法。
+• 证书验证: 通过 CA 证书链验证服务器身份，防止中间人攻击。
+• 应用场景: HTTPS、邮件传输、API 通信等。
+
+TLCP 国密传输:
+TLCP (Transport Layer Cryptography Protocol) 是国密标准的传输层安全协议，使用国密算法体系满足国内合规要求。
+• 双证书体系: 使用签名证书+加密证书，分别用于身份认证和数据加密。
+• 国密算法: SM2 密钥交换、SM3 哈希、SM4 对称加密。
+• 双向认证: 支持客户端证书认证，实现更强的身份验证。
+• 合规要求: 满足国内金融、政务等行业的安全合规要求。`
 })
 
 const currentPrinciple = computed(() => principleData.value)
