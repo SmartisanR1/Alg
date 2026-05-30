@@ -85,18 +85,24 @@
 
           <!-- Input file -->
           <div>
-            <Input v-model="fileEnc.inputPath" label="输入文件路径" class="text-xs" placeholder="/path/to/file" />
-            <Button variant="tool" class="shrink-0 mt-1" @click="selectEncryptInput">
-              <FolderOpenIcon class="w-3.5 h-3.5" /> 选择文件
-            </Button>
+            <label class="input-label">输入文件</label>
+            <div class="flex gap-2 items-center">
+              <Button variant="tool" @click="selectEncryptInput">
+                <FolderOpenIcon class="w-3.5 h-3.5" /> 选择文件
+              </Button>
+              <span v-if="fileEnc.inputPath" class="text-xs text-muted truncate flex-1 font-mono">{{ fileEnc.inputPath.split(/[\\/]/).pop() }}</span>
+            </div>
           </div>
 
           <!-- Output file -->
           <div>
-            <Input v-model="fileEnc.outputPath" label="输出文件路径" class="text-xs" placeholder="/path/to/output.enc" />
-            <Button variant="tool" class="shrink-0 mt-1" @click="selectEncryptOutput">
-              <FolderOpenIcon class="w-3.5 h-3.5" /> 选择文件
-            </Button>
+            <label class="input-label">输出文件 (留空则输出到同目录)</label>
+            <div class="flex gap-2 items-center">
+              <Button variant="tool" @click="selectEncryptOutput">
+                <FolderOpenIcon class="w-3.5 h-3.5" /> 选择路径
+              </Button>
+              <span v-if="fileEnc.outputPath" class="text-xs text-muted truncate flex-1 font-mono">{{ fileEnc.outputPath.split(/[\\/]/).pop() }}</span>
+            </div>
           </div>
 
           <!-- Key -->

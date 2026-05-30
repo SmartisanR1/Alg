@@ -201,8 +201,8 @@
           </button>
         </div>
         <div class="card">
-          <CryptoPanel v-model="dsaResult.data" label="签名 (hex, 截断显示)" type="result"
-                       :success="dsaResult.success" copyable />
+          <CryptoPanel v-model="dsaResult.data" label="签名 (HEX)" type="result"
+                       :success="dsaResult.success" copyable class="break-all text-[11px]" />
           <div v-if="dsaResult.error" class="mt-2 text-xs"
                :class="dsaResult.data === 'true' ? 'text-emerald-400' : 'text-red-400'">
             {{ dsaResult.error || (dsaResult.data === 'true' ? '✅ 签名验证通过' : '') }}

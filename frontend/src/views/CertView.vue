@@ -47,6 +47,7 @@
             :error="certResult.error"
             :success="certResult.success"
             label="解析详情 (X.509 结构化数据)"
+            class="whitespace-pre-line"
             copyable
           />
         </Card>
@@ -179,7 +180,18 @@
             </div>
           </transition>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="input-label">算法体系</label>
+              <Dropdown
+                v-model="signReq.algo"
+                :options="[
+                  { value: 'RSA', label: '国际 RSA' },
+                  { value: 'ECC', label: '国际 ECC' },
+                  { value: 'SM2', label: '国密 SM2' }
+                ]"
+              />
+            </div>
             <div>
               <label class="input-label">有效期 (天)</label>
               <input v-model.number="signReq.days" type="number" class="input" />
@@ -195,17 +207,6 @@
                 ]"
               />
             </div>
-          </div>
-          <div>
-            <label class="input-label">算法体系</label>
-            <Dropdown
-              v-model="signReq.algo"
-              :options="[
-                { value: 'RSA', label: '国际 RSA' },
-                { value: 'ECC', label: '国际 ECC' },
-                { value: 'SM2', label: '国密 SM2' }
-              ]"
-            />
           </div>
           <button @click="signCSR" class="btn-success w-full justify-center py-2">签发证书</button>
         </div>

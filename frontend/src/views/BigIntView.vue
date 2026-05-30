@@ -69,7 +69,14 @@
                ]"
              />
           </div>
+          <div>
+            <label class="input-label">输入数据</label>
+            <Input v-model="bi.baseInput" class="font-mono" placeholder="输入要转换的数据..." />
+          </div>
           <Button variant="secondary" block class="text-xs" @click="doBigIntOp('base')">执行转换</Button>
+          <div v-if="biBaseResult" class="result-area !min-h-0 text-emerald-400 font-mono">
+            {{ biBaseResult }}
+          </div>
         </Card>
       </div>
       <div class="space-y-3">
@@ -172,10 +179,16 @@ const parsedPrinciples = computed(() => {
 })
 
 // BigInt
-const bi = reactive({ a: '', b: '', n: '', baseFrom: 10, baseTo: 16 })
+const bi = reactive({ a: '', b: '', n: '', baseFrom: '10', baseTo: '16', baseInput: '' })
 const biResult = reactive({ data: '', error: '', success: null })
+const biBaseResult = ref('')
 
 async function doBigIntOp(op) {
+  if (op === 'base') {
+    const r = await BigIntOperation({ ...bi, op })
+    biBaseResult.value = r.error || r.data || ''
+    return
+  }
   const r = await BigIntOperation({ ...bi, op })
   biResult.data = r.data; biResult.error = r.error; biResult.success = r.success
 }
