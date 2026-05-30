@@ -118,7 +118,7 @@
             copyable
           />
           <div v-if="csrResult.success" class="mt-4 flex gap-2">
-            <Button variant="primary" class="flex-1 justify-center text-xs" @click="downloadFile(csrResult.data, 'request.csr')">
+            <Button variant="download" class="flex-1 justify-center text-xs" @click="downloadFile(csrResult.data, 'request.csr')">
               <DownloadIcon class="w-3.5 h-3.5" /> 下载 CSR
             </Button>
           </div>
@@ -397,15 +397,15 @@
 
         <!-- Download Buttons -->
         <div v-if="selfResult.success" class="grid grid-cols-3 gap-2 pb-4 shrink-0">
-          <button @click="downloadFile(selfResult.cert, 'certificate.cer')" class="btn-download justify-center text-[10px] px-1">
+          <Button variant="download" class="justify-center text-[10px] px-1" @click="downloadFile(selfResult.cert, 'certificate.cer')">
             <DownloadIcon class="w-3 h-3" /> 证书下载
-          </button>
-          <button @click="downloadFile(selfResult.csr, 'request.csr')" class="btn-download justify-center text-[10px] px-1">
+          </Button>
+          <Button variant="download" class="justify-center text-[10px] px-1" @click="downloadFile(selfResult.csr, 'request.csr')">
             <FileIcon class="w-3 h-3" /> CSR下载
-          </button>
-          <button @click="downloadFile(selfResult.key, 'private.key')" class="btn-secondary justify-center text-[10px] px-1">
+          </Button>
+          <Button variant="download" class="justify-center text-[10px] px-1" @click="downloadFile(selfResult.key, 'private.key')">
             <KeyIcon class="w-3 h-3" /> 私钥下载
-          </button>
+          </Button>
         </div>
       </div>
     </div>
