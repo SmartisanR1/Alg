@@ -198,6 +198,23 @@
       </div>
 
       <div class="sym-main">
+        <!-- Keygen mode: show usage tips -->
+        <Card v-if="sm2Sub === 'keygen'" title="SM2 密钥使用说明">
+          <div class="space-y-3 text-xs" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
+            <div class="p-3 rounded-lg border" :class="isDark ? 'bg-dark-bg border-dark-border' : 'bg-gray-50 border-gray-200'">
+              <p class="font-semibold text-violet-400 mb-1">密钥格式</p>
+              <p>• PEM 格式：标准 X.509 公钥 / PKCS#8 私钥</p>
+              <p>• Hex 格式：裸值，私钥 32 字节，公钥 64 字节 (X||Y)</p>
+            </div>
+            <div class="p-3 rounded-lg border" :class="isDark ? 'bg-dark-bg border-dark-border' : 'bg-gray-50 border-gray-200'">
+              <p class="font-semibold text-cyan-400 mb-1">使用场景</p>
+              <p>• 加密：使用公钥加密，私钥解密</p>
+              <p>• 签名：使用私钥签名，公钥验证</p>
+              <p>• 密钥协商：双方各生成临时密钥对</p>
+            </div>
+          </div>
+        </Card>
+
         <!-- Data input for enc/sign modes -->
         <Card v-if="sm2Sub === 'enc'" title="数据输入">
           <CryptoPanel v-model="sm2Enc.data" label="待处理数据 (Hex)" type="textarea" :rows="4" clearable />
@@ -218,6 +235,7 @@
 
         <!-- Result -->
         <ResultArea
+          v-if="sm2Sub !== 'keygen'"
           v-model="sm2Result.data"
           label="运算结果"
           :success="sm2Result.success"
@@ -230,59 +248,66 @@
     <!-- SM9 -->
     <div v-if="activeTab === 'sm9'" class="sym-workbench animate-fade-in">
       <div class="sym-side">
-        <div class="card">
-          <p class="card-title">SM9 标识密码 (IBC)</p>
-          <div class="space-y-2">
-            <div class="grid grid-cols-2 gap-2">
-              <button @click="genSM9MasterKey" class="btn-secondary w-full justify-center">
-                <KeyIcon class="w-3.5 h-3.5" /> 签名主密钥
-              </button>
-              <button @click="genSM9EncMasterKey" class="btn-secondary w-full justify-center">
-                <LockIcon class="w-3.5 h-3.5" /> 加密主密钥
-              </button>
-            </div>
-            <div v-if="sm9Master.publicKey" class="card !bg-transparent space-y-2 animate-in fade-in duration-300">
-              <div>
-                <label class="input-label text-orange-300">签名主私钥 (Hex)</label>
-                <div class="result-area ck-key-hex !min-h-0 text-orange-300 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9Master.privateKey }}</div>
-              </div>
-              <div>
-                <label class="input-label text-cyan-200">签名主公钥 (Hex)</label>
-                <div class="result-area ck-key-hex !min-h-0 text-cyan-200 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9Master.publicKey }}</div>
+        <Card title="SM9 主密钥生成">
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <Button variant="secondary" @click="genSM9MasterKey">
+              <KeyIcon class="w-3.5 h-3.5" /> 签名主密钥
+            </Button>
+            <Button variant="secondary" @click="genSM9EncMasterKey">
+              <LockIcon class="w-3.5 h-3.5" /> 加密主密钥
+            </Button>
+          </div>
+
+          <!-- Generated keys -->
+          <div v-if="sm9Master.publicKey" class="space-y-2 animate-in fade-in">
+            <div>
+              <label class="input-label text-orange-300">签名主私钥</label>
+              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                {{ sm9Master.privateKey }}
               </div>
             </div>
-            <div v-if="sm9EncMaster.publicKey" class="card !bg-transparent space-y-2 animate-in fade-in duration-300">
-              <div>
-                <label class="input-label text-orange-300">加密主私钥 (Hex)</label>
-                <div class="result-area ck-key-hex !min-h-0 text-orange-300 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9EncMaster.privateKey }}</div>
-              </div>
-              <div>
-                <label class="input-label text-cyan-200">加密主公钥 (Hex)</label>
-                <div class="result-area ck-key-hex !min-h-0 text-cyan-200 text-[12px] break-all max-h-32 overflow-y-auto font-mono">{{ sm9EncMaster.publicKey }}</div>
+            <div>
+              <label class="input-label text-cyan-200">签名主公钥</label>
+              <div class="result-area !min-h-0 !p-2 text-cyan-200 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                {{ sm9Master.publicKey }}
               </div>
             </div>
           </div>
-        </div>
-        <Card>
-          <div>
-            <label class="input-label">用户标识 (UID / 标识即公钥)</label>
-            <Input v-model="sm9.uid" placeholder="例如: alice@cryptokit.com" />
-          </div>
-          <CryptoPanel v-model="sm9.data" label="待处理数据 (Hex)" type="textarea" :rows="3" clearable />
-          <div class="flex gap-2">
-            <Button variant="success" class="flex-1" @click="doSM9Encrypt"><LockIcon class="w-3.5 h-3.5" />标识加密</Button>
-            <Button variant="warning" class="flex-1" @click="doSM9Sign"><PenIcon class="w-3.5 h-3.5" />标识签名</Button>
+
+          <div v-if="sm9EncMaster.publicKey" class="space-y-2 mt-3 animate-in fade-in">
+            <div>
+              <label class="input-label text-orange-300">加密主私钥</label>
+              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                {{ sm9EncMaster.privateKey }}
+              </div>
+            </div>
+            <div>
+              <label class="input-label text-cyan-200">加密主公钥</label>
+              <div class="result-area !min-h-0 !p-2 text-cyan-200 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                {{ sm9EncMaster.publicKey }}
+              </div>
+            </div>
           </div>
         </Card>
       </div>
+
       <div class="sym-main">
-        <ResultArea
-          v-model="sm9Result.data"
-          label="运算结果"
-          :success="sm9Result.success"
-          :error="sm9Result.error"
-          copyable
-        />
+        <Card title="标识密码操作">
+          <div class="space-y-3">
+            <div>
+              <label class="input-label">用户标识 (UID / 标识即公钥)</label>
+              <Input v-model="sm9.uid" placeholder="例如: alice@cryptokit.com" />
+            </div>
+            <CryptoPanel v-model="sm9.data" label="待处理数据 (Hex)" type="textarea" :rows="3" clearable />
+          </div>
+        </Card>
+
+        <div class="grid grid-cols-2 gap-2">
+          <Button variant="success" @click="doSM9Encrypt"><LockIcon class="w-3.5 h-3.5" />标识加密</Button>
+          <Button variant="warning" @click="doSM9Sign"><PenIcon class="w-3.5 h-3.5" />标识签名</Button>
+        </div>
+
+        <ResultArea v-model="sm9Result.data" label="运算结果" :success="sm9Result.success" :error="sm9Result.error" copyable />
       </div>
     </div>
 

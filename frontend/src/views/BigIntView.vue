@@ -43,10 +43,10 @@
             <Input v-model="bi.n" label="模数 N (Modulus)" class="font-mono" placeholder="输入 N..." />
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <Button variant="primary" class="justify-center text-xs" @click="doBigIntOp('add')">(A + B) mod N</Button>
-            <Button variant="primary" class="justify-center text-xs" @click="doBigIntOp('sub')">(A - B) mod N</Button>
+            <Button variant="success" class="justify-center text-xs" @click="doBigIntOp('add')">(A + B) mod N</Button>
+            <Button variant="warning" class="justify-center text-xs" @click="doBigIntOp('sub')">(A - B) mod N</Button>
             <Button variant="primary" class="justify-center text-xs" @click="doBigIntOp('mul')">(A * B) mod N</Button>
-            <Button variant="primary" class="justify-center text-xs" @click="doBigIntOp('exp')">(A ^ B) mod N</Button>
+            <Button variant="download" class="justify-center text-xs" @click="doBigIntOp('exp')">(A ^ B) mod N</Button>
           </div>
         </Card>
 
