@@ -9,5 +9,20 @@
   "author": {
     "name": "CryptoKit",
     "email": ""
+  },
+  "info": {
+    "companyName": "CryptoKit",
+    "productVersion": "1.0.0",
+    "copyright": "",
+    "comments": ""
+  },
+  "window": {
+    "title": "CryptoKit",
+    "width": 1280,
+    "height": 800,
+    "minWidth": 1024,
+    "minHeight": 700,
+    "frameless": false,
+    "startHidden": false
   }
 }

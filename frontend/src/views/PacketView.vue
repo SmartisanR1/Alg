@@ -6,9 +6,14 @@
     </template>
 
     <template #extra>
-       <Button variant="tool" size="sm" @click="showHelp = true">
-         <InfoIcon class="w-3 h-3" /> 使用说明
-       </Button>
+       <div class="flex gap-2">
+         <Button variant="tool" size="sm" @click="showHelp = true">
+           <InfoIcon class="w-3 h-3" /> 使用说明
+         </Button>
+         <Button variant="secondary" size="sm" @click="showPrinciple = true">
+           <ShieldCheckIcon class="w-3.5 h-3.5" /> 算法原理
+         </Button>
+       </div>
      </template>
 
      <!-- Help Modal -->
@@ -44,8 +49,34 @@
               <button @click="showHelp = false" class="btn-success px-6">确定</button>
            </div>
          </div>
-       </div>
-     </transition>
+        </div>
+      </transition>
+
+    <!-- Principle Modal -->
+    <transition name="fade">
+      <div v-if="showPrinciple" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPrinciple = false">
+        <div class="card max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[85vh]">
+          <div class="flex justify-between items-center p-4 border-b shrink-0">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <ShieldCheckIcon class="w-4 h-4 text-violet-400" /> {{ currentPrinciple.title }}
+            </h3>
+            <button @click="showPrinciple = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
+              <XIcon class="w-4 h-4 text-dark-muted" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <AlgorithmPrinciple
+              :title="currentPrinciple.title"
+              type="network"
+              :sections="parsedPrinciples"
+            />
+          </div>
+          <div class="p-4 border-t shrink-0 flex justify-end bg-gray-50/50 dark:bg-dark-bg/20">
+            <Button variant="primary" @click="showPrinciple = false">确认并返回</Button>
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <div class="packet-workbench animate-fade-in">
       <!-- Left side: Connection and Security -->
@@ -206,7 +237,7 @@
             <div class="flex gap-3 text-xs opacity-60 font-mono">
               <span v-if="packetResult.requestBytes" class="text-cyan-400">已发: {{ packetResult.requestBytes }}B</span>
               <span v-if="packetResult.responseBytes" class="text-emerald-400">已收: {{ packetResult.responseBytes }}B</span>
-              <span v-if="packetResult.durationMs" class="text-amber-400">{{ packetResult.durationMs }}ms</span>
+              <span v-if="packetResult.durationMs" class="text-amber-200">{{ packetResult.durationMs }}ms</span>
             </div>
           </div>
           <div class="space-y-2">
@@ -264,6 +295,8 @@ const principleData = ref({
 • 文件模式: 支持发送超大文件报文，直接从磁盘流式读取，不占用前端内存。
 • 历史记录: 自动保存最近 20 次成功发送的配置和报文快照。`
 })
+
+const currentPrinciple = computed(() => principleData.value)
 
 const parsedPrinciples = computed(() => {
   const lines = principleData.value.content.split('\n')

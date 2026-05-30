@@ -3,8 +3,40 @@
               icon-bg="bg-amber-500/20"
               :tabs="visibleTabs" :active-tab="activeTab" @tab-change="handleTabChange">
     <template #icon>
-      <WrenchIcon class="w-4 h-4 text-amber-400" />
+      <WrenchIcon class="w-4 h-4 text-amber-200" />
     </template>
+
+    <template #extra>
+      <Button variant="secondary" size="sm" @click="showPrinciple = true">
+        <InfoIcon class="w-3.5 h-3.5" /> 算法原理
+      </Button>
+    </template>
+
+    <!-- Principle Modal -->
+    <transition name="fade">
+      <div v-if="showPrinciple" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPrinciple = false">
+        <div class="card max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[85vh]">
+          <div class="flex justify-between items-center p-4 border-b shrink-0">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <ShieldCheckIcon class="w-4 h-4 text-violet-400" /> {{ currentPrinciple.title }}
+            </h3>
+            <button @click="showPrinciple = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
+              <XIcon class="w-4 h-4 text-dark-muted" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <AlgorithmPrinciple
+              :title="currentPrinciple.title"
+              type="tools"
+              :sections="parsedPrinciples"
+            />
+          </div>
+          <div class="p-4 border-t shrink-0 flex justify-end bg-gray-50/50 dark:bg-dark-bg/20">
+            <Button variant="primary" @click="showPrinciple = false">确认并返回</Button>
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <!-- Encoding -->
     <div v-if="activeTab === 'encode'" class="sym-workbench animate-fade-in">
@@ -188,7 +220,7 @@
             <label class="input-label">Key (32字节)</label>
             <div class="result-area result-area-sm !min-h-0 text-xs font-mono break-all">{{ xchacha.key }}</div>
             <div v-if="xchacha.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                 {{ (xchacha.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -255,7 +287,7 @@
               <p>DES / 3DES 通常用 8 字节块长，AES / SM4 通常用 16 字节块长。</p>
             </div>
             <div class="card">
-              <p class="card-title text-amber-400">联调提醒</p>
+              <p class="card-title text-amber-200">联调提醒</p>
               <p>移除填充失败时，通常是块长、模式或输入编码和对端不一致。</p>
             </div>
           </div>
@@ -546,7 +578,7 @@
             <KeyIcon class="w-3.5 h-3.5" /> 转换
           </Button>
           <div v-if="keyConvResult.error" class="text-xs text-red-400">{{ keyConvResult.error }}</div>
-          <div v-if="keyConvResult.keyType" class="text-xs text-amber-400">类型: {{ keyConvResult.keyType }}</div>
+          <div v-if="keyConvResult.keyType" class="text-xs text-amber-200">类型: {{ keyConvResult.keyType }}</div>
         </Card>
 
         <Card title="证书链验证" class="space-y-3">
@@ -609,7 +641,7 @@
                     :value="pfxResult.cert"></textarea>
           <textarea readonly class="result-area result-area-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none mt-2"
                     :value="pfxResult.ca"></textarea>
-          <div v-if="pfxResult.info" class="mt-1 text-xs text-amber-400">证书: {{ pfxResult.info }}</div>
+          <div v-if="pfxResult.info" class="mt-1 text-xs text-amber-200">证书: {{ pfxResult.info }}</div>
         </Card>
       </div>
     </div>
@@ -648,6 +680,66 @@ const tabs = [
   { id: 'keycert', label: 'Key/Cert' },
 ]
 const activeTab = ref('encode')
+const showPrinciple = ref(false)
+
+const principles = {
+  'encode': {
+    title: '编解码工具原理',
+    content: '设计目标: 在不同数据格式之间进行转换，便于数据传输和存储。\n常见编码:\n• Hex: 将二进制数据转换为十六进制字符串，每字节用两个字符表示。\n• Base64: 将二进制数据转换为64个可打印字符，常用于邮件附件和数据嵌入。\n• URL编码: 将特殊字符转换为%XX格式，确保URL安全传输。\n• Unicode: 将字符转换为\\uXXXX格式，处理多语言文本。\n应用场景: 数据传输、API通信、文件处理、国际化文本处理。'
+  },
+  'xor': {
+    title: 'XOR 与进制转换原理',
+    content: 'XOR运算: 二进制异或运算，相同为0，不同为1。特性：A⊕B⊕B=A，可逆性强。\n进制转换: 在不同进制间转换数值表示。\n常见进制:\n• 二进制 (Base2): 计算机底层表示。\n• 十进制 (Base10): 人类日常使用。\n• 十六进制 (Base16): 紧凑表示二进制数据。\n应用场景: 密码学运算、数据校验、底层编程、网络协议。'
+  },
+  'random': {
+    title: '随机数与填充原理',
+    content: '随机数生成: 使用密码学安全的随机数生成器 (CSPRNG) 生成不可预测的随机数据。\n填充方式:\n• PKCS7: 最通用标准，填充值等于填充字节数。\n• Zero Padding: 填充0x00字节。\n• ISO10126: 随机填充，最后一个字节记录长度。\n安全要求: 密码学应用必须使用密码学安全的随机数源。\n应用场景: 密钥生成、IV/Nonce生成、数据对齐。'
+  },
+  'timestamp': {
+    title: '时间戳转换原理',
+    content: 'Unix时间戳: 自1970年1月1日00:00:00 UTC以来的秒数（或毫秒数）。\n精度选择:\n• 秒级 (10位): 传统Unix时间戳。\n• 毫秒级 (13位): JavaScript常用。\n格式转换: 在时间戳和人类可读日期格式之间转换。\n应用场景: 日志分析、API时间处理、数据库时间存储、跨时区协调。'
+  },
+  'asn1': {
+    title: 'ASN.1 解析原理',
+    content: 'ASN.1 (Abstract Syntax Notation One): 定义数据结构的标准表示法。\nDER编码: ASN.1的一种二进制编码规则，用于X.509证书、PKCS标准等。\nTLV结构: Tag-Length-Value，ASN.1的基本编码单元。\n常见应用:\n• X.509证书结构解析\n• RSA/EC私钥格式 (PKCS#1/PKCS#8)\n• CSR证书请求解析\n• CRL证书吊销列表\n应用场景: 证书管理、密钥格式转换、安全协议调试。'
+  },
+  'base': {
+    title: 'BaseX 编码原理',
+    content: '设计目标: 使用不同字符集对二进制数据进行编码。\n常见变体:\n• Base32: 使用A-Z和2-7，不区分大小写，适合人类输入。\n• Base58: 比特币使用，去除易混淆字符(0OIl)。\n• Base58Check: Base58 + 4字节校验和。\n• Bech32: 比特币SegWit地址格式，包含纠错能力。\n优势: 不同编码在可读性、URL安全性和纠错能力上各有侧重。\n应用场景: 区块链地址、DNS编码、人类可读标识符。'
+  },
+  'jwt': {
+    title: 'JWT/JWK 原理',
+    content: 'JWT (JSON Web Token): 用于身份认证的开放标准 (RFC 7519)。\n结构: Header.Payload.Signature，三部分用.分隔。\n签名算法:\n• HS256: HMAC-SHA256，对称密钥。\n• RS256: RSA-SHA256，非对称密钥。\n• ES256: ECDSA-SHA256，椭圆曲线。\nJWK (JSON Web Key): 密钥的JSON表示格式。\n安全注意: JWT签名验证必须严格，避免算法混淆攻击。\n应用场景: API认证、单点登录 (SSO)、身份令牌。'
+  },
+  'keycert': {
+    title: '密钥与证书工具原理',
+    content: '密钥转换: 在不同格式间转换密钥表示。\n常见格式:\n• PEM: Base64编码，带BEGIN/END标记。\n• DER: 二进制编码。\n• PKCS#12 (.p12/.pfx): 包含私钥和证书的加密容器。\n证书链验证: 从终端证书到根CA的信任链验证。\n应用场景: TLS配置、证书导入导出、密钥管理、PKI部署。'
+  }
+}
+const currentPrinciple = computed(() => {
+  return principles[activeTab.value] || { title: '', content: '' }
+})
+const parsedPrinciples = computed(() => {
+  if (!currentPrinciple.value) return []
+  const lines = currentPrinciple.value.content.split('\n')
+  const sections = []
+  let currentSection = null
+
+  lines.forEach(line => {
+    if (line.includes(':') && !line.startsWith('•')) {
+      const [title, ...rest] = line.split(':')
+      currentSection = { title: title.trim(), content: [rest.join(':').trim()] }
+      sections.push(currentSection)
+    } else if (currentSection) {
+      if (line.trim()) currentSection.content.push(line.trim())
+    }
+  })
+
+  if (sections.length === 0) {
+    return [{ title: '详细说明', content: lines.filter(l => l.trim()) }]
+  }
+  return sections
+})
 
 function syncTabFromRoute() {
   const tab = typeof route.query.tab === 'string' ? route.query.tab : ''

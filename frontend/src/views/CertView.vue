@@ -383,14 +383,14 @@
         <!-- Private Key Result -->
         <div class="card">
           <div class="flex justify-between items-center mb-1">
-            <label class="input-label !mb-0 text-amber-400">配套私钥 (PEM)</label>
+            <label class="input-label !mb-0 text-amber-200">配套私钥 (PEM)</label>
             <div class="flex gap-1">
               <button v-if="selfResult.key" @click="copyText(selfResult.key)" class="ck-copy-btn">
                 <CopyIcon class="w-3 h-3" /> 复制
               </button>
             </div>
           </div>
-          <div class="result-area !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-amber-400/90">
+          <div class="result-area !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-amber-200/90">
             {{ selfResult.key || '等待生成...' }}
           </div>
         </div>
@@ -515,10 +515,10 @@
           
           <div class="card flex-1 min-h-0 flex flex-col p-3">
             <div class="flex justify-between items-center mb-2 shrink-0">
-              <span class="text-[11px] font-bold text-amber-400 flex items-center gap-1.5">
+              <span class="text-[11px] font-bold text-amber-200 flex items-center gap-1.5">
                 <ShieldCheckIcon class="w-3.5 h-3.5" /> 加密私钥信封
               </span>
-              <button @click="downloadFile(dualResult.enwrappedKey, 'enc_key.env')" class="ck-copy-btn !bg-amber-500/10 !text-amber-400">下载 .env</button>
+              <button @click="downloadFile(dualResult.enwrappedKey, 'enc_key.env')" class="ck-copy-btn !bg-amber-500/10 !text-amber-200">下载 .env</button>
             </div>
             <textarea readonly class="result-area flex-1 !text-[10px] font-mono resize-none bg-transparent border-none outline-none overflow-y-auto" v-model="dualResult.enwrappedKey"></textarea>
           </div>

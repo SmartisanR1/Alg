@@ -6,6 +6,38 @@
       <ShieldHalfIcon class="w-4 h-4 text-teal-400" />
     </template>
 
+    <template #extra>
+      <Button variant="secondary" size="sm" @click="showPrinciple = true">
+        <InfoIcon class="w-3.5 h-3.5" /> 算法原理
+      </Button>
+    </template>
+
+    <!-- Principle Modal -->
+    <transition name="fade">
+      <div v-if="showPrinciple" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPrinciple = false">
+        <div class="card max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[85vh]">
+          <div class="flex justify-between items-center p-4 border-b shrink-0">
+            <h3 class="text-sm font-bold flex items-center gap-2">
+              <ShieldCheckIcon class="w-4 h-4 text-violet-400" /> {{ currentPrinciple.title }}
+            </h3>
+            <button @click="showPrinciple = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
+              <XIcon class="w-4 h-4 text-dark-muted" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <AlgorithmPrinciple
+              :title="currentPrinciple.title"
+              type="mac"
+              :sections="parsedPrinciples"
+            />
+          </div>
+          <div class="p-4 border-t shrink-0 flex justify-end bg-gray-50/50 dark:bg-dark-bg/20">
+            <Button variant="primary" @click="showPrinciple = false">确认并返回</Button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <!-- MAC -->
     <div v-if="activeTab === 'mac'" class="grid grid-cols-2 gap-4 animate-fade-in">
       <div class="space-y-3 sym-main">
@@ -29,7 +61,7 @@
             <Input v-model="mac.key" class="font-mono" />
             <div v-if="macKeyHint" :class="['mt-1 text-xs', hintClass(macKeyHint)]">{{ macKeyHint }}</div>
             <div v-if="mac.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                 {{ (mac.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -98,7 +130,7 @@
             <Input v-model="kdf.password" label="密码/输入密钥 (hex)" class="font-mono ck-trim-space mb-2" placeholder="密码的hex编码..." />
             <div v-if="kdfPasswordHint" :class="['mt-1 text-xs', hintClass(kdfPasswordHint)]">{{ kdfPasswordHint }}</div>
             <div v-if="kdf.password" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                 {{ (kdf.password.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -111,7 +143,7 @@
             <Input v-model="kdf.salt" class="font-mono ck-trim-space mb-2" placeholder="留空则自动生成..." />
             <div v-if="kdfSaltHint" :class="['mt-1 text-xs', hintClass(kdfSaltHint)]">{{ kdfSaltHint }}</div>
             <div v-if="kdf.salt" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                 {{ (kdf.salt.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -120,7 +152,7 @@
             <Input v-model="kdf.info" label="Info (hex, 可选)" class="font-mono ck-trim-space mb-2" />
             <div v-if="kdfInfoHint" :class="['mt-1 text-xs', hintClass(kdfInfoHint)]">{{ kdfInfoHint }}</div>
             <div v-if="kdf.info" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                 {{ (kdf.info.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -175,8 +207,8 @@
             copyable
           />
           <div v-if="kdfResult.extra" class="mt-2">
-            <label class="input-label text-amber-400">使用的Salt</label>
-            <div class="result-area !min-h-0 text-amber-300 text-xs">{{ kdfResult.extra }}</div>
+            <label class="input-label text-amber-200">使用的Salt</label>
+            <div class="result-area !min-h-0 text-amber-100 text-xs">{{ kdfResult.extra }}</div>
           </div>
         </Card>
         <Card title="安全建议">
@@ -210,6 +242,7 @@ import { useAppStore } from '../stores/app'
 const { isDark } = storeToRefs(useAppStore())
 const tabs = [{ id: 'mac', label: 'MAC' }, { id: 'kdf', label: 'KDF' }]
 const activeTab = ref('mac')
+const showPrinciple = ref(false)
 
 const mac = reactive({ algorithm: 'CMAC-AES', key: '', iv: '', data: '' })
 const macResult = reactive({ data: '', error: '', success: null })
@@ -286,6 +319,41 @@ const macPrinciple = computed(() => {
   }
 })
 
+const principles = {
+  'mac': {
+    title: 'MAC (消息认证码) 原理',
+    content: '设计目标: 验证消息的完整性和真实性，防止消息被篡改或伪造。\n核心机制: 使用共享密钥和消息生成认证标签 (Tag)，接收方用相同密钥验证。\n常见算法:\n• CMAC: 基于 AES 分组密码，NIST 标准。\n• GMAC: GCM 的认证部分，可并行处理。\n• Poly1305: 一次性 MAC，常与 ChaCha20 配合。\n• SipHash-2-4: 为哈希表设计的快速 MAC。\n应用场景: API 签名、数据完整性校验、安全通信协议。'
+  },
+  'kdf': {
+    title: 'KDF (密钥派生函数) 原理',
+    content: '设计目标: 从密码或主密钥派生出加密密钥，增加破解难度。\n核心机制: 通过盐值 (Salt)、迭代次数、内存消耗等参数增加计算成本。\n常见算法:\n• PBKDF2: 最广泛使用的标准，通过多次迭代增加强度。\n• HKDF: 基于 HMAC 的密钥派生，适合已有高熵密钥的场景。\n• bcrypt/scrypt/Argon2: 密码哈希专用，抗暴力破解。\n安全建议: 密码存储推荐 Argon2id，密钥派生推荐 HKDF。'
+  }
+}
+const currentPrinciple = computed(() => {
+  return principles[activeTab.value] || { title: '', content: '' }
+})
+const parsedPrinciples = computed(() => {
+  if (!currentPrinciple.value) return []
+  const lines = currentPrinciple.value.content.split('\n')
+  const sections = []
+  let currentSection = null
+
+  lines.forEach(line => {
+    if (line.includes(':') && !line.startsWith('•')) {
+      const [title, ...rest] = line.split(':')
+      currentSection = { title: title.trim(), content: [rest.join(':').trim()] }
+      sections.push(currentSection)
+    } else if (currentSection) {
+      if (line.trim()) currentSection.content.push(line.trim())
+    }
+  })
+
+  if (sections.length === 0) {
+    return [{ title: '详细说明', content: lines.filter(l => l.trim()) }]
+  }
+  return sections
+})
+
 async function computeMAC() {
   const r = await ComputeMAC(mac)
   macResult.data = r.data; macResult.error = r.error; macResult.success = r.success
@@ -325,7 +393,7 @@ const kdfInfoHint = computed(() => {
 function hintClass(text) {
   if (!text) return ''
   if (text.includes('必须') || text.includes('需') || text.includes('应为')) return 'text-red-400'
-  return 'text-amber-400'
+  return 'text-amber-200'
 }
 
 async function deriveKey() {

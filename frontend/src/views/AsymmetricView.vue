@@ -68,10 +68,10 @@
           <div v-if="rsaKeys.privateKey" class="space-y-3 animate-in fade-in duration-300">
             <div>
               <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-amber-400">私钥 ({{ asymKeyFormat.toUpperCase() }})</label>
+                <label class="input-label !mb-0 text-amber-200">私钥 ({{ asymKeyFormat.toUpperCase() }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <div class="result-area !min-h-0 text-amber-300 !text-[10px] break-all max-h-32 overflow-y-auto font-mono">
+              <div class="result-area !min-h-0 text-amber-100 !text-[10px] break-all max-h-32 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex }}
               </div>
             </div>
@@ -172,12 +172,12 @@
           <div v-if="sm2Keys.privateKey" class="space-y-4 flex-1 overflow-y-auto pr-1 custom-scrollbar">
             <div>
               <div class="flex justify-between mb-1.5">
-                <label class="input-label !mb-0 text-amber-400">私钥 ({{ asymKeyFormat === 'hex' ? '裸值32字节' : 'PEM' }})</label>
+                <label class="input-label !mb-0 text-amber-200">私钥 ({{ asymKeyFormat === 'hex' ? '裸值32字节' : 'PEM' }})</label>
                 <div class="flex gap-2">
                   <button @click="copy(asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
                 </div>
               </div>
-              <div class="result-area !min-h-[80px] text-amber-300 !text-[11px] break-all max-h-40 overflow-y-auto font-mono border-amber-500/10 bg-amber-500/5">
+              <div class="result-area !min-h-[80px] text-amber-100 !text-[11px] break-all max-h-40 overflow-y-auto font-mono border-amber-400/20 bg-amber-400/10">
                 {{ asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv }}
               </div>
             </div>
@@ -266,8 +266,8 @@
             </div>
             <div v-if="sm9Master.publicKey" class="card !bg-transparent space-y-2 animate-in fade-in duration-300">
               <div>
-                <label class="input-label text-amber-400">签名主私钥 (Hex)</label>
-                <div class="result-area ck-key-hex !min-h-0 text-amber-300 text-[10px] break-all max-h-20 overflow-y-auto font-mono">{{ sm9Master.privateKey }}</div>
+                <label class="input-label text-amber-200">签名主私钥 (Hex)</label>
+                <div class="result-area ck-key-hex !min-h-0 text-amber-100 text-[10px] break-all max-h-20 overflow-y-auto font-mono">{{ sm9Master.privateKey }}</div>
               </div>
               <div>
                 <label class="input-label text-cyan-400">签名主公钥 (Hex)</label>
@@ -276,8 +276,8 @@
             </div>
             <div v-if="sm9EncMaster.publicKey" class="card !bg-transparent space-y-2 animate-in fade-in duration-300">
               <div>
-                <label class="input-label text-amber-400">加密主私钥 (Hex)</label>
-                <div class="result-area ck-key-hex !min-h-0 text-amber-300 text-[10px] break-all max-h-20 overflow-y-auto font-mono">{{ sm9EncMaster.privateKey }}</div>
+                <label class="input-label text-amber-200">加密主私钥 (Hex)</label>
+                <div class="result-area ck-key-hex !min-h-0 text-amber-100 text-[10px] break-all max-h-20 overflow-y-auto font-mono">{{ sm9EncMaster.privateKey }}</div>
               </div>
               <div>
                 <label class="input-label text-cyan-400">加密主公钥 (Hex)</label>
@@ -337,10 +337,10 @@
           <div v-if="eccKeys.privateKey" class="space-y-3 animate-in fade-in duration-300">
             <div>
               <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-amber-400">私钥 ({{ asymKeyFormat === 'hex' ? '裸值' : 'PEM' }})</label>
+                <label class="input-label !mb-0 text-amber-200">私钥 ({{ asymKeyFormat === 'hex' ? '裸值' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <div class="result-area !min-h-0 text-amber-300 !text-[10px] break-all max-h-32 overflow-y-auto font-mono">
+              <div class="result-area !min-h-0 text-amber-100 !text-[10px] break-all max-h-32 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex }}
               </div>
             </div>
@@ -402,8 +402,8 @@
           </div>
           <div v-if="c25519.privateKey" class="space-y-2 animate-in fade-in duration-300">
             <div>
-              <label class="input-label text-amber-400">私钥 (Hex)</label>
-              <div class="result-area !min-h-0 text-amber-300 text-[10px] font-mono break-all">{{ c25519.privateKey }}</div>
+              <label class="input-label text-amber-200">私钥 (Hex)</label>
+              <div class="result-area !min-h-0 text-amber-100 text-[10px] font-mono break-all">{{ c25519.privateKey }}</div>
             </div>
             <div>
               <label class="input-label text-cyan-400">公钥 (Hex)</label>

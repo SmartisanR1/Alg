@@ -64,12 +64,12 @@
           <div v-if="kemKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
             <div class="flex-1 min-h-0 flex flex-col">
               <div class="flex justify-between mb-1 shrink-0">
-                <label class="input-label !mb-0 text-amber-400">私钥 (Private Key)</label>
+                <label class="input-label !mb-0 text-amber-200">私钥 (Private Key)</label>
                 <Button variant="tool" size="sm" @click="copy(kemKeys.privateKey)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.privateKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-100 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.privateKey"></textarea>
               <div class="flex gap-3 mt-1">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                   {{ base64ByteLen(kemKeys.privateKey) + ' bytes' }}
                 </span>
               </div>
@@ -102,10 +102,10 @@
             </div>
             <div>
               <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-yellow-400">共享密钥 (Shared Secret)</label>
+                <label class="input-label !mb-0 text-yellow-200">共享密钥 (Shared Secret)</label>
                 <Button variant="tool" size="sm" @click="copy(kemEncapResult.sharedSecret)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <div class="result-area text-yellow-300 font-mono">{{ kemEncapResult.sharedSecret }}</div>
+              <div class="result-area text-yellow-100 font-mono">{{ kemEncapResult.sharedSecret }}</div>
             </div>
           </div>
         </Card>
@@ -116,10 +116,10 @@
           </Button>
           <div v-if="kemDecapResult.data">
             <div class="flex justify-between mb-1">
-              <label class="input-label !mb-0 text-yellow-400">恢复的共享密钥</label>
+              <label class="input-label !mb-0 text-yellow-200">恢复的共享密钥</label>
               <Button variant="tool" size="sm" @click="copy(kemDecapResult.data)"><CopyIcon class="w-3 h-3" /></Button>
             </div>
-            <div class="result-area text-yellow-300 font-mono">{{ kemDecapResult.data }}</div>
+            <div class="result-area text-yellow-100 font-mono">{{ kemDecapResult.data }}</div>
             <div class="mt-2 text-xs flex items-center gap-1"
                  :class="kemEncapResult.sharedSecret === kemDecapResult.data ? 'text-emerald-400' : 'text-red-400'">
               <CheckCircleIcon v-if="kemEncapResult.sharedSecret === kemDecapResult.data" class="w-3.5 h-3.5" />
@@ -177,10 +177,10 @@
           </button>
           <div v-if="dsaKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
             <div class="flex-1 min-h-0 flex flex-col">
-              <label class="input-label text-amber-400 shrink-0">私钥 (Private Key)</label>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-300 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.privateKey"></textarea>
+              <label class="input-label text-amber-200 shrink-0">私钥 (Private Key)</label>
+              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-amber-100 text-[10px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.privateKey"></textarea>
               <div class="flex gap-3 mt-1">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-400 border-amber-500/20 bg-amber-500/5">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
                   {{ base64ByteLen(dsaKeys.privateKey) + ' bytes' }}
                 </span>
               </div>
@@ -266,10 +266,10 @@
           <div v-if="slhKeys.publicKey" class="space-y-3 animate-in fade-in duration-300">
             <div>
               <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-amber-400">私钥 (Private Key)</label>
+                <label class="input-label !mb-0 text-amber-200">私钥 (Private Key)</label>
                 <button @click="copy(slhKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[42px] !max-h-[60px] text-amber-300 text-[10px] font-mono leading-tight bg-amber-500/5 border-amber-500/10">
+              <div class="result-area !min-h-[42px] !max-h-[60px] text-amber-100 text-[10px] font-mono leading-tight bg-amber-400/10 border-amber-400/20">
                 {{ slhKeys.privateKey }}
               </div>
               <div class="mt-1 text-[9px] opacity-40 font-mono">Size: {{ base64ByteLen(slhKeys.privateKey) }} bytes</div>
@@ -361,8 +361,8 @@
             <p class="font-bold mb-2 text-violet-400">设计基础</p>
             <p>FALCON 基于 NTRU 格，采用 Gentry-Peikert-Vaikuntanathan (GPV) 框架的陷门高斯采样，使用 Fast Fourier Sampling over NTRU lattices 技术高效生成签名。</p>
           </div>
-          <div class="p-3 rounded-xl border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-amber-400">尺寸优势 — PQC 中最小签名</p>
+          <div class="p-3 rounded-xl border border-amber-400/20" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+            <p class="font-bold mb-2 text-amber-200">尺寸优势 — PQC 中最小签名</p>
             <p>FALCON-512 签名仅约 666B，公钥 897B，远小于 ML-DSA-44 (签名 2420B)。在带宽受限场景 (TLS、区块链) 中具有显著优势。</p>
           </div>
           <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
@@ -422,8 +422,8 @@
             <p class="font-bold mb-2 text-violet-400">NIST 标准化进展</p>
             <p>HQC 于 2024 年入选 NIST PQC 第四轮，预计 2025-2026 年完成标准化。届时将作为 ML-KEM 的备选 KEM 正式发布，可与 ML-KEM 混合部署以提升安全边界。</p>
           </div>
-          <div class="p-3 rounded-xl border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-amber-400">实现现状</p>
+          <div class="p-3 rounded-xl border border-amber-400/20" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+            <p class="font-bold mb-2 text-amber-200">实现现状</p>
             <p>HQC 参考实现为 C 语言。Go 社区中目前没有经过审计的成熟实现，待 NIST 最终标准发布后，预计 Go 标准库或 cloudflare/circl 将跟进。</p>
           </div>
         </div>
@@ -444,10 +444,10 @@
           <div v-if="xwingKeys.publicKey" class="space-y-2">
             <div>
               <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-amber-400">私钥</label>
+                <label class="input-label !mb-0 text-amber-200">私钥</label>
                 <button @click="copy(xwingKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[64px] text-amber-300 text-[10px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingKeys.privateKey"></textarea>
+              <textarea readonly class="result-area ck-key-hex !min-h-[64px] text-amber-100 text-[10px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="xwingKeys.privateKey"></textarea>
             </div>
             <div>
               <div class="flex justify-between mb-1">
