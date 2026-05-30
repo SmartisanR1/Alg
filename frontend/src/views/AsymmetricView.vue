@@ -133,13 +133,6 @@
           :error="rsaResult.error"
           copyable
         />
-        <Card>
-          <AlgorithmPrinciple
-            :title="currentPrinciple.title"
-            type="asymmetric"
-            :sections="parsedPrinciples"
-          />
-        </Card>
       </div>
     </div>
 
@@ -242,11 +235,6 @@
           :error="sm2Result.error"
           copyable
         />
-        <AlgorithmPrinciple
-          :title="currentPrinciple.title"
-          type="asymmetric"
-          :sections="parsedPrinciples"
-        />
       </div>
     </div>
 
@@ -305,11 +293,6 @@
           :success="sm9Result.success"
           :error="sm9Result.error"
           copyable
-        />
-        <AlgorithmPrinciple
-          :title="currentPrinciple.title"
-          type="asymmetric"
-          :sections="parsedPrinciples"
         />
       </div>
     </div>
@@ -380,11 +363,6 @@
           :error="eccResult.error"
           copyable
         />
-        <AlgorithmPrinciple
-          :title="currentPrinciple.title"
-          type="asymmetric"
-          :sections="parsedPrinciples"
-        />
       </div>
     </div>
 
@@ -436,11 +414,6 @@
           :error="c25519Result.error"
           copyable
         />
-        <AlgorithmPrinciple
-          :title="currentPrinciple.title"
-          type="asymmetric"
-          :sections="parsedPrinciples"
-        />
       </div>
     </div>
   </PageLayout>
@@ -454,6 +427,7 @@ import { KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, CopyIcon, Link
 import PageLayout from '../components/PageLayout.vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
+import InputWithBytes from '../components/InputWithBytes.vue'
 import Button from '../components/Button.vue'
 import ResultArea from '../components/ResultArea.vue'
 import AlgorithmPrinciple from '../components/AlgorithmPrinciple.vue'

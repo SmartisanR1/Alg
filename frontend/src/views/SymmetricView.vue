@@ -94,48 +94,28 @@
               <label class="input-label !mb-0">密钥 (hex)</label>
               <button @click="genKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="aes.key" placeholder="输入hex格式密钥..." class="font-mono" />
+            <InputWithBytes v-model="aes.key" placeholder="输入hex格式密钥..." />
             <div v-if="aesKeyHint" :class="['mt-1 text-xs', hintClass(aesKeyHint)]">{{ aesKeyHint }}</div>
-            <div v-if="aes.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(aes.key) }}
-              </span>
-            </div>
           </div>
           <div v-if="!['ECB','GCM','CCM'].includes(aes.mode)">
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">IV (hex)</label>
               <button @click="genIV" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="aes.iv" placeholder="留空则自动生成..." class="font-mono" />
+            <InputWithBytes v-model="aes.iv" placeholder="留空则自动生成..." />
             <div v-if="aesIVHint" :class="['mt-1 text-xs', hintClass(aesIVHint)]">{{ aesIVHint }}</div>
-            <div v-if="aes.iv" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(aes.iv) }}
-              </span>
-            </div>
           </div>
           <div v-if="['GCM','CCM'].includes(aes.mode)">
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">Nonce (hex)</label>
               <button @click="genNonce" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="aes.nonce" placeholder="留空则自动生成..." class="font-mono" />
+            <InputWithBytes v-model="aes.nonce" placeholder="留空则自动生成..." />
             <div v-if="aesNonceHint" :class="['mt-1 text-xs', hintClass(aesNonceHint)]">{{ aesNonceHint }}</div>
-            <div v-if="aes.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(aes.nonce) }}
-              </span>
-            </div>
             <div class="mt-2">
               <label class="input-label">AAD (可选, hex)</label>
-              <Input v-model="aes.aad" placeholder="附加认证数据..." class="font-mono" />
+              <InputWithBytes v-model="aes.aad" placeholder="附加认证数据..." />
               <div v-if="aesAADHint" :class="['mt-1 text-xs', hintClass(aesAADHint)]">{{ aesAADHint }}</div>
-              <div v-if="aes.aad" class="flex gap-3 mt-1">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                  {{ formatHexBytes(aes.aad) }}
-                </span>
-              </div>
             </div>
           </div>
         </Card>
@@ -226,14 +206,14 @@
               <label class="input-label !mb-0 text-orange-300">密钥 (Key / 16-byte Hex)</label>
               <button @click="genSM4Key" class="text-xs text-violet-400">⚡ 随机生成</button>
             </div>
-            <Input v-model="sm4.key" class="font-mono text-xs" placeholder="输入 32 位 Hex..." />
+            <InputWithBytes v-model="sm4.key" placeholder="输入 32 位 Hex..." />
           </div>
           <div v-if="sm4.mode !== 'ECB' && sm4.mode !== 'GCM'">
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0 text-cyan-400">初始化向量 (IV / 16-byte Hex)</label>
               <button @click="genSM4IV" class="text-xs text-violet-400">⚡ 随机生成</button>
             </div>
-            <Input v-model="sm4.iv" class="font-mono text-xs" placeholder="输入 32 位 Hex..." />
+            <InputWithBytes v-model="sm4.iv" placeholder="输入 32 位 Hex..." />
           </div>
           <div v-if="sm4.mode === 'GCM'" class="space-y-3">
             <div>
@@ -241,11 +221,11 @@
                 <label class="input-label !mb-0 text-cyan-400">Nonce (12-byte Hex)</label>
                 <button @click="genSM4Nonce" class="text-xs text-violet-400">⚡ 随机生成</button>
               </div>
-              <Input v-model="sm4.nonce" class="font-mono text-xs" />
+              <InputWithBytes v-model="sm4.nonce" />
             </div>
             <div>
               <label class="input-label">附加认证数据 (AAD / 可选 Hex)</label>
-              <Input v-model="sm4.aad" class="font-mono text-xs" />
+              <InputWithBytes v-model="sm4.aad" />
             </div>
           </div>
         </Card>
@@ -289,14 +269,14 @@
               <label class="input-label !mb-0 text-orange-300">密钥 (Key / Hex)</label>
               <button @click="genZUCKey" class="text-xs text-violet-400">⚡ 生成</button>
             </div>
-            <Input v-model="zuc.key" class="font-mono text-xs" :placeholder="zuc.type === 'ZUC-256' ? '64位 Hex' : '32位 Hex'" />
+            <InputWithBytes v-model="zuc.key" :placeholder="zuc.type === 'ZUC-256' ? '64位 Hex' : '32位 Hex'" />
           </div>
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0 text-cyan-400">向量 (IV / Hex)</label>
               <button @click="genZUCIV" class="text-xs text-violet-400">⚡ 生成</button>
             </div>
-            <Input v-model="zuc.iv" class="font-mono text-xs" :placeholder="zuc.type === 'ZUC-256' ? '50位 Hex' : '32位 Hex'" />
+            <InputWithBytes v-model="zuc.iv" :placeholder="zuc.type === 'ZUC-256' ? '50位 Hex' : '32位 Hex'" />
           </div>
         </Card>
       </div>
@@ -419,20 +399,15 @@
               <label class="input-label !mb-0">密钥 (hex)</label>
               <button @click="genDesKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="des.key" placeholder="48位Hex (24字节)或16位Hex (8字节)" class="font-mono" />
+            <InputWithBytes v-model="des.key" placeholder="48位Hex (24字节)或16位Hex (8字节)" />
             <div v-if="desKeyHint" :class="['mt-1 text-xs', hintClass(desKeyHint)]"></div>
-            <div v-if="des.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(des.key) }}
-              </span>
-            </div>
           </div>
           <div v-if="des.mode !== 'ECB'">
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0">IV (hex)</label>
               <button @click="genDesIV" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="des.iv" placeholder="16位Hex (8字节)" class="font-mono" />
+            <InputWithBytes v-model="des.iv" placeholder="16位Hex (8字节)" />
             <div v-if="desIVHint" :class="['mt-1 text-xs', hintClass(desIVHint)]"></div>
           </div>
         </Card>
@@ -483,36 +458,21 @@
               <label class="input-label !mb-0">密钥 (hex, 32字节)</label>
               <button @click="genChaChaKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="chacha.key" placeholder="64位hex (32字节)..." class="font-mono" />
+            <InputWithBytes v-model="chacha.key" placeholder="64位hex (32字节)..." />
             <div v-if="chachaKeyHint" :class="['mt-1 text-xs', hintClass(chachaKeyHint)]">{{ chachaKeyHint }}</div>
-            <div v-if="chacha.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(chacha.key) }}
-              </span>
-            </div>
           </div>
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0">Nonce (hex)</label>
               <button @click="genChachaNonce" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="chacha.nonce" :placeholder="chacha.type.startsWith('X') ? '48位Hex (24字节)' : '24位Hex (12字节)'" class="font-mono" />
+            <InputWithBytes v-model="chacha.nonce" :placeholder="chacha.type.startsWith('X') ? '48位Hex (24字节)' : '24位Hex (12字节)'" />
             <div v-if="chachaNonceHint" :class="['mt-1 text-xs', hintClass(chachaNonceHint)]">{{ chachaNonceHint }}</div>
-            <div v-if="chacha.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(chacha.nonce) }}
-              </span>
-            </div>
           </div>
           <div v-if="chacha.type.includes('Poly1305')">
             <label class="input-label">AAD (可选, hex)</label>
-            <Input v-model="chacha.aad" placeholder="附加认证数据..." class="font-mono" />
+            <InputWithBytes v-model="chacha.aad" placeholder="附加认证数据..." />
             <div v-if="chachaAADHint" :class="['mt-1 text-xs', hintClass(chachaAADHint)]">{{ chachaAADHint }}</div>
-            <div v-if="chacha.aad" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(chacha.aad) }}
-              </span>
-            </div>
           </div>
         </Card>
       </div>
@@ -548,13 +508,8 @@
               <label class="input-label !mb-0">密钥 (hex)</label>
               <button @click="genRC4Key" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="rc4.key" class="font-mono" placeholder="1-256字节 Hex" />
+            <InputWithBytes v-model="rc4.key" placeholder="1-256字节 Hex" />
             <div v-if="rc4KeyHint" :class="['mt-1 text-xs', hintClass(rc4KeyHint)]">{{ rc4KeyHint }}</div>
-            <div v-if="rc4.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(rc4.key) }}
-              </span>
-            </div>
           </div>
         </Card>
         <Card>
@@ -601,35 +556,20 @@
               <label class="input-label !mb-0">密钥 (hex)</label>
               <button @click="genSIVKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="siv.key" class="font-mono"
+            <InputWithBytes v-model="siv.key"
                    :placeholder="siv.mode === 'AES-SIV' ? '64/96/128位Hex (32/48/64字节)' : '32/64位Hex (16/32字节)'" />
             <div v-if="sivKeyHint" :class="['mt-1 text-xs', hintClass(sivKeyHint)]">{{ sivKeyHint }}</div>
-            <div v-if="siv.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(siv.key) }}
-              </span>
-            </div>
           </div>
           <div>
             <label class="input-label">Nonce (hex)</label>
-            <Input v-model="siv.nonce" class="font-mono"
+            <InputWithBytes v-model="siv.nonce"
                    :placeholder="siv.mode === 'AES-SIV' ? '可选 32位Hex (16字节) 或留空' : '必须 24位Hex (12字节)'" />
             <div v-if="sivNonceHint" :class="['mt-1 text-xs', hintClass(sivNonceHint)]">{{ sivNonceHint }}</div>
-            <div v-if="siv.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(siv.nonce) }}
-              </span>
-            </div>
           </div>
           <div>
             <label class="input-label">AAD (可选, hex)</label>
-            <Input v-model="siv.aad" class="font-mono" placeholder="附加认证数据..." />
+            <InputWithBytes v-model="siv.aad" placeholder="附加认证数据..." />
             <div v-if="sivAADHint" :class="['mt-1 text-xs', hintClass(sivAADHint)]">{{ sivAADHint }}</div>
-            <div v-if="siv.aad" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(siv.aad) }}
-              </span>
-            </div>
           </div>
         </Card>
         <Card>
@@ -704,24 +644,14 @@
               <label class="input-label !mb-0">密钥 (hex)</label>
               <button @click="genFPEKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
             </div>
-            <Input v-model="fpe.key" class="font-mono" :placeholder="fpe.cipher === 'SM4' ? '32位Hex (16字节)' : '32/48/64位Hex (16/24/32字节)'" />
+            <InputWithBytes v-model="fpe.key" :placeholder="fpe.cipher === 'SM4' ? '32位Hex (16字节)' : '32/48/64位Hex (16/24/32字节)'" />
             <div v-if="fpeKeyHint" :class="['mt-1 text-xs', hintClass(fpeKeyHint)]">{{ fpeKeyHint }}</div>
-            <div v-if="fpe.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(fpe.key) }}
-              </span>
-            </div>
           </div>
           <div>
             <label class="input-label">Tweak (hex, 可选)</label>
-            <Input v-model="fpe.tweak" class="font-mono"
+            <InputWithBytes v-model="fpe.tweak"
                    :placeholder="fpe.mode === 'FF3-1' ? 'FF3-1需要14位Hex(7字节)，留空默认全0' : '留空则不使用'" />
             <div v-if="fpeTweakHint" :class="['mt-1 text-xs', hintClass(fpeTweakHint)]">{{ fpeTweakHint }}</div>
-            <div v-if="fpe.tweak" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ formatHexBytes(fpe.tweak) }}
-              </span>
-            </div>
           </div>
         </Card>
         <Card>
@@ -967,6 +897,7 @@ import { LockIcon, UnlockIcon, CopyIcon, AlertCircleIcon, InfoIcon, XIcon, ZapIc
 import PageLayout from '../components/PageLayout.vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
+import InputWithBytes from '../components/InputWithBytes.vue'
 import Button from '../components/Button.vue'
 import ResultArea from '../components/ResultArea.vue'
 import AlgorithmPrinciple from '../components/AlgorithmPrinciple.vue'
