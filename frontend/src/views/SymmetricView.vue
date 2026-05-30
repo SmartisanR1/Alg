@@ -840,6 +840,115 @@
                 <p>带 Poly1305 的版本不只是“加密”，还会一起校验消息是否被改过，因此更适合接口请求、会话数据和安全通信。</p>
               </div>
             </template>
+            <template v-else-if="helpType === 'sm4'">
+              <div class="help-hero">
+                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">SM4 国密分组加密</p>
+                <p>SM4 是我国自主设计的商用分组密码标准，广泛用于金融、政务、物联网等需要符合国密合规的场景。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">技术参数</p>
+                  <p>分组长度和密钥长度均为 128 位，采用 32 轮非平衡 Feistel 网络结构。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">模式选择</p>
+                  <p v-if="sm4.mode === 'ECB'">ECB 模式每个块独立加密，仅用于测试或兼容。</p>
+                  <p v-else-if="sm4.mode === 'CBC'">CBC 是最常用的模式，需要 IV，适合大多数场景。</p>
+                  <p v-else-if="sm4.mode === 'GCM'">GCM 提供认证加密 (AEAD)，是现代首选。</p>
+                  <p v-else>{{ sm4.mode }} 模式适用于特定场景。</p>
+                </div>
+              </div>
+              <div class="help-note">
+                <p class="help-note-title">合规建议</p>
+                <p>涉及国密合规的项目，优先使用 SM4-GCM 模式，兼顾安全性和性能。</p>
+              </div>
+            </template>
+            <template v-else-if="helpType === 'zuc'">
+              <div class="help-hero">
+                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ zuc.type }}</p>
+                <p>ZUC (祖冲之算法) 是面向 3GPP LTE 移动通信系统的流密码标准。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">版本区别</p>
+                  <p>ZUC-128 用于 4G 网络；ZUC-256 用于 5G 增强安全，支持更多密钥长度。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">使用场景</p>
+                  <p>主要用于移动网络数据加密和完整性保护，流密码具有极高的软件处理性能。</p>
+                </div>
+              </div>
+              <div class="help-note">
+                <p class="help-note-title">注意事项</p>
+                <p>流密码不会产生长度扩展，但需要确保每次加密使用不同的 IV。</p>
+              </div>
+            </template>
+            <template v-else-if="helpType === 'siv'">
+              <div class="help-hero">
+                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES-SIV 合成初始向量</p>
+                <p>SIV 模式解决了传统 AEAD 模式下 Nonce 重复导致密钥泄漏的问题。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">工作原理</p>
+                  <p>采用"确定性"加密，IV 由明文和附加数据计算得到。即使 Nonce 重复，也只泄漏"明文是否相同"。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">适用场景</p>
+                  <p>适合无法保证 Nonce 唯一性的场景，如数据库字段加密。</p>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="helpType === 'rc4'">
+              <div class="help-hero">
+                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">RC4 流密码</p>
+                <p>RC4 曾经是世界上最流行的流密码，但因安全缺陷已被主流协议禁用。</p>
+              </div>
+              <div class="help-note">
+                <p class="help-note-title">安全警告</p>
+                <p>RC4 存在初始字节偏置等弱点，在 TLS 1.2+ 中已被禁用。仅供学习或维护极其古老的系统使用，新项目绝不建议使用。</p>
+              </div>
+            </template>
+            <template v-else-if="helpType === 'fpe'">
+              <div class="help-hero">
+                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">FPE 格式保持加密</p>
+                <p>FPE 加密后的密文与明文保持相同的格式和长度。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">典型应用</p>
+                  <p>16 位银行卡号加密后仍是 16 位数字；身份证号加密后仍是 18 位。</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">标准</p>
+                  <p>基于 NIST SP 800-38G 标准的 FF1 和 FF3-1 模式。</p>
+                </div>
+              </div>
+              <div class="help-note">
+                <p class="help-note-title">适用场景</p>
+                <p>数据库敏感字段脱敏、遗留系统数据库改造（无需修改字段定义长度）。</p>
+              </div>
+            </template>
+            <template v-else-if="helpType === 'envelope'">
+              <div class="help-hero">
+                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">数字信封 (SM2 + SM4)</p>
+                <p>数字信封解决大规模数据传输时的密钥分发问题。</p>
+              </div>
+              <div class="help-grid">
+                <div class="help-note">
+                  <p class="help-note-title">密封过程</p>
+                  <p>1. 生成随机 SM4 密钥<br>2. 用 SM4 加密大数据<br>3. 用接收方 SM2 公钥加密 SM4 密钥</p>
+                </div>
+                <div class="help-note">
+                  <p class="help-note-title">拆解过程</p>
+                  <p>1. 用 SM2 私钥解密 SM4 密钥<br>2. 用 SM4 密钥解密大数据</p>
+                </div>
+              </div>
+              <div class="help-note">
+                <p class="help-note-title">优势</p>
+                <p>兼具非对称加密的安全分发和对称加密的高效处理性能。</p>
+              </div>
+            </template>
           </div>
           <div class="px-5 pb-5 flex justify-end">
             <Button variant="tool" @click="helpOpen = false" class="px-5">关闭</Button>
