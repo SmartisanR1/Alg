@@ -1,0 +1,155 @@
+:root {
+  /* 动态主色调（预设方案） */
+  --accent-purple: #7c6af7;
+  --accent-blue: #3b82f6;
+  --accent-teal: #14b8a6;
+  --accent-green: #10b981;
+  --accent-orange: #f97316;
+
+  /* 默认主色调 */
+  --accent: var(--accent-purple);
+  --accent-rgb: 124 106 247;
+
+  /* 中性色系统 */
+  --dark-bg: #0f0f17;
+  --dark-surface: #16161f;
+  --dark-card: #1e1e2e;
+  --dark-border: #2a2a3e;
+  --dark-hover: #252535;
+  --dark-text: #e4e4f0;
+  --dark-muted: #8888a8;
+
+  /* 语义色 */
+  --success: #34d399;
+  --warning: #f59e0b;
+  --error: #f87171;
+
+  /* 深色主题 RGB (用于Tailwind opacity modifier) */
+  --dark-bg-rgb: 15 15 23;
+  --dark-surface-rgb: 22 22 31;
+  --dark-card-rgb: 30 30 46;
+  --dark-border-rgb: 42 42 62;
+  --dark-hover-rgb: 37 37 53;
+  --dark-text-rgb: 228 228 240;
+  --dark-muted-rgb: 136 136 168;
+  --dark-accent-rgb: 124 106 247;
+  --dark-accentHover-rgb: 144 128 255;
+  --dark-success-rgb: 52 211 153;
+  --dark-warning-rgb: 245 158 11;
+  --dark-error-rgb: 248 113 113;
+
+  /* 浅色主题 */
+  --light-bg: #f5f5fb;
+  --light-surface: #ffffff;
+  --light-card: #f0f0fa;
+  --light-border: #dddded;
+  --light-hover: #e8e8f5;
+  --light-text: #1a1a2e;
+  --light-muted: #6b6b8a;
+  --light-accent: #5b4cf5;
+  --light-accentHover: #7060ff;
+  --light-success: #059669;
+  --light-warning: #d97706;
+  --light-error: #dc2626;
+
+  /* 浅色主题 RGB (用于Tailwind opacity modifier) */
+  --light-bg-rgb: 245 245 251;
+  --light-surface-rgb: 255 255 255;
+  --light-card-rgb: 240 240 250;
+  --light-border-rgb: 221 221 237;
+  --light-hover-rgb: 232 232 245;
+  --light-text-rgb: 26 26 46;
+  --light-muted-rgb: 107 107 138;
+  --light-accent-rgb: 91 76 245;
+  --light-accentHover-rgb: 112 96 255;
+  --light-success-rgb: 5 150 105;
+  --light-warning-rgb: 217 119 6;
+  --light-error-rgb: 220 38 38;
+
+  /* 字体系统 */
+  --font-sans: 'Inter', 'system-ui', '-apple-system', 'sans-serif';
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'monospace';
+
+  /* 间距系统 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* 圆角系统 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 28px;
+
+  /* 阴影系统 (深色) */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.3);
+
+  /* 算法类型色彩 */
+  --algo-symmetric: #3b82f6;
+  --algo-symmetric-rgb: 59 130 246;
+  --algo-symmetric-bg: rgba(59, 130, 246, 0.1);
+  --algo-symmetric-border: rgba(59, 130, 246, 0.2);
+
+  --algo-asymmetric: #8b5cf6;
+  --algo-asymmetric-rgb: 139 92 246;
+  --algo-asymmetric-bg: rgba(139, 92, 246, 0.1);
+  --algo-asymmetric-border: rgba(139, 92, 246, 0.2);
+
+  --algo-hash: #10b981;
+  --algo-hash-rgb: 16 185 129;
+  --algo-hash-bg: rgba(16, 185, 129, 0.1);
+  --algo-hash-border: rgba(16, 185, 129, 0.2);
+
+  --algo-mac: #f59e0b;
+  --algo-mac-rgb: 245 158 11;
+  --algo-mac-bg: rgba(245, 158, 11, 0.1);
+  --algo-mac-border: rgba(245, 158, 11, 0.2);
+
+  --algo-gm: #ef4444;
+  --algo-gm-rgb: 239 68 68;
+  --algo-gm-bg: rgba(239, 68, 68, 0.1);
+  --algo-gm-border: rgba(239, 68, 68, 0.2);
+
+  --algo-pqc: #06b6d4;
+  --algo-pqc-rgb: 6 182 212;
+  --algo-pqc-bg: rgba(6, 182, 212, 0.1);
+  --algo-pqc-border: rgba(6, 182, 212, 0.2);
+
+  --algo-tools: #6b7280;
+  --algo-tools-rgb: 107 114 128;
+  --algo-tools-bg: rgba(107, 114, 128, 0.1);
+  --algo-tools-border: rgba(107, 114, 128, 0.2);
+}
+
+/* 深色主题类 */
+:root.dark {
+  --bg: var(--dark-bg);
+  --surface: var(--dark-surface);
+  --card: var(--dark-card);
+  --border: var(--dark-border);
+  --hover: var(--dark-hover);
+  --text: var(--dark-text);
+  --muted: var(--dark-muted);
+  --accentHover: #9080ff;
+}
+
+/* 浅色主题类 */
+:root.light {
+  --bg: var(--light-bg);
+  --surface: var(--light-surface);
+  --card: var(--light-card);
+  --border: var(--light-border);
+  --hover: var(--light-hover);
+  --text: var(--light-text);
+  --muted: var(--light-muted);
+  --accent: #5b4cf5;
+  --accent-rgb: 91 76 245;
+  --accentHover: #7060ff;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+}

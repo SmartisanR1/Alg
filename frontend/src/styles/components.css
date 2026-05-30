@@ -1,0 +1,840 @@
+/* ============================================
+   CryptoKit Design System - 精致现代风格
+   ============================================ */
+
+/* 设计原则：
+   1. 该大的地方大 - 标题、重要数据、操作按钮
+   2. 该小的地方小 - 标签、辅助信息、工具按钮
+   3. 统一的字体系统
+   4. 精致的细节处理
+*/
+
+/* ── 字体系统 ─────────────────────────────── */
+:root {
+  /* 字体大小层次 */
+  --font-xs: 10px;      /* 最小：标签、辅助信息 */
+  --font-sm: 11px;      /* 小：次级标签、工具提示 */
+  --font-base: 12px;    /* 基础：正文、输入框 */
+  --font-md: 13px;      /* 中等：按钮、导航 */
+  --font-lg: 14px;      /* 大：卡片标题 */
+  --font-xl: 16px;      /* 特大：页面标题 */
+  --font-2xl: 20px;     /* 超大：重要数据 */
+  
+  /* 行高 */
+  --leading-tight: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+  
+  /* 字间距 */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+}
+
+/* ── 按钮系统 ─────────────────────────────── */
+/* 通用按钮基础 */
+.btn-primary,
+.btn-success,
+.btn-warning,
+.btn-secondary,
+.btn-tool,
+.btn-copy,
+.btn-download,
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 主按钮 - 重要操作 */
+.btn-primary {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accentHover, var(--accent)) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(var(--accent-rgb), 0.3);
+}
+
+/* 成功按钮 - 加密/签名等正向操作 */
+.btn-success {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-success:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.3);
+}
+
+/* 警告按钮 - 解密/验签等操作 */
+.btn-warning {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-warning:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.3);
+}
+
+/* 次要按钮 - 辅助操作 */
+.btn-secondary {
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+}
+
+.btn-secondary:hover {
+  background: rgba(var(--accent-rgb), 0.1);
+  transform: translateY(-1px);
+}
+
+/* 工具按钮 - 辅助操作，该小 */
+.btn-tool {
+  padding: 5px 10px;
+  background: var(--hover);
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: var(--font-sm);
+  font-weight: 500;
+}
+
+.btn-tool:hover {
+  background: var(--border);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* 图标按钮 */
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.btn-icon:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+/* 复制按钮 */
+.btn-copy {
+  padding: 4px 8px;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 500;
+}
+
+.btn-copy:hover {
+  background: rgba(var(--accent-rgb), 0.2);
+  border-color: rgba(var(--accent-rgb), 0.3);
+}
+
+/* 下载按钮 */
+.btn-download {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-md);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-download:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.btn-download:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.3);
+}
+
+/* 按钮尺寸变体 */
+.btn-xs {
+  padding: 3px 6px;
+  font-size: var(--font-xs);
+  border-radius: 4px;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: var(--font-sm);
+  border-radius: 6px;
+}
+
+.btn-md {
+  padding: 10px 20px;
+  font-size: var(--font-md);
+  border-radius: 8px;
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: var(--font-lg);
+  border-radius: 10px;
+}
+
+/* ── 输入框系统 ───────────────────────────── */
+/* 标准输入框 */
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--hover);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: var(--font-base);
+  font-family: var(--font-mono);
+  line-height: var(--leading-normal);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+  background: var(--card);
+}
+
+.input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+  font-size: var(--font-sm);
+}
+
+/* 输入框尺寸变体 */
+.input-xs {
+  padding: 4px 6px;
+  font-size: var(--font-xs);
+  border-radius: 4px;
+}
+
+.input-sm {
+  padding: 6px 8px;
+  font-size: var(--font-sm);
+  border-radius: 5px;
+}
+
+.input-md {
+  padding: 8px 10px;
+  font-size: var(--font-base);
+  border-radius: 6px;
+}
+
+.input-lg {
+  padding: 10px 14px;
+  font-size: var(--font-md);
+  border-radius: 8px;
+}
+
+/* 下拉选择框 - Material You风格 */
+select.input {
+  padding-right: 32px;
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  background-color: var(--bg);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  font-size: var(--font-base);
+  font-family: var(--font-mono);
+  height: 36px;
+  width: 100%;
+}
+
+/* 使用伪元素显示下拉箭头 */
+select.input::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--muted);
+  pointer-events: none;
+}
+
+select.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+  outline: none;
+}
+
+select.input:hover {
+  border-color: var(--hover);
+  background-color: var(--card);
+}
+
+/* 确保所有select元素都隐藏原生箭头 */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* 为没有input类的select添加样式 */
+select:not(.input) {
+  padding-right: 32px;
+  position: relative;
+  background-color: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: var(--font-base);
+  font-family: var(--font-mono);
+  height: 36px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+/* 为没有input类的select也添加伪元素箭头 */
+select:not(.input)::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--muted);
+  pointer-events: none;
+}
+
+select:not(.input):focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+  outline: none;
+}
+
+select:not(.input):hover {
+  border-color: var(--hover);
+  background-color: var(--card);
+}
+
+/* 特殊处理PacketView中的select */
+select.text-xs {
+  font-size: 10px;
+  height: 28px;
+  padding-right: 24px;
+}
+
+select.text-xs::after {
+  right: 6px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--muted);
+}
+
+/* ── 卡片系统 ─────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.card-hoverable:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 卡片标题 - 该大 */
+.card-title {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 12px 0;
+  letter-spacing: var(--tracking-tight);
+}
+
+/* 卡片副标题 */
+.card-subtitle {
+  font-size: var(--font-sm);
+  color: var(--muted);
+  margin: 4px 0 0 0;
+}
+
+/* ── 输入框标签 ───────────────────────────── */
+.input-label {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  display: block;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+/* ── 结果区域 ─────────────────────────────── */
+.result-area {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--font-base);
+  line-height: var(--leading-relaxed);
+  color: var(--success);
+  word-break: break-all;
+  min-height: 60px;
+}
+
+/* 重要结果 - 该大 */
+.result-area-lg {
+  font-size: var(--font-lg);
+  padding: 16px;
+  min-height: 80px;
+}
+
+/* ── 导航栏 ───────────────────────────────── */
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: var(--font-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.nav-tab:hover {
+  background: var(--hover);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.nav-tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 2px 6px rgba(var(--accent-rgb), 0.3);
+}
+
+/* ── 算法原理卡片 ─────────────────────────── */
+.algorithm-principle-card {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.algorithm-principle-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ── 算法类型标签 ─────────────────────────── */
+.algorithm-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+/* 具体算法示例 */
+.principle-symmetric {
+  background: var(--algo-symmetric-bg);
+  border-color: var(--algo-symmetric-border);
+}
+
+.principle-asymmetric {
+  background: var(--algo-asymmetric-bg);
+  border-color: var(--algo-asymmetric-border);
+}
+
+.principle-hash {
+  background: var(--algo-hash-bg);
+  border-color: var(--algo-hash-border);
+}
+
+.principle-mac {
+  background: var(--algo-mac-bg);
+  border-color: var(--algo-mac-border);
+}
+
+.principle-gm {
+  background: var(--algo-gm-bg);
+  border-color: var(--algo-gm-border);
+}
+
+.principle-pqc {
+  background: var(--algo-pqc-bg);
+  border-color: var(--algo-pqc-border);
+}
+
+.principle-tools {
+  background: var(--algo-tools-bg);
+  border-color: var(--algo-tools-border);
+}
+
+/* ── 工具提示 ─────────────────────────────── */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--card);
+  color: var(--text);
+  font-size: var(--font-xs);
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+/* ── 状态指示器 ───────────────────────────── */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot-success {
+  background: var(--success);
+}
+
+.status-dot-error {
+  background: var(--error);
+}
+
+.status-dot-warning {
+  background: var(--warning);
+}
+
+/* ── 分割线 ───────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0;
+}
+
+.divider-vertical {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  margin: 0 8px;
+}
+
+/* ── 徽章 ─────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+}
+
+.badge-primary {
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
+}
+
+.badge-success {
+  background: rgba(var(--success-rgb, 16, 185, 129), 0.1);
+  color: var(--success);
+}
+
+.badge-warning {
+  background: rgba(var(--warning-rgb, 245, 158, 11), 0.1);
+  color: var(--warning);
+}
+
+.badge-error {
+  background: rgba(var(--error-rgb, 239, 68, 68), 0.1);
+  color: var(--error);
+}
+
+/* ── 动画 ─────────────────────────────────── */
+
+/* 涟漪效果 */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple-animation 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* 淡入动画 */
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 滑入动画 */
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 脉冲动画 */
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 旋转动画 */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 页面过渡 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(2px);
+}
+
+/* 下拉菜单过渡 */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* 成功状态动画 */
+.animate-success {
+  animation: successPulse 0.5s ease;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 错误状态动画 */
+.animate-error {
+  animation: errorShake 0.5s ease;
+}
+
+@keyframes errorShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* ── 滚动条 ───────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* ── 布局工具类 ───────────────────────────── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.p-1 { padding: 4px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.px-2 { padding-left: 8px; padding-right: 8px; }
+.px-3 { padding-left: 12px; padding-right: 12px; }
+.py-1 { padding-top: 4px; padding-bottom: 4px; }
+.py-2 { padding-top: 8px; padding-bottom: 8px; }
+.m-0 { margin: 0; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.min-h-0 { min-height: 0; }
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.font-mono { font-family: var(--font-mono); }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.opacity-50 { opacity: 0.5; }
+.opacity-70 { opacity: 0.7; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.whitespace-nowrap { white-space: nowrap; }
