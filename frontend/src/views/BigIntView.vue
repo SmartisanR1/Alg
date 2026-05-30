@@ -185,7 +185,12 @@ const biBaseResult = ref('')
 
 async function doBigIntOp(op) {
   if (op === 'base') {
-    const r = await BigIntOperation({ ...bi, op })
+    const r = await BigIntOperation({
+      a: bi.baseInput,
+      op: 'base',
+      baseFrom: parseInt(bi.baseFrom),
+      baseTo: parseInt(bi.baseTo)
+    })
     biBaseResult.value = r.error || r.data || ''
     return
   }

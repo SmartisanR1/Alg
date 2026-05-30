@@ -91,7 +91,9 @@ func AESEncrypt(req AESRequest) CryptoResult {
 		padded := applyPadding(dataBytes, aes.BlockSize, req.Padding)
 		ciphertext := make([]byte, len(padded))
 		cipher.NewCBCEncrypter(block, ivBytes).CryptBlocks(ciphertext, padded)
-		return CryptoResult{Success: true, Data: hexUpper(ciphertext), Extra: hexUpper(ivBytes)}
+		// CBC模式：加密后IV变为最后一个密文块
+		newIV := ciphertext[len(ciphertext)-aes.BlockSize:]
+		return CryptoResult{Success: true, Data: hexUpper(ciphertext), Extra: hexUpper(newIV)}
 
 	case "CFB":
 		ivBytes, err := getOrGenIV(req.IV, aes.BlockSize)
@@ -117,8 +119,23 @@ func AESEncrypt(req AESRequest) CryptoResult {
 			return CryptoResult{Error: err.Error()}
 		}
 		ciphertext := make([]byte, len(dataBytes))
-		cipher.NewCTR(block, ivBytes).XORKeyStream(ciphertext, dataBytes)
-		return CryptoResult{Success: true, Data: hexUpper(ciphertext), Extra: hexUpper(ivBytes)}
+		stream := cipher.NewCTR(block, ivBytes)
+		stream.XORKeyStream(ciphertext, dataBytes)
+		// CTR模式：计算加密后的计数器值
+		// 计算加密的数据块数量
+		blocks := (len(dataBytes) + aes.BlockSize - 1) / aes.BlockSize
+		newIV := make([]byte, len(ivBytes))
+		copy(newIV, ivBytes)
+		// 递增计数器（大端序）
+		for i := 0; i < blocks; i++ {
+			for j := len(newIV) - 1; j >= 0; j-- {
+				newIV[j]++
+				if newIV[j] != 0 {
+					break
+				}
+			}
+		}
+		return CryptoResult{Success: true, Data: hexUpper(ciphertext), Extra: hexUpper(newIV)}
 
 	case "GCM":
 		tagSize := req.TagSize

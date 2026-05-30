@@ -57,7 +57,7 @@
     <!-- CSR Generation -->
     <div v-show="activeTab === 'csr'" class="sym-workbench animate-fade-in">
       <div class="sym-side">
-        <Card title="CSR 请求信息" class="space-y-4">
+        <Card title="CSR 请求信息" class="space-y-5">
           <div class="grid grid-cols-2 gap-3">
             <div>
               <Input v-model="csr.cn" label="通用名称 (CN)" placeholder="example.com" />
@@ -72,8 +72,8 @@
               <Input v-model="csr.st" label="省份 (ST)" placeholder="Beijing" />
             </div>
           </div>
-          <div>
-            <label class="input-label">算法 & 用途</label>
+          <div class="pt-1">
+            <label class="input-label mb-2">算法 & 用途</label>
             <div class="grid grid-cols-2 gap-3">
               <Dropdown
                 v-model="csr.algo"
@@ -95,7 +95,7 @@
               />
             </div>
           </div>
-          <Button variant="primary" block @click="genCSR" class="py-2">生成 CSR</Button>
+          <Button variant="primary" block @click="genCSR" class="py-2 mt-3">生成 CSR</Button>
         </Card>
       </div>
       <div class="sym-main !min-w-0">
@@ -800,7 +800,7 @@ async function copyText(t) {
 <style scoped>
 .sym-workbench {
   display: grid;
-  grid-template-columns: minmax(400px, 1.2fr) 1fr;
+  grid-template-columns: minmax(420px, 1.2fr) 1fr;
   gap: 12px;
   align-items: start;
 }
@@ -811,6 +811,11 @@ async function copyText(t) {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: visible;
+}
+
+.sym-side .card {
+  overflow: visible;
 }
 
 @media (max-width: 1080px) {

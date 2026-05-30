@@ -391,10 +391,12 @@ func SM4Encrypt(req SM4Request) symmetric.CryptoResult {
 		ct := make([]byte, len(padded))
 		// ✅ 标准 cipher.NewCBCEncrypter 适用于任何 cipher.Block
 		cipher.NewCBCEncrypter(block, ivBytes).CryptBlocks(ct, padded)
+		// CBC模式：加密后IV变为最后一个密文块
+		newIV := ct[len(ct)-sm4.BlockSize:]
 		return symmetric.CryptoResult{
 			Success: true,
 			Data:    hexUpper(ct),
-			Extra:   hexUpper(ivBytes),
+			Extra:   hexUpper(newIV),
 		}
 
 	case "CFB":
@@ -421,8 +423,21 @@ func SM4Encrypt(req SM4Request) symmetric.CryptoResult {
 			return symmetric.CryptoResult{Error: err.Error()}
 		}
 		ct := make([]byte, len(dataBytes))
-		cipher.NewCTR(block, ivBytes).XORKeyStream(ct, dataBytes)
-		return symmetric.CryptoResult{Success: true, Data: hexUpper(ct), Extra: hexUpper(ivBytes)}
+		stream := cipher.NewCTR(block, ivBytes)
+		stream.XORKeyStream(ct, dataBytes)
+		// CTR模式：计算加密后的计数器值
+		blocks := (len(dataBytes) + sm4.BlockSize - 1) / sm4.BlockSize
+		newIV := make([]byte, len(ivBytes))
+		copy(newIV, ivBytes)
+		for i := 0; i < blocks; i++ {
+			for j := len(newIV) - 1; j >= 0; j-- {
+				newIV[j]++
+				if newIV[j] != 0 {
+					break
+				}
+			}
+		}
+		return symmetric.CryptoResult{Success: true, Data: hexUpper(ct), Extra: hexUpper(newIV)}
 
 	case "GCM":
 		// ✅ SM4-GCM: cipher.NewGCM 对任何 128位 block cipher 有效
