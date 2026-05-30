@@ -215,23 +215,23 @@
           </div>
         </Card>
 
-        <!-- Data input for enc/sign modes -->
+        <!-- Enc mode: data input + buttons -->
         <Card v-if="sm2Sub === 'enc'" title="数据输入">
           <CryptoPanel v-model="sm2Enc.data" label="待处理数据 (Hex)" type="textarea" :rows="4" clearable />
-        </Card>
-        <Card v-if="sm2Sub === 'sign'" title="数据输入">
-          <CryptoPanel v-model="sm2Sign.data" label="待处理数据 (Hex)" type="textarea" :rows="4" clearable />
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <Button variant="success" @click="sm2Encrypt"><LockIcon class="w-3.5 h-3.5" /> 加密</Button>
+            <Button variant="warning" @click="sm2Decrypt"><UnlockIcon class="w-3.5 h-3.5" /> 解密</Button>
+          </div>
         </Card>
 
-        <!-- Action buttons -->
-        <div v-if="sm2Sub === 'enc'" class="grid grid-cols-2 gap-2">
-          <Button variant="success" @click="sm2Encrypt"><LockIcon class="w-3.5 h-3.5" /> 加密</Button>
-          <Button variant="warning" @click="sm2Decrypt"><UnlockIcon class="w-3.5 h-3.5" /> 解密</Button>
-        </div>
-        <div v-if="sm2Sub === 'sign'" class="grid grid-cols-2 gap-2">
-          <Button variant="success" @click="doSM2Sign"><PenIcon class="w-3.5 h-3.5" /> 签名</Button>
-          <Button variant="warning" @click="doSM2Verify"><CheckCircleIcon class="w-3.5 h-3.5" /> 验签</Button>
-        </div>
+        <!-- Sign mode: data input + buttons -->
+        <Card v-if="sm2Sub === 'sign'" title="数据输入">
+          <CryptoPanel v-model="sm2Sign.data" label="待处理数据 (Hex)" type="textarea" :rows="4" clearable />
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <Button variant="success" @click="doSM2Sign"><PenIcon class="w-3.5 h-3.5" /> 签名</Button>
+            <Button variant="warning" @click="doSM2Verify"><CheckCircleIcon class="w-3.5 h-3.5" /> 验签</Button>
+          </div>
+        </Card>
 
         <!-- Result -->
         <ResultArea

@@ -157,7 +157,10 @@
         
         <div v-if="result.extra" class="animate-in fade-in zoom-in-95 duration-200">
           <div class="flex items-center justify-between mb-1">
-            <label class="input-label !mb-0 text-cyan-400">自动生成的 {{ ['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV' }}</label>
+            <label class="input-label !mb-0 text-cyan-400">
+              {{ result.success && !result.error ? (aes.iv || aes.nonce ? '使用的' : '自动生成的') : '自动生成的' }}
+              {{ ['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV' }}
+            </label>
             <button @click="copyExtra" class="ck-copy-btn text-cyan-400"><CopyIcon class="w-3 h-3" /> 复制</button>
           </div>
           <div class="result-area !min-h-0 text-cyan-200">{{ result.extra }}</div>
@@ -1152,6 +1155,14 @@ async function decrypt() {
       result.data = r.data
     }
     result.error = r.error; result.success = r.success
+    // 解密成功后显示使用的IV/Nonce
+    if (r.success && !['ECB'].includes(aes.mode)) {
+      if (['GCM', 'CCM'].includes(aes.mode)) {
+        result.extra = aes.nonce
+      } else {
+        result.extra = aes.iv
+      }
+    }
   } catch (e) { result.error = String(e); result.success = false }
 }
 
