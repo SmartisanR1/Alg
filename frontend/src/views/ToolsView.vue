@@ -12,31 +12,20 @@
       </Button>
     </template>
 
-    <!-- Principle Modal -->
-    <transition name="fade">
-      <div v-if="showPrinciple" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPrinciple = false">
-        <div class="card max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[85vh]">
-          <div class="flex justify-between items-center p-4 border-b shrink-0">
-            <h3 class="text-sm font-bold flex items-center gap-2">
-              <ShieldCheckIcon class="w-4 h-4 text-violet-400" /> {{ currentPrinciple.title }}
-            </h3>
-            <button @click="showPrinciple = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
-              <XIcon class="w-4 h-4 text-dark-muted" />
-            </button>
-          </div>
-          <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <AlgorithmPrinciple
-              :title="currentPrinciple.title"
-              type="tools"
-              :sections="parsedPrinciples"
-            />
-          </div>
-          <div class="p-4 border-t shrink-0 flex justify-end bg-gray-50/50 dark:bg-dark-bg/20">
-            <Button variant="primary" @click="showPrinciple = false">确认并返回</Button>
-          </div>
-        </div>
+    <!-- Algorithm Principle Drawer -->
+    <AlgorithmDrawer
+      :is-open="showPrinciple"
+      :title="currentPrinciple.title"
+      :icon="ShieldCheckIcon"
+      @close="showPrinciple = false"
+    >
+      <div v-for="(section, idx) in parsedPrinciples" :key="idx">
+        <h4>{{ section.title }}</h4>
+        <p v-for="(line, lIdx) in section.content" :key="lIdx" class="principle-line">
+          {{ line }}
+        </p>
       </div>
-    </transition>
+    </AlgorithmDrawer>
 
     <!-- Encoding -->
     <div v-if="activeTab === 'encode'" class="sym-workbench animate-fade-in">
@@ -660,6 +649,7 @@ import ResultArea from '../components/ResultArea.vue'
 import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
+import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import { HexToString, StringToHex, Base64Encode, Base64Decode, XORCompute, URLEncode, URLDecode, UnicodeEncode, UnicodeDecode, GenerateRandom, PaddingApply, PaddingRemove, BaseConvert, TimestampConvert, ParseASN1, ParseASN1File, Base32Encode, Base32Decode, Base58Encode, Base58Decode, Bech32Encode, Bech32Decode, ParseJWT, ConvertKey, VerifyCertChain, ParsePKCS12, ParsePKCS12File, SelectFile } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 

@@ -12,37 +12,26 @@
       </Button>
     </template>
 
-    <!-- Principle Modal -->
-    <transition name="fade">
-      <div v-if="showPrinciple" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showPrinciple = false">
-        <div class="card max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[85vh]">
-          <div class="flex justify-between items-center p-4 border-b shrink-0">
-            <h3 class="text-sm font-bold flex items-center gap-2">
-              <ShieldCheckIcon class="w-4 h-4 text-violet-400" /> {{ currentPrinciple.title }}
-            </h3>
-            <button @click="showPrinciple = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
-              <XIcon class="w-4 h-4 text-dark-muted" />
-            </button>
-          </div>
-          <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <AlgorithmPrinciple
-              :title="currentPrinciple.title"
-              type="asymmetric"
-              :sections="parsedPrinciples"
-            />
-          </div>
-          <div class="p-4 border-t shrink-0 flex justify-end bg-gray-50/50 dark:bg-dark-bg/20">
-            <Button variant="primary" @click="showPrinciple = false">确认并返回</Button>
-          </div>
-        </div>
+    <!-- Algorithm Principle Drawer -->
+    <AlgorithmDrawer
+      :is-open="showPrinciple"
+      :title="currentPrinciple.title"
+      :icon="ShieldCheckIcon"
+      @close="showPrinciple = false"
+    >
+      <div v-for="(section, idx) in parsedPrinciples" :key="idx">
+        <h4>{{ section.title }}</h4>
+        <p v-for="(line, lIdx) in section.content" :key="lIdx" class="principle-line">
+          {{ line }}
+        </p>
       </div>
-    </transition>
+    </AlgorithmDrawer>
 
     <!-- RSA -->
     <div v-if="activeTab === 'rsa'" class="sym-workbench animate-fade-in">
       <div class="sym-side">
         <Card title="RSA 密钥生成">
-          <div class="flex gap-2 mb-4">
+          <div class="flex gap-2 mb-3">
             <Dropdown
               v-model="rsa.bits"
               :options="[
@@ -65,22 +54,18 @@
               <KeyIcon class="w-3.5 h-3.5" /> 生成密钥
             </Button>
           </div>
-          <div v-if="rsaKeys.privateKey" class="space-y-3 animate-in fade-in duration-300">
+          
+          <!-- Show keys in a compact grid when generated -->
+          <div v-if="rsaKeys.privateKey" class="grid grid-cols-2 gap-3 animate-in fade-in">
             <div>
-              <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-orange-300">私钥 ({{ asymKeyFormat.toUpperCase() }})</label>
-                <button @click="copy(asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
-              </div>
-              <div class="result-area !min-h-0 text-orange-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono">
+              <label class="input-label text-orange-300">私钥</label>
+              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-24 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex }}
               </div>
             </div>
             <div>
-              <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-cyan-400">公钥 ({{ asymKeyFormat.toUpperCase() }})</label>
-                <button @click="copy(asymKeyFormat === 'pem' ? rsaKeys.publicKey : rsaKeys.pubHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
-              </div>
-              <div class="result-area !min-h-0 text-cyan-200 !text-[12px] break-all max-h-32 overflow-y-auto font-mono">
+              <label class="input-label text-cyan-300">公钥</label>
+              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-24 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? rsaKeys.publicKey : rsaKeys.pubHex }}
               </div>
             </div>
@@ -430,7 +415,7 @@ import Input from '../components/Input.vue'
 import InputWithBytes from '../components/InputWithBytes.vue'
 import Button from '../components/Button.vue'
 import ResultArea from '../components/ResultArea.vue'
-import AlgorithmPrinciple from '../components/AlgorithmPrinciple.vue'
+import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
 import {

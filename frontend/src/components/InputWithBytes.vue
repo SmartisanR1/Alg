@@ -85,8 +85,8 @@ const hintClass = computed(() => {
   font-size: 10px;
   font-family: var(--font-mono);
   padding: 2px 8px;
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
+  background: rgba(34, 211, 238, 0.15);
+  color: #67e8f9;
   border-radius: 4px;
   pointer-events: none;
 }

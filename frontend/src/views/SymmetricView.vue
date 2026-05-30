@@ -126,16 +126,15 @@
         <Card class="flex-1 min-h-0 flex flex-col">
           <div class="mb-3">
             <label class="input-label">明文</label>
-            <textarea
-              v-model="aes.plaintext"
+            <InputWithBytes 
+              v-model="aes.plaintext" 
               :placeholder="aes.inputFormat === 'text' ? '输入明文...' : '输入hex格式数据...'"
-              class="input min-h-[120px] resize-y"
+              type="textarea"
+              :rows="5"
+              :is-hex="aes.inputFormat === 'hex'"
             />
             <div class="flex items-center justify-between mt-1">
               <div v-if="aesLenHint" :class="['text-xs', hintClass(aesLenHint)]">{{ aesLenHint }}</div>
-              <div class="text-[11px] text-muted ml-auto">
-                {{ aes.inputFormat === 'text' ? aes.plaintext.length : Math.floor(aes.plaintext.replace(/\s/g, '').length / 2) }} 字节
-              </div>
             </div>
           </div>
           <div class="flex gap-2 shrink-0 mt-3">
