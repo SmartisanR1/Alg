@@ -42,7 +42,6 @@
     <div v-if="activeTab === 'mac'" class="grid grid-cols-2 gap-4 animate-fade-in">
       <div class="space-y-3 sym-main">
         <Card title="MAC 算法">
-          <label class="input-label">MAC算法</label>
           <Dropdown
             v-model="mac.algorithm"
             :options="[
@@ -61,7 +60,7 @@
             <Input v-model="mac.key" class="font-mono" />
             <div v-if="macKeyHint" :class="['mt-1 text-xs', hintClass(macKeyHint)]">{{ macKeyHint }}</div>
             <div v-if="mac.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ (mac.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -130,7 +129,7 @@
             <Input v-model="kdf.password" label="密码/输入密钥 (hex)" class="font-mono ck-trim-space mb-2" placeholder="密码的hex编码..." />
             <div v-if="kdfPasswordHint" :class="['mt-1 text-xs', hintClass(kdfPasswordHint)]">{{ kdfPasswordHint }}</div>
             <div v-if="kdf.password" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ (kdf.password.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -143,7 +142,7 @@
             <Input v-model="kdf.salt" class="font-mono ck-trim-space mb-2" placeholder="留空则自动生成..." />
             <div v-if="kdfSaltHint" :class="['mt-1 text-xs', hintClass(kdfSaltHint)]">{{ kdfSaltHint }}</div>
             <div v-if="kdf.salt" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ (kdf.salt.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -152,7 +151,7 @@
             <Input v-model="kdf.info" label="Info (hex, 可选)" class="font-mono ck-trim-space mb-2" />
             <div v-if="kdfInfoHint" :class="['mt-1 text-xs', hintClass(kdfInfoHint)]">{{ kdfInfoHint }}</div>
             <div v-if="kdf.info" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ (kdf.info.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -207,8 +206,8 @@
             copyable
           />
           <div v-if="kdfResult.extra" class="mt-2">
-            <label class="input-label text-amber-200">使用的Salt</label>
-            <div class="result-area !min-h-0 text-amber-200 text-xs">{{ kdfResult.extra }}</div>
+            <label class="input-label text-orange-300">使用的Salt</label>
+            <div class="result-area !min-h-0 text-orange-300 text-xs">{{ kdfResult.extra }}</div>
           </div>
         </Card>
         <Card title="安全建议">
@@ -393,7 +392,7 @@ const kdfInfoHint = computed(() => {
 function hintClass(text) {
   if (!text) return ''
   if (text.includes('必须') || text.includes('需') || text.includes('应为')) return 'text-red-400'
-  return 'text-amber-200'
+  return 'text-orange-300'
 }
 
 async function deriveKey() {

@@ -97,7 +97,7 @@
             <Input v-model="aes.key" placeholder="输入hex格式密钥..." class="font-mono" />
             <div v-if="aesKeyHint" :class="['mt-1 text-xs', hintClass(aesKeyHint)]">{{ aesKeyHint }}</div>
             <div v-if="aes.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(aes.key) }}
               </span>
             </div>
@@ -110,7 +110,7 @@
             <Input v-model="aes.iv" placeholder="留空则自动生成..." class="font-mono" />
             <div v-if="aesIVHint" :class="['mt-1 text-xs', hintClass(aesIVHint)]">{{ aesIVHint }}</div>
             <div v-if="aes.iv" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(aes.iv) }}
               </span>
             </div>
@@ -123,7 +123,7 @@
             <Input v-model="aes.nonce" placeholder="留空则自动生成..." class="font-mono" />
             <div v-if="aesNonceHint" :class="['mt-1 text-xs', hintClass(aesNonceHint)]">{{ aesNonceHint }}</div>
             <div v-if="aes.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(aes.nonce) }}
               </span>
             </div>
@@ -132,7 +132,7 @@
               <Input v-model="aes.aad" placeholder="附加认证数据..." class="font-mono" />
               <div v-if="aesAADHint" :class="['mt-1 text-xs', hintClass(aesAADHint)]">{{ aesAADHint }}</div>
               <div v-if="aes.aad" class="flex gap-3 mt-1">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                   {{ formatHexBytes(aes.aad) }}
                 </span>
               </div>
@@ -223,7 +223,7 @@
         <Card title="密钥 & 参数">
           <div>
             <div class="flex justify-between mb-1">
-              <label class="input-label !mb-0 text-amber-200">密钥 (Key / 16-byte Hex)</label>
+              <label class="input-label !mb-0 text-orange-300">密钥 (Key / 16-byte Hex)</label>
               <button @click="genSM4Key" class="text-xs text-violet-400">⚡ 随机生成</button>
             </div>
             <Input v-model="sm4.key" class="font-mono text-xs" placeholder="输入 32 位 Hex..." />
@@ -286,7 +286,7 @@
         <Card title="密钥 & 参数">
           <div>
             <div class="flex justify-between mb-1">
-              <label class="input-label !mb-0 text-amber-200">密钥 (Key / Hex)</label>
+              <label class="input-label !mb-0 text-orange-300">密钥 (Key / Hex)</label>
               <button @click="genZUCKey" class="text-xs text-violet-400">⚡ 生成</button>
             </div>
             <Input v-model="zuc.key" class="font-mono text-xs" :placeholder="zuc.type === 'ZUC-256' ? '64位 Hex' : '32位 Hex'" />
@@ -422,7 +422,7 @@
             <Input v-model="des.key" placeholder="48位Hex (24字节)或16位Hex (8字节)" class="font-mono" />
             <div v-if="desKeyHint" :class="['mt-1 text-xs', hintClass(desKeyHint)]"></div>
             <div v-if="des.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(des.key) }}
               </span>
             </div>
@@ -486,7 +486,7 @@
             <Input v-model="chacha.key" placeholder="64位hex (32字节)..." class="font-mono" />
             <div v-if="chachaKeyHint" :class="['mt-1 text-xs', hintClass(chachaKeyHint)]">{{ chachaKeyHint }}</div>
             <div v-if="chacha.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(chacha.key) }}
               </span>
             </div>
@@ -499,7 +499,7 @@
             <Input v-model="chacha.nonce" :placeholder="chacha.type.startsWith('X') ? '48位Hex (24字节)' : '24位Hex (12字节)'" class="font-mono" />
             <div v-if="chachaNonceHint" :class="['mt-1 text-xs', hintClass(chachaNonceHint)]">{{ chachaNonceHint }}</div>
             <div v-if="chacha.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(chacha.nonce) }}
               </span>
             </div>
@@ -509,7 +509,7 @@
             <Input v-model="chacha.aad" placeholder="附加认证数据..." class="font-mono" />
             <div v-if="chachaAADHint" :class="['mt-1 text-xs', hintClass(chachaAADHint)]">{{ chachaAADHint }}</div>
             <div v-if="chacha.aad" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(chacha.aad) }}
               </span>
             </div>
@@ -535,7 +535,7 @@
           :error="chachaResult.error"
           copyable
         />
-        <div v-if="chachaResult.extra" class="mt-2 text-[10px] text-amber-200 font-mono bg-amber-400/10 p-1.5 rounded border border-amber-500/10">自动生成 Nonce: {{ chachaResult.extra }}</div>
+        <div v-if="chachaResult.extra" class="mt-2 text-[10px] text-orange-300 font-mono bg-orange-400/15 p-1.5 rounded border border-orange-400/20">自动生成 Nonce: {{ chachaResult.extra }}</div>
       </div>
     </div>
 
@@ -551,7 +551,7 @@
             <Input v-model="rc4.key" class="font-mono" placeholder="1-256字节 Hex" />
             <div v-if="rc4KeyHint" :class="['mt-1 text-xs', hintClass(rc4KeyHint)]">{{ rc4KeyHint }}</div>
             <div v-if="rc4.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(rc4.key) }}
               </span>
             </div>
@@ -605,7 +605,7 @@
                    :placeholder="siv.mode === 'AES-SIV' ? '64/96/128位Hex (32/48/64字节)' : '32/64位Hex (16/32字节)'" />
             <div v-if="sivKeyHint" :class="['mt-1 text-xs', hintClass(sivKeyHint)]">{{ sivKeyHint }}</div>
             <div v-if="siv.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(siv.key) }}
               </span>
             </div>
@@ -616,7 +616,7 @@
                    :placeholder="siv.mode === 'AES-SIV' ? '可选 32位Hex (16字节) 或留空' : '必须 24位Hex (12字节)'" />
             <div v-if="sivNonceHint" :class="['mt-1 text-xs', hintClass(sivNonceHint)]">{{ sivNonceHint }}</div>
             <div v-if="siv.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(siv.nonce) }}
               </span>
             </div>
@@ -626,7 +626,7 @@
             <Input v-model="siv.aad" class="font-mono" placeholder="附加认证数据..." />
             <div v-if="sivAADHint" :class="['mt-1 text-xs', hintClass(sivAADHint)]">{{ sivAADHint }}</div>
             <div v-if="siv.aad" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(siv.aad) }}
               </span>
             </div>
@@ -707,7 +707,7 @@
             <Input v-model="fpe.key" class="font-mono" :placeholder="fpe.cipher === 'SM4' ? '32位Hex (16字节)' : '32/48/64位Hex (16/24/32字节)'" />
             <div v-if="fpeKeyHint" :class="['mt-1 text-xs', hintClass(fpeKeyHint)]">{{ fpeKeyHint }}</div>
             <div v-if="fpe.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(fpe.key) }}
               </span>
             </div>
@@ -718,7 +718,7 @@
                    :placeholder="fpe.mode === 'FF3-1' ? 'FF3-1需要14位Hex(7字节)，留空默认全0' : '留空则不使用'" />
             <div v-if="fpeTweakHint" :class="['mt-1 text-xs', hintClass(fpeTweakHint)]">{{ fpeTweakHint }}</div>
             <div v-if="fpe.tweak" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ formatHexBytes(fpe.tweak) }}
               </span>
             </div>
@@ -1515,7 +1515,7 @@ const fpeLenHint = computed(() => {
 function hintClass(text) {
   if (!text) return ''
   if (text.includes('必须') || text.includes('需') || text.includes('应为')) return 'text-red-400'
-  return 'text-amber-200'
+  return 'text-orange-300'
 }
 
 const aesDisabled = computed(() => !aes.key || !!(aesKeyHint.value || aesIVHint.value || aesNonceHint.value || aesAADHint.value || aesLenHint.value))

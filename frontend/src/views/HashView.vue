@@ -150,8 +150,8 @@
             copyable
           />
         </Card>
-        <Card class="bg-gradient-to-br from-amber-500/5 to-transparent border-amber-500/10">
-          <p class="card-title text-amber-200">SM2 签名预处理说明</p>
+        <Card class="bg-gradient-to-br from-amber-500/5 to-transparent border-orange-400/20">
+          <p class="card-title text-orange-300">SM2 签名预处理说明</p>
           <div class="text-[11px] space-y-2.5 leading-relaxed opacity-90" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <p>GM/T 0003.2 规定 SM2 签名前需计算消息摘要：</p>
             <p class="pl-2.5 flex items-start gap-2">

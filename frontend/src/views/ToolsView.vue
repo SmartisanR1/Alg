@@ -3,7 +3,7 @@
               icon-bg="bg-amber-500/20"
               :tabs="visibleTabs" :active-tab="activeTab" @tab-change="handleTabChange">
     <template #icon>
-      <WrenchIcon class="w-4 h-4 text-amber-200" />
+      <WrenchIcon class="w-4 h-4 text-orange-300" />
     </template>
 
     <template #actions>
@@ -220,7 +220,7 @@
             <label class="input-label">Key (32字节)</label>
             <div class="result-area result-area-sm !min-h-0 text-xs font-mono break-all">{{ xchacha.key }}</div>
             <div v-if="xchacha.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ (xchacha.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>
@@ -287,7 +287,7 @@
               <p>DES / 3DES 通常用 8 字节块长，AES / SM4 通常用 16 字节块长。</p>
             </div>
             <div class="card">
-              <p class="card-title text-amber-200">联调提醒</p>
+              <p class="card-title text-orange-300">联调提醒</p>
               <p>移除填充失败时，通常是块长、模式或输入编码和对端不一致。</p>
             </div>
           </div>
@@ -578,7 +578,7 @@
             <KeyIcon class="w-3.5 h-3.5" /> 转换
           </Button>
           <div v-if="keyConvResult.error" class="text-xs text-red-400">{{ keyConvResult.error }}</div>
-          <div v-if="keyConvResult.keyType" class="text-xs text-amber-200">类型: {{ keyConvResult.keyType }}</div>
+          <div v-if="keyConvResult.keyType" class="text-xs text-orange-300">类型: {{ keyConvResult.keyType }}</div>
         </Card>
 
         <Card title="证书链验证" class="space-y-3">
@@ -641,7 +641,7 @@
                     :value="pfxResult.cert"></textarea>
           <textarea readonly class="result-area result-area-sm text-xs font-mono w-full min-h-[60px] resize-none bg-transparent outline-none border-none mt-2"
                     :value="pfxResult.ca"></textarea>
-          <div v-if="pfxResult.info" class="mt-1 text-xs text-amber-200">证书: {{ pfxResult.info }}</div>
+          <div v-if="pfxResult.info" class="mt-1 text-xs text-orange-300">证书: {{ pfxResult.info }}</div>
         </Card>
       </div>
     </div>

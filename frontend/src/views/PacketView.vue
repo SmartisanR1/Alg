@@ -237,7 +237,7 @@
             <div class="flex gap-3 text-xs opacity-60 font-mono">
               <span v-if="packetResult.requestBytes" class="text-cyan-400">已发: {{ packetResult.requestBytes }}B</span>
               <span v-if="packetResult.responseBytes" class="text-emerald-400">已收: {{ packetResult.responseBytes }}B</span>
-              <span v-if="packetResult.durationMs" class="text-amber-200">{{ packetResult.durationMs }}ms</span>
+              <span v-if="packetResult.durationMs" class="text-orange-300">{{ packetResult.durationMs }}ms</span>
             </div>
           </div>
           <div class="space-y-2">

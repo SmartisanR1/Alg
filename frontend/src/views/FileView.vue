@@ -118,7 +118,7 @@
             </div>
             <Input v-model="fileEnc.key" class="font-mono text-xs" placeholder="64位hex..." />
             <div v-if="fileEnc.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-amber-200 border-amber-400/30 bg-amber-400/10">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
                 {{ (fileEnc.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
               </span>
             </div>

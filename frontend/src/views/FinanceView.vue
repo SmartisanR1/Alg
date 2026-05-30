@@ -3,7 +3,7 @@
               icon-bg="bg-indigo-500/20"
               :tabs="tabs" :active-tab="activeTab" @tab-change="activeTab = $event">
     <template #icon>
-      <FingerprintIcon class="w-4 h-4 text-amber-200" />
+      <FingerprintIcon class="w-4 h-4 text-orange-300" />
     </template>
 
     <template #actions>
@@ -129,7 +129,7 @@
               <p>以全零 IV 做 CBC 链运算，最后一个密文分组即为认证结果，适合国密场景。</p>
             </div>
             <div class="card">
-              <p class="card-title text-amber-200">SM4-CMAC</p>
+              <p class="card-title text-orange-300">SM4-CMAC</p>
               <p>基于子密钥派生做分组认证，结构更规范，适合需要稳定消息认证的金融报文。</p>
             </div>
           </div>
@@ -222,7 +222,7 @@
               <p>在填充区引入随机值，结构和 ISO-0 类似，但更适合需要随机掩码的场景。</p>
             </div>
             <div class="card">
-              <p class="card-title text-amber-200">使用提醒</p>
+              <p class="card-title text-orange-300">使用提醒</p>
               <p>生成、加解密、解析 PIN Block 时，PIN 长度、PAN 截取规则和密钥算法必须保持一致。</p>
             </div>
           </div>
@@ -363,7 +363,7 @@
               <p>按 PAN、PSN 或业务数据做一次或多次派生运算，把主密钥转换成设备级、卡级或会话级密钥。</p>
             </div>
             <div class="card">
-              <p class="card-title text-amber-200">SM4 UDK</p>
+              <p class="card-title text-orange-300">SM4 UDK</p>
               <p>沿用 UDK 思路，但将底层分组算法替换为 SM4，适合国密合规体系中的分散密钥计算。</p>
             </div>
           </div>
@@ -451,7 +451,7 @@
               <p>使用会话密钥对交易数据做 MAC 计算，结果通常用于联机交易认证或发卡行风险控制。</p>
             </div>
             <div class="card">
-              <p class="card-title text-amber-200">3DES / SM4</p>
+              <p class="card-title text-orange-300">3DES / SM4</p>
               <p>金融数据加密既可能走传统 3DES，也可能走国密 SM4，关键在于模式、填充和 IV 管理保持一致。</p>
             </div>
           </div>
