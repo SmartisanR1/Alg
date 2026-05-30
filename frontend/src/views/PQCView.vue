@@ -56,9 +56,9 @@
                 <label class="input-label !mb-0 text-orange-300">私钥 (Private Key)</label>
                 <Button variant="tool" size="sm" @click="copy(kemKeys.privateKey)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-orange-300 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.privateKey"></textarea>
-              <div class="flex gap-3 mt-1">
-                <span class="bytes-badge">
+              <div class="relative flex-1">
+                <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-orange-300 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="kemKeys.privateKey"></textarea>
+                <span class="bytes-badge-inside">
                   {{ base64ByteLen(kemKeys.privateKey) + ' bytes' }}
                 </span>
               </div>
@@ -68,9 +68,9 @@
                 <label class="input-label !mb-0 text-cyan-400">公钥 (Public Key)</label>
                 <Button variant="tool" size="sm" @click="copy(kemKeys.publicKey)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-200 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="kemKeys.publicKey"></textarea>
-              <div class="flex gap-3 mt-1">
-                <span class="bytes-badge">
+              <div class="relative flex-1">
+                <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-200 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="kemKeys.publicKey"></textarea>
+                <span class="bytes-badge-inside">
                   {{ base64ByteLen(kemKeys.publicKey) + ' bytes' }}
                 </span>
               </div>
@@ -167,18 +167,18 @@
           <div v-if="dsaKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
             <div class="flex-1 min-h-0 flex flex-col">
               <label class="input-label text-orange-300 shrink-0">私钥 (Private Key)</label>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-orange-300 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.privateKey"></textarea>
-              <div class="flex gap-3 mt-1">
-                <span class="bytes-badge">
+              <div class="relative flex-1">
+                <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-orange-300 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="dsaKeys.privateKey"></textarea>
+                <span class="bytes-badge-inside">
                   {{ base64ByteLen(dsaKeys.privateKey) + ' bytes' }}
                 </span>
               </div>
             </div>
             <div class="flex-1 min-h-0 flex flex-col mt-2">
               <label class="input-label text-cyan-400 shrink-0">公钥 (Public Key)</label>
-              <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-200 text-[12px] font-mono w-full flex-1 resize-none bg-transparent outline-none border-none overflow-y-auto" :value="dsaKeys.publicKey"></textarea>
-              <div class="flex gap-3 mt-1">
-                <span class="bytes-badge">
+              <div class="relative flex-1">
+                <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-200 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="dsaKeys.publicKey"></textarea>
+                <span class="bytes-badge-inside">
                   {{ base64ByteLen(dsaKeys.publicKey) + ' bytes' }}
                 </span>
               </div>
@@ -258,11 +258,11 @@
                 <label class="input-label !mb-0 text-orange-300">私钥 (Private Key)</label>
                 <button @click="copy(slhKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[42px] !max-h-[60px] text-orange-300 text-[12px] font-mono leading-tight bg-orange-400/15 border-amber-400/20">
-                {{ slhKeys.privateKey }}
-              </div>
-              <div class="flex gap-3 mt-1">
-                <span class="bytes-badge">
+              <div class="relative">
+                <div class="result-area !min-h-[42px] !max-h-[60px] text-orange-300 text-[12px] font-mono leading-tight bg-orange-400/15 border-amber-400/20 pb-6">
+                  {{ slhKeys.privateKey }}
+                </div>
+                <span class="bytes-badge-inside">
                   {{ base64ByteLen(slhKeys.privateKey) + ' bytes' }}
                 </span>
               </div>
@@ -272,11 +272,11 @@
                 <label class="input-label !mb-0 text-cyan-400">公钥 (Public Key)</label>
                 <button @click="copy(slhKeys.publicKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[42px] !max-h-[60px] text-cyan-200 text-[12px] font-mono leading-tight bg-cyan-500/5 border-cyan-500/10">
-                {{ slhKeys.publicKey }}
-              </div>
-              <div class="flex gap-3 mt-1">
-                <span class="bytes-badge">
+              <div class="relative">
+                <div class="result-area !min-h-[42px] !max-h-[60px] text-cyan-200 text-[12px] font-mono leading-tight bg-cyan-500/5 border-cyan-500/10 pb-6">
+                  {{ slhKeys.publicKey }}
+                </div>
+                <span class="bytes-badge-inside">
                   {{ base64ByteLen(slhKeys.publicKey) + ' bytes' }}
                 </span>
               </div>
@@ -751,5 +751,18 @@ function base64ByteLen(b64) {
   background: rgba(34, 211, 238, 0.15);
   color: #67e8f9;
   border-radius: 4px;
+}
+
+.bytes-badge-inside {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  background: rgba(34, 211, 238, 0.15);
+  color: #67e8f9;
+  border-radius: 4px;
+  pointer-events: none;
 }
 </style>

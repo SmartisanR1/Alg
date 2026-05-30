@@ -184,18 +184,35 @@ const biResult = reactive({ data: '', error: '', success: null })
 const biBaseResult = ref('')
 
 async function doBigIntOp(op) {
-  if (op === 'base') {
-    const r = await BigIntOperation({
-      a: bi.baseInput,
-      op: 'base',
-      baseFrom: parseInt(bi.baseFrom),
-      baseTo: parseInt(bi.baseTo)
-    })
-    biBaseResult.value = r.error || r.data || ''
-    return
+  try {
+    if (op === 'base') {
+      const req = {
+        a: bi.baseInput,
+        op: 'base',
+        baseFrom: parseInt(bi.baseFrom),
+        baseTo: parseInt(bi.baseTo)
+      }
+      const r = await BigIntOperation(req)
+      biBaseResult.value = (r && (r.error || r.data)) || ''
+      return
+    }
+    const req = { a: bi.a, b: bi.b, n: bi.n, op }
+    const r = await BigIntOperation(req)
+    if (r) {
+      biResult.data = r.data || ''
+      biResult.error = r.error || ''
+      biResult.success = r.success || false
+    } else {
+      biResult.data = ''
+      biResult.error = '未返回结果'
+      biResult.success = false
+    }
+  } catch (e) {
+    console.error('BigIntOperation error:', e)
+    biResult.data = ''
+    biResult.error = String(e)
+    biResult.success = false
   }
-  const r = await BigIntOperation({ ...bi, op })
-  biResult.data = r.data; biResult.error = r.error; biResult.success = r.success
 }
 
 async function copy(text) {
