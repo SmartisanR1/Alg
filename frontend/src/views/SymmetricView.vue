@@ -151,7 +151,12 @@
               :placeholder="aes.inputFormat === 'text' ? '输入明文...' : '输入hex格式数据...'"
               class="input min-h-[120px] resize-y"
             />
-            <div v-if="aesLenHint" :class="['mt-1 text-xs', hintClass(aesLenHint)]">{{ aesLenHint }}</div>
+            <div class="flex items-center justify-between mt-1">
+              <div v-if="aesLenHint" :class="['text-xs', hintClass(aesLenHint)]">{{ aesLenHint }}</div>
+              <div class="text-[11px] text-muted ml-auto">
+                {{ aes.inputFormat === 'text' ? aes.plaintext.length : Math.floor(aes.plaintext.replace(/\s/g, '').length / 2) }} 字节
+              </div>
+            </div>
           </div>
           <div class="flex gap-2 shrink-0 mt-3">
             <Button variant="success" class="flex-1" @click="encrypt" :disabled="aesDisabled">
@@ -173,10 +178,10 @@
         
         <div v-if="result.extra" class="animate-in fade-in zoom-in-95 duration-200">
           <div class="flex items-center justify-between mb-1">
-            <label class="input-label !mb-0 text-amber-400">自动生成的 {{ ['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV' }}</label>
-            <button @click="copyExtra" class="ck-copy-btn text-amber-400"><CopyIcon class="w-3 h-3" /> 复制</button>
+            <label class="input-label !mb-0 text-cyan-400">自动生成的 {{ ['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV' }}</label>
+            <button @click="copyExtra" class="ck-copy-btn text-cyan-400"><CopyIcon class="w-3 h-3" /> 复制</button>
           </div>
-          <div class="result-area !min-h-0 text-amber-300">{{ result.extra }}</div>
+          <div class="result-area !min-h-0 text-cyan-300">{{ result.extra }}</div>
         </div>
         
       </div>

@@ -12,13 +12,13 @@
 /* ── 字体系统 ─────────────────────────────── */
 :root {
   /* 字体大小层次 */
-  --font-xs: 10px;      /* 最小：标签、辅助信息 */
-  --font-sm: 11px;      /* 小：次级标签、工具提示 */
-  --font-base: 12px;    /* 基础：正文、输入框 */
-  --font-md: 13px;      /* 中等：按钮、导航 */
-  --font-lg: 14px;      /* 大：卡片标题 */
-  --font-xl: 16px;      /* 特大：页面标题 */
-  --font-2xl: 20px;     /* 超大：重要数据 */
+  --font-xs: 11px;      /* 最小：标签、辅助信息 */
+  --font-sm: 12px;      /* 小：次级标签、工具提示 */
+  --font-base: 13px;    /* 基础：正文、输入框 */
+  --font-md: 14px;      /* 中等：按钮、导航 */
+  --font-lg: 15px;      /* 大：卡片标题 */
+  --font-xl: 17px;      /* 特大：页面标题 */
+  --font-2xl: 22px;     /* 超大：重要数据 */
   
   /* 行高 */
   --leading-tight: 1.3;
@@ -444,7 +444,7 @@ select.text-xs::after {
   font-family: var(--font-mono);
   font-size: var(--font-base);
   line-height: var(--leading-relaxed);
-  color: var(--success);
+  color: #4ade80;
   word-break: break-all;
   min-height: 60px;
 }
