@@ -5,7 +5,7 @@
       <SendIcon class="w-4 h-4 text-indigo-400" />
     </template>
 
-    <template #extra>
+    <template #actions>
        <div class="flex gap-2">
          <Button variant="tool" size="sm" @click="showHelp = true">
            <InfoIcon class="w-3 h-3" /> 使用说明

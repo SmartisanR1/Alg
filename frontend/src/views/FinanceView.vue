@@ -6,7 +6,7 @@
       <FingerprintIcon class="w-4 h-4 text-amber-200" />
     </template>
 
-    <template #extra>
+    <template #actions>
       <Button variant="secondary" size="sm" @click="showPrinciple = true">
         <InfoIcon class="w-3.5 h-3.5" /> 算法原理
       </Button>

@@ -7,7 +7,7 @@
       <LockIcon class="w-4 h-4 text-blue-400" />
     </template>
 
-    <template #extra>
+    <template #actions>
       <div class="flex gap-2">
         <Button variant="tool" size="sm" @click="openHelp(activeTab)">
           <InfoIcon class="w-3.5 h-3.5" /> 使用说明
