@@ -585,7 +585,7 @@
   }
 
   .help-note-title {
-    @apply text-[12px] font-semibold mb-1.5;
+    @apply text-[13px] font-semibold mb-1.5;
   }
 
   .help-modal {

@@ -328,7 +328,7 @@
             <p class="text-sm font-bold mb-1" :class="isDark ? 'text-dark-text' : 'text-light-text'">
               FALCON — NTRU格紧凑签名算法
             </p>
-            <p class="text-xs leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <p class="text-sm leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
               circl v1.6.3 不包含 FALCON 实现。Go 社区也没有成熟的纯 Go 方案。需等待 FIPS 206 标准正式发布后 circl 跟进。目前只能使用 ML-DSA 作为签名方案。
             </p>
           </div>
@@ -345,22 +345,22 @@
       <!-- 右列: 算法原理 -->
       <div class="card sym-main">
         <p class="card-title">算法原理 (FALCON)</p>
-        <div class="text-xs space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+        <div class="text-sm space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
           <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-violet-400">设计基础</p>
-            <p>FALCON 基于 NTRU 格，采用 Gentry-Peikert-Vaikuntanathan (GPV) 框架的陷门高斯采样，使用 Fast Fourier Sampling over NTRU lattices 技术高效生成签名。</p>
+            <p class="font-bold mb-2 text-violet-400 text-[13px]">设计基础</p>
+            <p class="text-[13px]">FALCON 基于 NTRU 格，采用 Gentry-Peikert-Vaikuntanathan (GPV) 框架的陷门高斯采样，使用 Fast Fourier Sampling over NTRU lattices 技术高效生成签名。</p>
           </div>
           <div class="p-3 rounded-xl border border-amber-400/20" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-orange-300">尺寸优势 — PQC 中最小签名</p>
-            <p>FALCON-512 签名仅约 666B，公钥 897B，远小于 ML-DSA-44 (签名 2420B)。在带宽受限场景 (TLS、区块链) 中具有显著优势。</p>
+            <p class="font-bold mb-2 text-orange-300 text-[13px]">尺寸优势 — PQC 中最小签名</p>
+            <p class="text-[13px]">FALCON-512 签名仅约 666B，公钥 897B，远小于 ML-DSA-44 (签名 2420B)。在带宽受限场景 (TLS、区块链) 中具有显著优势。</p>
           </div>
           <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-blue-400">NIST 标准化状态</p>
-            <p>FALCON 已作为 NIST PQC 签名候选之一纳入评估 (FIPS 206 草案阶段)，与 ML-DSA 互补，ML-DSA 为主流推荐、FALCON 为紧凑场景备选。</p>
+            <p class="font-bold mb-2 text-blue-400 text-[13px]">NIST 标准化状态</p>
+            <p class="text-[13px]">FALCON 已作为 NIST PQC 签名候选之一纳入评估 (FIPS 206 草案阶段)，与 ML-DSA 互补，ML-DSA 为主流推荐、FALCON 为紧凑场景备选。</p>
           </div>
           <div class="p-3 rounded-xl border border-red-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-red-400">实现挑战</p>
-            <p>FALCON 中的高斯采样依赖 IEEE 754 双精度浮点的特定精度保证，正确的常数时间实现极其困难，官方参考实现为 C 语言，Go 移植尚在社区讨论阶段。</p>
+            <p class="font-bold mb-2 text-red-400 text-[13px]">实现挑战</p>
+            <p class="text-[13px]">FALCON 中的高斯采样依赖 IEEE 754 双精度浮点的特定精度保证，正确的常数时间实现极其困难，官方参考实现为 C 语言，Go 移植尚在社区讨论阶段。</p>
           </div>
         </div>
       </div>
@@ -381,7 +381,7 @@
             <p class="text-sm font-bold mb-1" :class="isDark ? 'text-dark-text' : 'text-light-text'">
               HQC — 准循环码密钥封装
             </p>
-            <p class="text-xs leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <p class="text-sm leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
               HQC 已入选 NIST 第四轮。目前 Go 仅有基于 CGO 的 liboqs 绑定，纯 Go 实现尚在开发中。本工具优先保证跨平台无依赖，待稳定实现发布后即刻上线。
             </p>
           </div>
@@ -398,22 +398,22 @@
       <!-- 右列: 算法原理 -->
       <div class="card sym-main">
         <p class="card-title">算法原理 (HQC)</p>
-        <div class="text-xs space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+        <div class="text-sm space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
           <div class="p-3 rounded-xl border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-emerald-400">设计基础</p>
-            <p>HQC (Hamming Quasi-Cyclic) 基于准循环码上的解密失败概率难题。密钥是准循环 LDPC/LRPC 码，安全性归约到随机线性码上的解码问题。</p>
+            <p class="font-bold mb-2 text-emerald-400 text-[13px]">设计基础</p>
+            <p class="text-[13px]">HQC (Hamming Quasi-Cyclic) 基于准循环码上的解密失败概率难题。密钥是准循环 LDPC/LRPC 码，安全性归约到随机线性码上的解码问题。</p>
           </div>
           <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-blue-400">多样性价值</p>
-            <p>HQC 与 ML-KEM 的安全假设完全不同 (纠错码 vs 格)。NIST 同时推进两类 KEM 标准，目的是防范单一数学问题被量子算法或经典算法突破的风险。</p>
+            <p class="font-bold mb-2 text-blue-400 text-[13px]">多样性价值</p>
+            <p class="text-[13px]">HQC 与 ML-KEM 的安全假设完全不同 (纠错码 vs 格)。NIST 同时推进两类 KEM 标准，目的是防范单一数学问题被量子算法或经典算法突破的风险。</p>
           </div>
           <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-violet-400">NIST 标准化进展</p>
-            <p>HQC 于 2024 年入选 NIST PQC 第四轮，预计 2025-2026 年完成标准化。届时将作为 ML-KEM 的备选 KEM 正式发布，可与 ML-KEM 混合部署以提升安全边界。</p>
+            <p class="font-bold mb-2 text-violet-400 text-[13px]">NIST 标准化进展</p>
+            <p class="text-[13px]">HQC 于 2024 年入选 NIST PQC 第四轮，预计 2025-2026 年完成标准化。届时将作为 ML-KEM 的备选 KEM 正式发布，可与 ML-KEM 混合部署以提升安全边界。</p>
           </div>
           <div class="p-3 rounded-xl border border-amber-400/20" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-orange-300">实现现状</p>
-            <p>HQC 参考实现为 C 语言。Go 社区中目前没有经过审计的成熟实现，待 NIST 最终标准发布后，预计 Go 标准库或 cloudflare/circl 将跟进。</p>
+            <p class="font-bold mb-2 text-orange-300 text-[13px]">实现现状</p>
+            <p class="text-[13px]">HQC 参考实现为 C 语言。Go 社区中目前没有经过审计的成熟实现，待 NIST 最终标准发布后，预计 Go 标准库或 cloudflare/circl 将跟进。</p>
           </div>
         </div>
       </div>

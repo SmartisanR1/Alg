@@ -28,22 +28,22 @@
                <XIcon class="w-4 h-4 text-dark-muted" />
              </button>
            </div>
-           <div class="text-xs leading-relaxed space-y-3" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
-             <p class="font-bold text-violet-400">使用步骤</p>
-             <p>1. 配置连接信息：填写主机地址和端口号</p>
-             <p>2. 选择网络协议：IPv4 或 IPv6</p>
-             <p>3. 设置安全模式：明文、TLS 或国密 TLCP</p>
-             <p>4. 配置证书（如果使用安全模式）：上传 CA 证书、客户端证书和私钥</p>
-             <p>5. 设置报文头长度：选择 0、1、2 或 4 字节</p>
-             <p>6. 配置超时时间：设置连接和响应的等待时间（毫秒）</p>
-             <p class="font-bold text-violet-400 mt-2">报文发送</p>
-             <p>• 选择报文格式：HEX 或 文本</p>
-             <p>• 输入报文内容：直接输入或通过外部文件加载</p>
-             <p>• 点击发送请求按钮开始传输</p>
-             <p class="font-bold text-violet-400 mt-2">查看结果</p>
-             <p>• 查看发送和接收的字节数</p>
-             <p>• 查看报文头内容（如果已配置）</p>
-             <p>• 查看响应数据：支持复制和错误提示</p>
+           <div class="text-sm leading-relaxed space-y-3" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
+             <p class="font-bold text-violet-400 text-[13px]">使用步骤</p>
+             <p class="text-[13px]">1. 配置连接信息：填写主机地址和端口号</p>
+             <p class="text-[13px]">2. 选择网络协议：IPv4 或 IPv6</p>
+             <p class="text-[13px]">3. 设置安全模式：明文、TLS 或国密 TLCP</p>
+             <p class="text-[13px]">4. 配置证书（如果使用安全模式）：上传 CA 证书、客户端证书和私钥</p>
+             <p class="text-[13px]">5. 设置报文头长度：选择 0、1、2 或 4 字节</p>
+             <p class="text-[13px]">6. 配置超时时间：设置连接和响应的等待时间（毫秒）</p>
+             <p class="font-bold text-violet-400 mt-2 text-[13px]">报文发送</p>
+             <p class="text-[13px]">• 选择报文格式：HEX 或 文本</p>
+             <p class="text-[13px]">• 输入报文内容：直接输入或通过外部文件加载</p>
+             <p class="text-[13px]">• 点击发送请求按钮开始传输</p>
+             <p class="font-bold text-violet-400 mt-2 text-[13px]">查看结果</p>
+             <p class="text-[13px]">• 查看发送和接收的字节数</p>
+             <p class="text-[13px]">• 查看报文头内容（如果已配置）</p>
+             <p class="text-[13px]">• 查看响应数据：支持复制和错误提示</p>
            </div>
            <div class="mt-6 flex justify-end">
               <button @click="showHelp = false" class="btn-success px-6">确定</button>

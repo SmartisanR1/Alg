@@ -200,17 +200,17 @@
       <div class="sym-main">
         <!-- Keygen mode: show usage tips -->
         <Card v-if="sm2Sub === 'keygen'" title="SM2 密钥使用说明">
-          <div class="space-y-3 text-xs" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
+          <div class="space-y-3 text-sm" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
             <div class="p-3 rounded-lg border" :class="isDark ? 'bg-dark-bg border-dark-border' : 'bg-gray-50 border-gray-200'">
-              <p class="font-semibold text-violet-400 mb-1">密钥格式</p>
-              <p>• PEM 格式：标准 X.509 公钥 / PKCS#8 私钥</p>
-              <p>• Hex 格式：裸值，私钥 32 字节，公钥 64 字节 (X||Y)</p>
+              <p class="font-semibold text-violet-400 mb-2 text-[13px]">密钥格式</p>
+              <p class="text-[13px]">• PEM 格式：标准 X.509 公钥 / PKCS#8 私钥</p>
+              <p class="text-[13px]">• Hex 格式：裸值，私钥 32 字节，公钥 64 字节 (X||Y)</p>
             </div>
             <div class="p-3 rounded-lg border" :class="isDark ? 'bg-dark-bg border-dark-border' : 'bg-gray-50 border-gray-200'">
-              <p class="font-semibold text-cyan-400 mb-1">使用场景</p>
-              <p>• 加密：使用公钥加密，私钥解密</p>
-              <p>• 签名：使用私钥签名，公钥验证</p>
-              <p>• 密钥协商：双方各生成临时密钥对</p>
+              <p class="font-semibold text-cyan-400 mb-2 text-[13px]">使用场景</p>
+              <p class="text-[13px]">• 加密：使用公钥加密，私钥解密</p>
+              <p class="text-[13px]">• 签名：使用私钥签名，公钥验证</p>
+              <p class="text-[13px]">• 密钥协商：双方各生成临时密钥对</p>
             </div>
           </div>
         </Card>

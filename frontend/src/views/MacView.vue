@@ -78,15 +78,15 @@
           />
         </Card>
         <Card title="算法说明">
-          <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="text-sm space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-2.5 rounded-lg border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-violet-400 mb-1">{{ macPrinciple.title }}</p>
-              <p v-for="(line, i) in macPrinciple.lines" :key="i">{{ line }}</p>
+              <p class="font-semibold text-violet-400 mb-1 text-[13px]">{{ macPrinciple.title }}</p>
+              <p class="text-[13px]" v-for="(line, i) in macPrinciple.lines" :key="i">{{ line }}</p>
             </div>
             <div class="p-2.5 rounded-lg border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-blue-400 mb-1">输入长度</p>
-              <p>• 数据/密钥为 Hex 时长度需为偶数位</p>
-              <p v-if="mac.algorithm === 'GMAC'">• Nonce 必须为 12 字节 (24位Hex)</p>
+              <p class="font-semibold text-blue-400 mb-1 text-[13px]">输入长度</p>
+              <p class="text-[13px]">• 数据/密钥为 Hex 时长度需为偶数位</p>
+              <p class="text-[13px]" v-if="mac.algorithm === 'GMAC'">• Nonce 必须为 12 字节 (24位Hex)</p>
             </div>
           </div>
         </Card>
@@ -200,11 +200,11 @@
           </div>
         </Card>
         <Card title="安全建议">
-          <div class="text-xs space-y-1.5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <p>🔐 <strong>密码存储</strong>: 推荐 Argon2id > bcrypt > scrypt</p>
-            <p>🔑 <strong>密钥派生</strong>: 推荐 HKDF-SHA256 (RFC 5869)</p>
-            <p>📁 <strong>加密密钥</strong>: PBKDF2-SHA256 (迭代≥100000)</p>
-            <p>⚠️ Argon2id: time=3, mem=64MB, threads=4</p>
+          <div class="text-sm space-y-1.5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <p class="text-[13px]">🔐 <strong>密码存储</strong>: 推荐 Argon2id > bcrypt > scrypt</p>
+            <p class="text-[13px]">🔑 <strong>密钥派生</strong>: 推荐 HKDF-SHA256 (RFC 5869)</p>
+            <p class="text-[13px]">📁 <strong>加密密钥</strong>: PBKDF2-SHA256 (迭代≥100000)</p>
+            <p class="text-[13px]">⚠️ Argon2id: time=3, mem=64MB, threads=4</p>
           </div>
         </Card>
       </div>

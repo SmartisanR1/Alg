@@ -108,18 +108,18 @@
           />
         </Card>
         <Card title="算法原理">
-          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="space-y-2 text-sm leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="card">
-              <p class="card-title text-violet-400">Retail MAC</p>
-              <p>先做 CBC-MAC，再经过 K2 解密和 K3 加密，常见于传统银行卡报文认证。</p>
+              <p class="card-title text-violet-400 text-[13px]">Retail MAC</p>
+              <p class="text-[13px]">先做 CBC-MAC，再经过 K2 解密和 K3 加密，常见于传统银行卡报文认证。</p>
             </div>
             <div class="card">
-              <p class="card-title text-emerald-400">SM4-CBC-MAC</p>
-              <p>以全零 IV 做 CBC 链运算，最后一个密文分组即为认证结果，适合国密场景。</p>
+              <p class="card-title text-emerald-400 text-[13px]">SM4-CBC-MAC</p>
+              <p class="text-[13px]">以全零 IV 做 CBC 链运算，最后一个密文分组即为认证结果，适合国密场景。</p>
             </div>
             <div class="card">
-              <p class="card-title text-orange-300">SM4-CMAC</p>
-              <p>基于子密钥派生做分组认证，结构更规范，适合需要稳定消息认证的金融报文。</p>
+              <p class="card-title text-orange-300 text-[13px]">SM4-CMAC</p>
+              <p class="text-[13px]">基于子密钥派生做分组认证，结构更规范，适合需要稳定消息认证的金融报文。</p>
             </div>
           </div>
         </Card>
@@ -201,18 +201,18 @@
           />
         </Card>
         <Card title="算法原理">
-          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="space-y-2 text-sm leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="card">
-              <p class="card-title text-violet-400">ISO-0</p>
-              <p>把 PIN 字段和 PAN 右侧 12 位做异或，属于最常见的卡联机 PIN Block 组织方式。</p>
+              <p class="card-title text-violet-400 text-[13px]">ISO-0</p>
+              <p class="text-[13px]">把 PIN 字段和 PAN 右侧 12 位做异或，属于最常见的卡联机 PIN Block 组织方式。</p>
             </div>
             <div class="card">
-              <p class="card-title text-emerald-400">ISO-3</p>
-              <p>在填充区引入随机值，结构和 ISO-0 类似，但更适合需要随机掩码的场景。</p>
+              <p class="card-title text-emerald-400 text-[13px]">ISO-3</p>
+              <p class="text-[13px]">在填充区引入随机值，结构和 ISO-0 类似，但更适合需要随机掩码的场景。</p>
             </div>
             <div class="card">
-              <p class="card-title text-orange-300">使用提醒</p>
-              <p>生成、加解密、解析 PIN Block 时，PIN 长度、PAN 截取规则和密钥算法必须保持一致。</p>
+              <p class="card-title text-orange-300 text-[13px]">使用提醒</p>
+              <p class="text-[13px]">生成、加解密、解析 PIN Block 时，PIN 长度、PAN 截取规则和密钥算法必须保持一致。</p>
             </div>
           </div>
         </Card>
@@ -271,14 +271,14 @@
         </div>
         <div class="card">
           <p class="card-title">算法原理</p>
-          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="space-y-2 text-sm leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="card">
-              <p class="card-title text-violet-400">CVV / CVC</p>
-              <p>将卡号、有效期和服务代码组织后做 3DES 运算，再转换成十进制校验值，用于卡面校验。</p>
+              <p class="card-title text-violet-400 text-[13px]">CVV / CVC</p>
+              <p class="text-[13px]">将卡号、有效期和服务代码组织后做 3DES 运算，再转换成十进制校验值，用于卡面校验。</p>
             </div>
             <div class="card">
-              <p class="card-title text-emerald-400">PVV</p>
-              <p>把 PVKI、PIN 和 PAN11 组合后做 3DES，再映射成十进制口令校验值，用于 PIN 验证体系。</p>
+              <p class="card-title text-emerald-400 text-[13px]">PVV</p>
+              <p class="text-[13px]">把 PVKI、PIN 和 PAN11 组合后做 3DES，再映射成十进制口令校验值，用于 PIN 验证体系。</p>
             </div>
           </div>
         </div>
@@ -346,14 +346,14 @@
         </div>
         <div class="card">
           <p class="card-title">算法原理</p>
-          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="space-y-2 text-sm leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="card">
-              <p class="card-title text-violet-400">UDK / DOW</p>
-              <p>按 PAN、PSN 或业务数据做一次或多次派生运算，把主密钥转换成设备级、卡级或会话级密钥。</p>
+              <p class="card-title text-violet-400 text-[13px]">UDK / DOW</p>
+              <p class="text-[13px]">按 PAN、PSN 或业务数据做一次或多次派生运算，把主密钥转换成设备级、卡级或会话级密钥。</p>
             </div>
             <div class="card">
-              <p class="card-title text-orange-300">SM4 UDK</p>
-              <p>沿用 UDK 思路，但将底层分组算法替换为 SM4，适合国密合规体系中的分散密钥计算。</p>
+              <p class="card-title text-orange-300 text-[13px]">SM4 UDK</p>
+              <p class="text-[13px]">沿用 UDK 思路，但将底层分组算法替换为 SM4，适合国密合规体系中的分散密钥计算。</p>
             </div>
           </div>
         </div>
@@ -434,14 +434,14 @@
         </div>
         <div class="card">
           <p class="card-title">算法原理</p>
-          <div class="space-y-2 text-[12px] leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="space-y-2 text-sm leading-5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="card">
-              <p class="card-title text-violet-400">ARQC / AC</p>
-              <p>使用会话密钥对交易数据做 MAC 计算，结果通常用于联机交易认证或发卡行风险控制。</p>
+              <p class="card-title text-violet-400 text-[13px]">ARQC / AC</p>
+              <p class="text-[13px]">使用会话密钥对交易数据做 MAC 计算，结果通常用于联机交易认证或发卡行风险控制。</p>
             </div>
             <div class="card">
-              <p class="card-title text-orange-300">3DES / SM4</p>
-              <p>金融数据加密既可能走传统 3DES，也可能走国密 SM4，关键在于模式、填充和 IV 管理保持一致。</p>
+              <p class="card-title text-orange-300 text-[13px]">3DES / SM4</p>
+              <p class="text-[13px]">金融数据加密既可能走传统 3DES，也可能走国密 SM4，关键在于模式、填充和 IV 管理保持一致。</p>
             </div>
           </div>
         </div>

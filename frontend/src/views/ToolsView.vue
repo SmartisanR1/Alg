@@ -346,18 +346,18 @@
         </Card>
         <!-- Quick ref -->
         <Card title="快速参考">
-          <div class="space-y-1.5 text-xs" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="space-y-1.5 text-sm" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="flex justify-between">
-              <span>当前Unix(秒):</span>
-              <span class="font-mono" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ nowUnix }}</span>
+              <span class="text-[13px]">当前Unix(秒):</span>
+              <span class="font-mono text-[13px]" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ nowUnix }}</span>
             </div>
             <div class="flex justify-between">
-              <span>当前Unix(毫秒):</span>
-              <span class="font-mono" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ nowUnixMs }}</span>
+              <span class="text-[13px]">当前Unix(毫秒):</span>
+              <span class="font-mono text-[13px]" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ nowUnixMs }}</span>
             </div>
             <div class="flex justify-between">
-              <span>UTC时间:</span>
-              <span class="font-mono" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ nowUTC }}</span>
+              <span class="text-[13px]">UTC时间:</span>
+              <span class="font-mono text-[13px]" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ nowUTC }}</span>
             </div>
           </div>
         </Card>
@@ -493,11 +493,11 @@
           />
         </Card>
         <Card title="说明">
-          <div class="text-xs space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="text-sm space-y-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <div class="p-2.5 rounded-lg border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-semibold text-blue-400 mb-1">常见用途</p>
-              <p>• Base32/58: 地址、序列号、短码。</p>
-              <p>• Bech32: 地址编码 (如 BTC SegWit)。</p>
+              <p class="font-semibold text-blue-400 mb-1 text-[13px]">常见用途</p>
+              <p class="text-[13px]">• Base32/58: 地址、序列号、短码。</p>
+              <p class="text-[13px]">• Bech32: 地址编码 (如 BTC SegWit)。</p>
             </div>
           </div>
         </Card>

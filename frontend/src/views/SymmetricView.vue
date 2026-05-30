@@ -247,6 +247,15 @@
           :error="sm4Result.error"
           copyable
         />
+        <div v-if="sm4Result.extra" class="animate-in fade-in zoom-in-95 duration-200">
+          <div class="flex items-center justify-between mb-1">
+            <label class="input-label !mb-0 text-cyan-400">
+              {{ sm4.iv || sm4.nonce ? '使用的' : '自动生成的' }}
+              {{ sm4.mode === 'GCM' ? 'Nonce' : 'IV' }}
+            </label>
+          </div>
+          <div class="result-area !min-h-0 text-cyan-200">{{ sm4Result.extra }}</div>
+        </div>
       </div>
     </div>
 
@@ -433,6 +442,14 @@
           :error="desResult.error"
           copyable
         />
+        <div v-if="desResult.extra" class="animate-in fade-in zoom-in-95 duration-200">
+          <div class="flex items-center justify-between mb-1">
+            <label class="input-label !mb-0 text-cyan-400">
+              {{ des.iv ? '使用的' : '自动生成的' }} IV
+            </label>
+          </div>
+          <div class="result-area !min-h-0 text-cyan-200">{{ desResult.extra }}</div>
+        </div>
       </div>
     </div>
 
@@ -694,191 +711,191 @@
               <XIcon class="w-4 h-4 text-dark-muted" />
             </button>
           </div>
-          <div class="px-5 pt-4 pb-5 text-[12px] leading-5 space-y-3" :class="isDark ? 'text-dark-muted' : 'text-slate-600'">
+          <div class="px-5 pt-4 pb-5 text-sm leading-5 space-y-3" :class="isDark ? 'text-dark-muted' : 'text-slate-600'">
             <template v-if="helpType === 'aes'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES 是现代默认对称算法</p>
-                <p>当前配置为 <span class="help-inline-kbd">AES-{{ aes.keySize }}</span> + <span class="help-inline-kbd">{{ aes.mode }}</span>。如果你只是做常规业务加密，优先用 GCM；如果要兼容旧系统，再考虑 CBC。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES 是现代默认对称算法</p>
+                <p class="text-[13px]">当前配置为 <span class="help-inline-kbd">AES-{{ aes.keySize }}</span> + <span class="help-inline-kbd">{{ aes.mode }}</span>。如果你只是做常规业务加密，优先用 GCM；如果要兼容旧系统，再考虑 CBC。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">输入与填充</p>
-                  <p>Hex 输入必须是偶数位；使用 <span class="help-inline-kbd">NoPadding</span> 时，数据长度必须正好是 16 字节的倍数。</p>
+                  <p class="text-[13px]">Hex 输入必须是偶数位；使用 <span class="help-inline-kbd">NoPadding</span> 时，数据长度必须正好是 16 字节的倍数。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">密钥与参数</p>
-                  <p>ECB 不需要 IV；CBC/CFB/OFB/CTR 通常需要 IV；GCM/CCM 使用 Nonce，可选再附加 AAD 做认证保护。</p>
+                  <p class="text-[13px]">ECB 不需要 IV；CBC/CFB/OFB/CTR 通常需要 IV；GCM/CCM 使用 Nonce，可选再附加 AAD 做认证保护。</p>
                 </div>
               </div>
               <div class="help-note">
                 <p class="help-note-title">{{ aes.mode }} 模式怎么选</p>
-                <p v-if="aes.mode === 'ECB'">每个分组独立处理，最容易理解，但会暴露重复明文块的结构，只适合测试或兼容旧接口，不建议业务数据直接使用。</p>
-                <p v-else-if="aes.mode === 'CBC'">传统工程里最常见的模式之一，兼容性强，适合文件和数据库场景。注意 IV 不能重复，且通常需要配合额外 MAC 才能防篡改。</p>
-                <p v-else-if="aes.mode === 'CFB'">把分组密码转换成流式处理方式，不要求块对齐，适合边到边传输，但新项目里通常会优先考虑更现代的 CTR 或 GCM。</p>
-                <p v-else-if="aes.mode === 'OFB'">通过独立密钥流工作，位错误不会连带扩散，但也因此更依赖正确的参数管理，工程上没有 GCM 那么常见。</p>
-                <p v-else-if="aes.mode === 'CTR'">性能好、可并行、支持随机访问，适合高吞吐处理；但它只负责机密性，不负责完整性，通常要再配认证机制。</p>
-                <p v-else-if="aes.mode === 'GCM'">现代首选。一次完成加密和完整性校验，适合接口、会话、文件交换等绝大多数业务场景，只要保证 Nonce 不重复即可。</p>
-                <p v-else-if="aes.mode === 'CCM'">同样是认证加密，常见于嵌入式、无线和 IoT 协议。它更偏标准化场景，但对消息长度和处理方式限制也更多。</p>
+                <p class="text-[13px]" v-if="aes.mode === 'ECB'">每个分组独立处理，最容易理解，但会暴露重复明文块的结构，只适合测试或兼容旧接口，不建议业务数据直接使用。</p>
+                <p class="text-[13px]" v-else-if="aes.mode === 'CBC'">传统工程里最常见的模式之一，兼容性强，适合文件和数据库场景。注意 IV 不能重复，且通常需要配合额外 MAC 才能防篡改。</p>
+                <p class="text-[13px]" v-else-if="aes.mode === 'CFB'">把分组密码转换成流式处理方式，不要求块对齐，适合边到边传输，但新项目里通常会优先考虑更现代的 CTR 或 GCM。</p>
+                <p class="text-[13px]" v-else-if="aes.mode === 'OFB'">通过独立密钥流工作，位错误不会连带扩散，但也因此更依赖正确的参数管理，工程上没有 GCM 那么常见。</p>
+                <p class="text-[13px]" v-else-if="aes.mode === 'CTR'">性能好、可并行、支持随机访问，适合高吞吐处理；但它只负责机密性，不负责完整性，通常要再配认证机制。</p>
+                <p class="text-[13px]" v-else-if="aes.mode === 'GCM'">现代首选。一次完成加密和完整性校验，适合接口、会话、文件交换等绝大多数业务场景，只要保证 Nonce 不重复即可。</p>
+                <p class="text-[13px]" v-else-if="aes.mode === 'CCM'">同样是认证加密，常见于嵌入式、无线和 IoT 协议。它更偏标准化场景，但对消息长度和处理方式限制也更多。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">实战建议</p>
-                  <p>新项目优先选 GCM；兼容旧系统选 CBC；如果要流式高性能处理可考虑 CTR，但要额外补完整性校验。</p>
+                  <p class="text-[13px]">新项目优先选 GCM；兼容旧系统选 CBC；如果要流式高性能处理可考虑 CTR，但要额外补完整性校验。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">常见误区</p>
-                  <p>不要重复使用同一组 Key + IV/Nonce；不要把 ECB 当通用模式；不要在 NoPadding 下直接喂任意长度数据。</p>
+                  <p class="text-[13px]">不要重复使用同一组 Key + IV/Nonce；不要把 ECB 当通用模式；不要在 NoPadding 下直接喂任意长度数据。</p>
                 </div>
               </div>
             </template>
             <template v-else-if="helpType === 'des'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ des.type === 'DES' ? 'DES 已属于遗留算法' : '3DES 主要用于老系统兼容' }}</p>
-                <p v-if="des.type === 'DES'">它现在更适合教学或历史数据兼容，不应再作为新系统的正式加密方案。</p>
-                <p v-else>3DES 还能在部分金融或遗留设备中见到，但性能和安全边界都明显落后于 AES。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ des.type === 'DES' ? 'DES 已属于遗留算法' : '3DES 主要用于老系统兼容' }}</p>
+                <p class="text-[13px]" v-if="des.type === 'DES'">它现在更适合教学或历史数据兼容，不应再作为新系统的正式加密方案。</p>
+                <p class="text-[13px]" v-else>3DES 还能在部分金融或遗留设备中见到，但性能和安全边界都明显落后于 AES。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">模式选择</p>
-                  <p v-if="des.mode === 'ECB'">ECB 不需要 IV，但会直接暴露重复块形状，除非做兼容测试，否则不建议用。</p>
-                  <p v-else-if="des.mode === 'CBC'">CBC 是遗留系统里最常见的选项，兼容性相对最好，也是这类算法里最稳妥的工程选择。</p>
-                  <p v-else-if="des.mode === 'CFB'">CFB 可以做流式处理，不要求块对齐，更适合持续输入输出的旧式通道加密。</p>
-                  <p v-else-if="des.mode === 'OFB'">OFB 使用独立密钥流，错误不扩散，但现在实际场景已经不多。</p>
-                  <p v-else-if="des.mode === 'CTR'">CTR 让旧算法也能做并行处理，不过如果能选，通常应直接换到 AES-CTR 或 AES-GCM。</p>
+                  <p class="text-[13px]" v-if="des.mode === 'ECB'">ECB 不需要 IV，但会直接暴露重复块形状，除非做兼容测试，否则不建议用。</p>
+                  <p class="text-[13px]" v-else-if="des.mode === 'CBC'">CBC 是遗留系统里最常见的选项，兼容性相对最好，也是这类算法里最稳妥的工程选择。</p>
+                  <p class="text-[13px]" v-else-if="des.mode === 'CFB'">CFB 可以做流式处理，不要求块对齐，更适合持续输入输出的旧式通道加密。</p>
+                  <p class="text-[13px]" v-else-if="des.mode === 'OFB'">OFB 使用独立密钥流，错误不扩散，但现在实际场景已经不多。</p>
+                  <p class="text-[13px]" v-else-if="des.mode === 'CTR'">CTR 让旧算法也能做并行处理，不过如果能选，通常应直接换到 AES-CTR 或 AES-GCM。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">迁移建议</p>
-                  <p>如果你现在还在处理 DES / 3DES，最好把它理解成“兼容接口工具”而不是“主力算法页”，新系统应优先迁移到 AES。</p>
+                  <p class="text-[13px]">如果你现在还在处理 DES / 3DES，最好把它理解成"兼容接口工具"而不是"主力算法页"，新系统应优先迁移到 AES。</p>
                 </div>
               </div>
             </template>
             <template v-else-if="helpType === 'chacha'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ chacha.type }}</p>
-                <p>ChaCha20 系列在纯软件环境下速度非常好，特别适合移动端、容器环境或没有 AES 硬件加速的场景。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ chacha.type }}</p>
+                <p class="text-[13px]">ChaCha20 系列在纯软件环境下速度非常好，特别适合移动端、容器环境或没有 AES 硬件加速的场景。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">参数要点</p>
-                  <p>密钥固定 32 字节；普通版 Nonce 通常为 12 字节；XChaCha20 扩展到 24 字节，更适合大规模随机生成 Nonce 的场景。</p>
+                  <p class="text-[13px]">密钥固定 32 字节；普通版 Nonce 通常为 12 字节；XChaCha20 扩展到 24 字节，更适合大规模随机生成 Nonce 的场景。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">什么时候选它</p>
-                  <p>如果你在意跨平台软件性能、实现简洁度和现代协议兼容性，ChaCha20-Poly1305 往往是非常好的选择。</p>
+                  <p class="text-[13px]">如果你在意跨平台软件性能、实现简洁度和现代协议兼容性，ChaCha20-Poly1305 往往是非常好的选择。</p>
                 </div>
               </div>
               <div v-if="chacha.type.includes('Poly1305')" class="help-note">
                 <p class="help-note-title">Poly1305 认证</p>
-                <p>带 Poly1305 的版本不只是“加密”，还会一起校验消息是否被改过，因此更适合接口请求、会话数据和安全通信。</p>
+                <p class="text-[13px]">带 Poly1305 的版本不只是"加密"，还会一起校验消息是否被改过，因此更适合接口请求、会话数据和安全通信。</p>
               </div>
             </template>
             <template v-else-if="helpType === 'sm4'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">SM4 国密分组加密</p>
-                <p>SM4 是我国自主设计的商用分组密码标准，广泛用于金融、政务、物联网等需要符合国密合规的场景。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">SM4 国密分组加密</p>
+                <p class="text-[13px]">SM4 是我国自主设计的商用分组密码标准，广泛用于金融、政务、物联网等需要符合国密合规的场景。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">技术参数</p>
-                  <p>分组长度和密钥长度均为 128 位，采用 32 轮非平衡 Feistel 网络结构。</p>
+                  <p class="text-[13px]">分组长度和密钥长度均为 128 位，采用 32 轮非平衡 Feistel 网络结构。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">模式选择</p>
-                  <p v-if="sm4.mode === 'ECB'">ECB 模式每个块独立加密，仅用于测试或兼容。</p>
-                  <p v-else-if="sm4.mode === 'CBC'">CBC 是最常用的模式，需要 IV，适合大多数场景。</p>
-                  <p v-else-if="sm4.mode === 'GCM'">GCM 提供认证加密 (AEAD)，是现代首选。</p>
-                  <p v-else>{{ sm4.mode }} 模式适用于特定场景。</p>
+                  <p class="text-[13px]" v-if="sm4.mode === 'ECB'">ECB 模式每个块独立加密，仅用于测试或兼容。</p>
+                  <p class="text-[13px]" v-else-if="sm4.mode === 'CBC'">CBC 是最常用的模式，需要 IV，适合大多数场景。</p>
+                  <p class="text-[13px]" v-else-if="sm4.mode === 'GCM'">GCM 提供认证加密 (AEAD)，是现代首选。</p>
+                  <p class="text-[13px]" v-else>{{ sm4.mode }} 模式适用于特定场景。</p>
                 </div>
               </div>
               <div class="help-note">
                 <p class="help-note-title">合规建议</p>
-                <p>涉及国密合规的项目，优先使用 SM4-GCM 模式，兼顾安全性和性能。</p>
+                <p class="text-[13px]">涉及国密合规的项目，优先使用 SM4-GCM 模式，兼顾安全性和性能。</p>
               </div>
             </template>
             <template v-else-if="helpType === 'zuc'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ zuc.type }}</p>
-                <p>ZUC (祖冲之算法) 是面向 3GPP LTE 移动通信系统的流密码标准。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ zuc.type }}</p>
+                <p class="text-[13px]">ZUC (祖冲之算法) 是面向 3GPP LTE 移动通信系统的流密码标准。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">版本区别</p>
-                  <p>ZUC-128 用于 4G 网络；ZUC-256 用于 5G 增强安全，支持更多密钥长度。</p>
+                  <p class="text-[13px]">ZUC-128 用于 4G 网络；ZUC-256 用于 5G 增强安全，支持更多密钥长度。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">使用场景</p>
-                  <p>主要用于移动网络数据加密和完整性保护，流密码具有极高的软件处理性能。</p>
+                  <p class="text-[13px]">主要用于移动网络数据加密和完整性保护，流密码具有极高的软件处理性能。</p>
                 </div>
               </div>
               <div class="help-note">
                 <p class="help-note-title">注意事项</p>
-                <p>流密码不会产生长度扩展，但需要确保每次加密使用不同的 IV。</p>
+                <p class="text-[13px]">流密码不会产生长度扩展，但需要确保每次加密使用不同的 IV。</p>
               </div>
             </template>
             <template v-else-if="helpType === 'siv'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES-SIV 合成初始向量</p>
-                <p>SIV 模式解决了传统 AEAD 模式下 Nonce 重复导致密钥泄漏的问题。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES-SIV 合成初始向量</p>
+                <p class="text-[13px]">SIV 模式解决了传统 AEAD 模式下 Nonce 重复导致密钥泄漏的问题。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">工作原理</p>
-                  <p>采用"确定性"加密，IV 由明文和附加数据计算得到。即使 Nonce 重复，也只泄漏"明文是否相同"。</p>
+                  <p class="text-[13px]">采用"确定性"加密，IV 由明文和附加数据计算得到。即使 Nonce 重复，也只泄漏"明文是否相同"。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">适用场景</p>
-                  <p>适合无法保证 Nonce 唯一性的场景，如数据库字段加密。</p>
+                  <p class="text-[13px]">适合无法保证 Nonce 唯一性的场景，如数据库字段加密。</p>
                 </div>
               </div>
             </template>
             <template v-else-if="helpType === 'rc4'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">RC4 流密码</p>
-                <p>RC4 曾经是世界上最流行的流密码，但因安全缺陷已被主流协议禁用。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">RC4 流密码</p>
+                <p class="text-[13px]">RC4 曾经是世界上最流行的流密码，但因安全缺陷已被主流协议禁用。</p>
               </div>
               <div class="help-note">
                 <p class="help-note-title">安全警告</p>
-                <p>RC4 存在初始字节偏置等弱点，在 TLS 1.2+ 中已被禁用。仅供学习或维护极其古老的系统使用，新项目绝不建议使用。</p>
+                <p class="text-[13px]">RC4 存在初始字节偏置等弱点，在 TLS 1.2+ 中已被禁用。仅供学习或维护极其古老的系统使用，新项目绝不建议使用。</p>
               </div>
             </template>
             <template v-else-if="helpType === 'fpe'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">FPE 格式保持加密</p>
-                <p>FPE 加密后的密文与明文保持相同的格式和长度。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">FPE 格式保持加密</p>
+                <p class="text-[13px]">FPE 加密后的密文与明文保持相同的格式和长度。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">典型应用</p>
-                  <p>16 位银行卡号加密后仍是 16 位数字；身份证号加密后仍是 18 位。</p>
+                  <p class="text-[13px]">16 位银行卡号加密后仍是 16 位数字；身份证号加密后仍是 18 位。</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">标准</p>
-                  <p>基于 NIST SP 800-38G 标准的 FF1 和 FF3-1 模式。</p>
+                  <p class="text-[13px]">基于 NIST SP 800-38G 标准的 FF1 和 FF3-1 模式。</p>
                 </div>
               </div>
               <div class="help-note">
                 <p class="help-note-title">适用场景</p>
-                <p>数据库敏感字段脱敏、遗留系统数据库改造（无需修改字段定义长度）。</p>
+                <p class="text-[13px]">数据库敏感字段脱敏、遗留系统数据库改造（无需修改字段定义长度）。</p>
               </div>
             </template>
             <template v-else-if="helpType === 'envelope'">
               <div class="help-hero">
-                <p class="text-xs font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">数字信封 (SM2 + SM4)</p>
-                <p>数字信封解决大规模数据传输时的密钥分发问题。</p>
+                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">数字信封 (SM2 + SM4)</p>
+                <p class="text-[13px]">数字信封解决大规模数据传输时的密钥分发问题。</p>
               </div>
               <div class="help-grid">
                 <div class="help-note">
                   <p class="help-note-title">密封过程</p>
-                  <p>1. 生成随机 SM4 密钥<br>2. 用 SM4 加密大数据<br>3. 用接收方 SM2 公钥加密 SM4 密钥</p>
+                  <p class="text-[13px]">1. 生成随机 SM4 密钥<br>2. 用 SM4 加密大数据<br>3. 用接收方 SM2 公钥加密 SM4 密钥</p>
                 </div>
                 <div class="help-note">
                   <p class="help-note-title">拆解过程</p>
-                  <p>1. 用 SM2 私钥解密 SM4 密钥<br>2. 用 SM4 密钥解密大数据</p>
+                  <p class="text-[13px]">1. 用 SM2 私钥解密 SM4 密钥<br>2. 用 SM4 密钥解密大数据</p>
                 </div>
               </div>
               <div class="help-note">
                 <p class="help-note-title">优势</p>
-                <p>兼具非对称加密的安全分发和对称加密的高效处理性能。</p>
+                <p class="text-[13px]">兼具非对称加密的安全分发和对称加密的高效处理性能。</p>
               </div>
             </template>
           </div>
@@ -1187,7 +1204,7 @@ async function copyExtra() {
 
 // DES state
 const des = reactive({ type: 'DES', mode: 'CBC', padding: 'PKCS7', key: '', iv: '', plaintext: '' })
-const desResult = reactive({ data: '', error: '', success: null })
+const desResult = reactive({ data: '', error: '', extra: '', success: null })
 
 async function desEncrypt() {
   const cleanData = des.plaintext.replace(/\s+/g, '')
@@ -1205,6 +1222,10 @@ async function desDecrypt() {
   try {
     const r = await DESDecrypt({ ...des, data: des.plaintext })
     desResult.data = r.data; desResult.error = r.error; desResult.success = r.success
+    // Show IV used for decryption
+    if (r.success && des.mode !== 'ECB') {
+      desResult.extra = des.iv
+    }
   } catch (e) { desResult.error = String(e) }
 }
 function genDesKey() {
@@ -1315,7 +1336,15 @@ async function doSM4Decrypt() {
     return
   }
   const r = await SM4Decrypt(sm4)
-  sm4Result.data = r.data; sm4Result.error = r.error; sm4Result.extra = r.extra; sm4Result.success = r.success
+  sm4Result.data = r.data; sm4Result.error = r.error; sm4Result.success = r.success
+  // Show IV used for decryption
+  if (r.success && sm4.mode !== 'ECB') {
+    if (sm4.mode === 'GCM') {
+      sm4Result.extra = sm4.nonce
+    } else {
+      sm4Result.extra = sm4.iv
+    }
+  }
 }
 function genSM4Key() { const b = new Uint8Array(16); crypto.getRandomValues(b); sm4.key = Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase() }
 function genSM4IV()  { const b = new Uint8Array(16); crypto.getRandomValues(b); sm4.iv  = Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase() }

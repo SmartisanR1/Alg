@@ -40,7 +40,7 @@
             <p class="text-sm" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
               {{ hashFile ? hashFile.name : '拖拽文件到此处' }}
             </p>
-            <p class="text-xs mt-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">或</p>
+            <p class="text-sm mt-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">或</p>
             <Button variant="secondary" class="mt-2 cursor-pointer inline-flex" @click="handleSelectFile">
               <FolderOpenIcon class="w-3.5 h-3.5" /> 选择文件
             </Button>
@@ -79,7 +79,7 @@
       <!-- File Encrypt/Decrypt -->
       <div class="space-y-3">
         <Card title="文件加解密" class="space-y-3">
-          <p class="text-xs" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <p class="text-sm" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             使用 AES-256-GCM 进行认证加密，随机生成 Nonce，提供完整性保护
           </p>
 
@@ -133,11 +133,11 @@
         </Card>
 
         <Card title="加密格式说明">
-          <div class="text-xs space-y-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <p>📦 输出格式: [12字节Nonce][密文+16字节GCM Tag]</p>
-            <p>🔒 算法: AES-256-GCM (AEAD认证加密)</p>
-            <p>✅ 提供: 机密性 + 完整性 + 认证</p>
-            <p>🔑 密钥: 随机生成 256位密钥</p>
+          <div class="text-sm space-y-1" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <p class="text-[13px]">📦 输出格式: [12字节Nonce][密文+16字节GCM Tag]</p>
+            <p class="text-[13px]">🔒 算法: AES-256-GCM (AEAD认证加密)</p>
+            <p class="text-[13px]">✅ 提供: 机密性 + 完整性 + 认证</p>
+            <p class="text-[13px]">🔑 密钥: 随机生成 256位密钥</p>
           </div>
         </Card>
       </div>
