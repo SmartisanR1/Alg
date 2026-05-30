@@ -12,26 +12,28 @@
       <ChevronDownIcon class="dropdown-arrow" :class="{ rotated: isOpen }" />
     </button>
 
-    <transition name="dropdown">
-      <div v-if="isOpen" class="dropdown-menu">
-        <div class="dropdown-options">
-          <button
-            v-for="option in options"
-            :key="option.value"
-            :class="['dropdown-option', { selected: option.value === modelValue }]"
-            @click="selectOption(option)"
-          >
-            <span class="option-label">{{ option.label }}</span>
-            <CheckIcon v-if="option.value === modelValue" class="check-icon" />
-          </button>
+    <Teleport to="body">
+      <transition name="dropdown">
+        <div v-if="isOpen" class="dropdown-menu" :style="menuStyle" @click.stop>
+          <div class="dropdown-options">
+            <button
+              v-for="option in options"
+              :key="option.value"
+              :class="['dropdown-option', { selected: option.value === modelValue }]"
+              @click="selectOption(option)"
+            >
+              <span class="option-label">{{ option.label }}</span>
+              <CheckIcon v-if="option.value === modelValue" class="check-icon" />
+            </button>
+          </div>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { ChevronDownIcon, CheckIcon } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -60,17 +62,41 @@ const emit = defineEmits(['update:modelValue'])
 
 const dropdownRef = ref(null)
 const isOpen = ref(false)
+const menuPosition = ref({ top: 0, left: 0, width: 0 })
 
 const selectedLabel = computed(() => {
   const option = props.options.find(opt => opt.value === props.modelValue)
   return option ? option.label : ''
 })
 
+const menuStyle = computed(() => ({
+  position: 'fixed',
+  top: `${menuPosition.value.top}px`,
+  left: `${menuPosition.value.left}px`,
+  width: `${menuPosition.value.width}px`,
+  zIndex: 9999
+}))
+
+const updateMenuPosition = () => {
+  if (dropdownRef.value) {
+    const rect = dropdownRef.value.getBoundingClientRect()
+    menuPosition.value = {
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: rect.width
+    }
+  }
+}
+
 const toggleDropdown = () => {
+  if (!isOpen.value) {
+    updateMenuPosition()
+  }
   isOpen.value = !isOpen.value
 }
 
 const openDropdown = () => {
+  updateMenuPosition()
   isOpen.value = true
 }
 
@@ -88,6 +114,12 @@ const handleClickOutside = (event) => {
     closeDropdown()
   }
 }
+
+watch(isOpen, (val) => {
+  if (val) {
+    nextTick(updateMenuPosition)
+  }
+})
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
