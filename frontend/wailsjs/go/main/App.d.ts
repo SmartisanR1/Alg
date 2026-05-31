@@ -136,6 +136,10 @@ export function HashFile(arg1:utils.FileHashRequest):Promise<utils.ToolResult>;
 
 export function HexToString(arg1:string):Promise<utils.ToolResult>;
 
+export function ListTLCPCipherSuites():Promise<utils.ToolResult>;
+
+export function ListTLSCipherSuites():Promise<utils.ToolResult>;
+
 export function MLDSAKeyGen(arg1:string):Promise<pqc.PQCKeyResult>;
 
 export function MLDSASign(arg1:pqc.MLDSARequest):Promise<symmetric.CryptoResult>;
@@ -271,6 +275,8 @@ export function TLS13FullExchange(arg1:string):Promise<symmetric.CryptoResult>;
 export function TLS13KeyGen(arg1:string):Promise<pqc.TLS13KeyGenResult>;
 
 export function TLS13ServerExchange(arg1:pqc.TLS13KeyExchangeRequest):Promise<pqc.TLS13ExchangeResult>;
+
+export function TLSConnect(arg1:utils.TLSConnectRequest):Promise<utils.TLSConnectResult>;
 
 export function TimestampConvert(arg1:utils.TimestampRequest):Promise<utils.ToolResult>;
 

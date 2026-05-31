@@ -254,6 +254,14 @@ export function HexToString(arg1) {
   return window['go']['main']['App']['HexToString'](arg1);
 }
 
+export function ListTLCPCipherSuites() {
+  return window['go']['main']['App']['ListTLCPCipherSuites']();
+}
+
+export function ListTLSCipherSuites() {
+  return window['go']['main']['App']['ListTLSCipherSuites']();
+}
+
 export function MLDSAKeyGen(arg1) {
   return window['go']['main']['App']['MLDSAKeyGen'](arg1);
 }
@@ -524,6 +532,10 @@ export function TLS13KeyGen(arg1) {
 
 export function TLS13ServerExchange(arg1) {
   return window['go']['main']['App']['TLS13ServerExchange'](arg1);
+}
+
+export function TLSConnect(arg1) {
+  return window['go']['main']['App']['TLSConnect'](arg1);
 }
 
 export function TimestampConvert(arg1) {

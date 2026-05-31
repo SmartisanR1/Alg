@@ -1602,6 +1602,40 @@ export namespace utils {
 	        this.policies = source["policies"];
 	    }
 	}
+	export class CertInfo {
+	    subject: string;
+	    issuer: string;
+	    serialNumber: string;
+	    notBefore: string;
+	    notAfter: string;
+	    dnsNames: string[];
+	    ipAddresses: string[];
+	    isCA: boolean;
+	    keyAlgorithm: string;
+	    sigAlgorithm: string;
+	    fingerprint: string;
+	    rawPEM: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CertInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.subject = source["subject"];
+	        this.issuer = source["issuer"];
+	        this.serialNumber = source["serialNumber"];
+	        this.notBefore = source["notBefore"];
+	        this.notAfter = source["notAfter"];
+	        this.dnsNames = source["dnsNames"];
+	        this.ipAddresses = source["ipAddresses"];
+	        this.isCA = source["isCA"];
+	        this.keyAlgorithm = source["keyAlgorithm"];
+	        this.sigAlgorithm = source["sigAlgorithm"];
+	        this.fingerprint = source["fingerprint"];
+	        this.rawPEM = source["rawPEM"];
+	    }
+	}
 	export class DualCertResult {
 	    success: boolean;
 	    signCert: string;
@@ -1977,6 +2011,88 @@ export namespace utils {
 	        this.csr = source["csr"];
 	        this.error = source["error"];
 	    }
+	}
+	export class TLSConnectRequest {
+	    host: string;
+	    port: number;
+	    protocol: string;
+	    serverName: string;
+	    insecureSkipVerify: boolean;
+	    caCertPEM: string;
+	    clientCertPEM: string;
+	    clientKeyPEM: string;
+	    clientEncCertPEM: string;
+	    clientEncKeyPEM: string;
+	    timeoutMs: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLSConnectRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.host = source["host"];
+	        this.port = source["port"];
+	        this.protocol = source["protocol"];
+	        this.serverName = source["serverName"];
+	        this.insecureSkipVerify = source["insecureSkipVerify"];
+	        this.caCertPEM = source["caCertPEM"];
+	        this.clientCertPEM = source["clientCertPEM"];
+	        this.clientKeyPEM = source["clientKeyPEM"];
+	        this.clientEncCertPEM = source["clientEncCertPEM"];
+	        this.clientEncKeyPEM = source["clientEncKeyPEM"];
+	        this.timeoutMs = source["timeoutMs"];
+	    }
+	}
+	export class TLSConnectResult {
+	    success: boolean;
+	    protocol: string;
+	    cipherSuite: string;
+	    cipherSuiteId: string;
+	    serverName: string;
+	    tlsVersion: string;
+	    handshakeTimeMs: number;
+	    peerCertificates: CertInfo[];
+	    alpnProtocol: string;
+	    sessionReused: boolean;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLSConnectResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.protocol = source["protocol"];
+	        this.cipherSuite = source["cipherSuite"];
+	        this.cipherSuiteId = source["cipherSuiteId"];
+	        this.serverName = source["serverName"];
+	        this.tlsVersion = source["tlsVersion"];
+	        this.handshakeTimeMs = source["handshakeTimeMs"];
+	        this.peerCertificates = this.convertValues(source["peerCertificates"], CertInfo);
+	        this.alpnProtocol = source["alpnProtocol"];
+	        this.sessionReused = source["sessionReused"];
+	        this.error = source["error"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class TimestampRequest {
 	    value: string;

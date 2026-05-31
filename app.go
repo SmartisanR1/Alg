@@ -687,3 +687,19 @@ func (a *App) TLS13ClientExchange(group string, serverKeyShare string) pqc.TLS13
 func (a *App) TLS13FullExchange(group string) symmetric.CryptoResult {
 	return pqc.TLS13FullExchange(group)
 }
+
+// ============================================================
+// TLS/TLCP 连接测试 API
+// ============================================================
+
+func (a *App) TLSConnect(req utils.TLSConnectRequest) utils.TLSConnectResult {
+	return utils.TLSConnect(req)
+}
+
+func (a *App) ListTLSCipherSuites() utils.ToolResult {
+	return utils.ListTLSCipherSuites()
+}
+
+func (a *App) ListTLCPCipherSuites() utils.ToolResult {
+	return utils.ListTLCPCipherSuites()
+}

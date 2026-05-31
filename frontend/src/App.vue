@@ -205,6 +205,7 @@ const navGroups = [
     label: '联调',
     items: [
       { path: '/packet', label: '报文收发', icon: SendIcon, desc: 'TCP / TLS / TLCP 联调', badge: '核心' },
+      { path: '/tls', label: 'TLS/TLCP', icon: ShieldCheckIcon, desc: 'TLS 1.0-1.3 / 国密 TLCP', badge: '协议' },
     ]
   },
   {
