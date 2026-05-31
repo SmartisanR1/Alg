@@ -1,5 +1,5 @@
 <template>
-  <PageLayout title="后量子密码 (PQC)" subtitle="FIPS 203 ML-KEM · FIPS 204 ML-DSA · FIPS 205 SLH-DSA"
+  <PageLayout title="后量子密码 (PQC)" subtitle="FIPS 203 ML-KEM · FIPS 204 ML-DSA · FIPS 205 SLH-DSA · TLS 1.3 混合交换"
               icon-bg="bg-purple-500/20"
               :tabs="tabs" :active-tab="activeTab" @tab-change="activeTab = $event">
     <template #icon>
@@ -564,20 +564,104 @@
         </Card>
         <Card title="TLS 1.3 密钥交换原理">
           <div class="text-xs space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <!-- 什么是密钥交换 -->
             <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-bold mb-2 text-blue-400">支持的密钥交换组</p>
-              <p>• 经典组：X25519、P-256、P-384、P-521、SM2</p>
-              <p>• 混合组：X25519+ML-KEM-768、P-256+ML-KEM-768、P-384+ML-KEM-1024、SM2+ML-KEM-768</p>
+              <p class="font-bold mb-2 text-blue-400">什么是密钥交换？</p>
+              <p>通信双方通过密码学协议协商出一个<strong>共享密钥</strong>，用于后续通信的对称加密。TLS 1.3 使用 Diffie-Hellman 类协议实现密钥交换，保证即使通信被窃听，攻击者也无法计算出共享密钥。</p>
             </div>
+
+            <!-- 为什么需要混合 -->
+            <div class="p-3 rounded-xl border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+              <p class="font-bold mb-2 text-amber-400">为什么需要"混合"密钥交换？</p>
+              <p class="mb-2">量子计算机威胁：Shor 算法可在多项式时间内破解传统 ECDH/RSA。</p>
+              <p class="mb-2">混合模式的<strong>双重保险</strong>策略：</p>
+              <p>• 经典算法 (X25519) 被破解 → 后量子算法 (ML-KEM) 仍安全</p>
+              <p>• 后量子算法被破解 → 经典算法仍安全</p>
+              <p>• 只有两种算法<strong>同时</strong>被攻破，通信才会被破解</p>
+            </div>
+
+            <!-- 经典 vs 后量子 -->
             <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-bold mb-2 text-violet-400">工作流程</p>
-              <p>1. Client 生成密钥对，发送 ClientHello + KeyShare</p>
-              <p>2. Server 生成密钥对，计算共享密钥，发送 ServerHello + KeyShare</p>
-              <p>3. Client 使用 Server KeyShare 计算相同的共享密钥</p>
+              <p class="font-bold mb-2 text-violet-400">经典 vs 后量子算法对比</p>
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
+                  <p class="font-semibold text-cyan-400 mb-1">经典：X25519 (ECDH)</p>
+                  <p>• 基于椭圆曲线离散对数问题</p>
+                  <p>• 公钥 32 字节，计算快</p>
+                  <p>• 量子计算机可破解</p>
+                </div>
+                <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
+                  <p class="font-semibold text-emerald-400 mb-1">后量子：ML-KEM-768</p>
+                  <p>• 基于模学习误差问题 (Module-LWE)</p>
+                  <p>• 公钥 1184 字节，密文 1088 字节</p>
+                  <p>• 能抵抗量子攻击</p>
+                </div>
+              </div>
             </div>
+
+            <!-- 工作流程 -->
             <div class="p-3 rounded-xl border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-bold mb-2 text-emerald-400">标准化</p>
-              <p>遵循 RFC 8446 (TLS 1.3) 和 draft-ietf-tls-hybrid-design (混合密钥交换)。</p>
+              <p class="font-bold mb-2 text-emerald-400">混合密钥交换工作流程</p>
+              <div class="space-y-2">
+                <div class="flex items-start gap-2">
+                  <span class="shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">1</span>
+                  <p><strong>Client</strong> 生成两对密钥：X25519 密钥对 + ML-KEM-768 密钥对</p>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">2</span>
+                  <p><strong>Client</strong> 将两个公钥打包成 KeyShare，通过 ClientHello 发送给 Server</p>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="shrink-0 w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center text-[10px] font-bold">3</span>
+                  <p><strong>Server</strong> 分别处理两个密钥交换，计算出两个共享密钥</p>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="shrink-0 w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center text-[10px] font-bold">4</span>
+                  <p><strong>Server</strong> 将两个公钥打包成 KeyShare，通过 ServerHello 发送给 Client</p>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">5</span>
+                  <p><strong>Client</strong> 分别计算两个共享密钥</p>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">6</span>
+                  <p>双方将两个共享密钥通过 <strong>KDF</strong> 派生出最终的会话密钥</p>
+                </div>
+              </div>
+              <div class="mt-3 p-2 rounded-lg border border-amber-400/20" :class="isDark ? 'bg-amber-500/5' : 'bg-amber-50'">
+                <p class="text-[11px]"><strong>共享密钥计算公式：</strong>Session_Key = KDF(X25519_shared_secret || ML-KEM_shared_secret)</p>
+              </div>
+            </div>
+
+            <!-- 支持的组 -->
+            <div class="p-3 rounded-xl border border-cyan-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+              <p class="font-bold mb-2 text-cyan-400">支持的密钥交换组</p>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <p class="font-semibold text-[11px] mb-1">经典组：</p>
+                  <p>• X25519 (0x001D)</p>
+                  <p>• P-256 (0x0017)</p>
+                  <p>• P-384 (0x0018)</p>
+                  <p>• P-521 (0x0019)</p>
+                  <p>• SM2 (0x0029)</p>
+                </div>
+                <div>
+                  <p class="font-semibold text-[11px] mb-1">混合组：</p>
+                  <p>• X25519+ML-KEM-768 (0x11EC)</p>
+                  <p>• P-256+ML-KEM-768 (0x11EB)</p>
+                  <p>• P-384+ML-KEM-1024 (0x11ED)</p>
+                  <p>• SM2+ML-KEM-768 (0x11EE)</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 标准化 -->
+            <div class="p-3 rounded-xl border border-rose-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+              <p class="font-bold mb-2 text-rose-400">标准化状态</p>
+              <p>• 经典密钥交换：RFC 8446 (TLS 1.3 标准)</p>
+              <p>• 混合密钥交换：draft-ietf-tls-hybrid-design (IETF 草案)</p>
+              <p>• ML-KEM 算法：FIPS 203 (NIST 标准)</p>
+              <p>• 混合组 ID：IANA 已分配临时代码点</p>
             </div>
           </div>
         </Card>
@@ -650,7 +734,49 @@ const principles = {
   },
   tls13: {
     title: 'TLS 1.3 混合密钥交换原理',
-    content: 'TLS 1.3 密钥交换原语，支持经典和后量子混合模式。\n- 支持的组：X25519、P-256、P-384、P-521、SM2\n- 混合组：X25519+ML-KEM-768、P-256+ML-KEM-768、P-384+ML-KEM-1024、SM2+ML-KEM-768\n- 工作流程：ClientHello → ServerHello → 共享密钥\n- 优势：遵循 RFC 8446 和 draft-ietf-tls-hybrid-design 标准'
+    content: `什么是 TLS 1.3 密钥交换？
+TLS 1.3 是最新的安全传输层协议标准 (RFC 8446)，密钥交换是其核心环节。通信双方通过密钥交换协商出一个共享密钥，用于后续通信的对称加密。
+
+为什么需要混合密钥交换？
+量子计算机的出现威胁到传统密码算法的安全。混合密钥交换将经典算法 (如 X25519) 与后量子算法 (如 ML-KEM) 结合，实现"双重保险"：
+- 即使后量子算法被破解，经典算法仍提供安全保障
+- 即使经典算法被量子计算机破解，后量子算法仍提供安全保障
+- 只有两种算法同时被攻破，通信才会被破解
+
+经典密钥交换 (以 X25519 为例)：
+• 基于椭圆曲线 Diffie-Hellman (ECDH) 协议
+• 安全性基于椭圆曲线离散对数问题 (ECDLP)
+• 密钥尺寸小 (32 字节)，计算速度快
+• 量子计算机可用 Shor 算法在多项式时间内破解
+
+后量子密钥交换 (以 ML-KEM-768 为例)：
+• 基于模块格的密钥封装机制 (Module-Lattice KEM)
+• 安全性基于模学习误差问题 (Module-LWE)，被认为能抵抗量子攻击
+• 密钥尺寸较大 (公钥 1184 字节，密文 1088 字节)
+• 已被 NIST 标准化为 FIPS 203
+
+混合模式工作原理 (以 X25519+ML-KEM-768 为例)：
+1. Client 生成两对密钥：X25519 密钥对 + ML-KEM-768 密钥对
+2. Client 将两个公钥打包成 KeyShare 发送给 Server
+3. Server 分别处理两个密钥交换，得到两个共享密钥
+4. Server 将两个公钥打包成 KeyShare 发送给 Client
+5. Client 分别计算两个共享密钥
+6. 双方将两个共享密钥通过 KDF 派生出最终的会话密钥
+
+安全性分析：
+• 组合安全性：共享密钥 = KDF(X25519_shared || ML-KEM_shared)
+• 攻击者必须同时破解两种算法才能获取会话密钥
+• 满足"组合不低于最强"的安全保证
+
+支持的密钥交换组：
+• 经典组：X25519 (0x001D)、P-256 (0x0017)、P-384 (0x0018)、P-521 (0x0019)、SM2 (0x0029)
+• 混合组：X25519+ML-KEM-768 (0x11EC)、P-256+ML-KEM-768 (0x11EB)、P-384+ML-KEM-1024 (0x11ED)、SM2+ML-KEM-768 (0x11EE)
+
+标准化状态：
+• 经典密钥交换：RFC 8446 (TLS 1.3)
+• 混合密钥交换：draft-ietf-tls-hybrid-design (IETF 草案)
+• ML-KEM：FIPS 203 (NIST 标准)
+• 混合组 ID：IANA 已分配临时代码点`
   }
 }
 const currentPrinciple = computed(() => principles[activeTab.value])
