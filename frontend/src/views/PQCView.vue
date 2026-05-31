@@ -321,73 +321,35 @@
       </div>
     </div>
 
-    <!-- AIGIS-sig -->
-    <div v-if="activeTab === 'aigis'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <div class="space-y-3">
-        <div class="card">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="badge bg-amber-500/20 text-amber-400">国密 PQC</span>
-            <p class="text-sm font-medium">AIGIS-sig — 国密格签名算法</p>
+    <!-- AIGIS-sig — 调研预览 -->
+    <div v-if="activeTab === 'aigis'" class="sym-workbench animate-fade-in">
+      <!-- 左列 -->
+      <div class="sym-side">
+        <!-- 状态横幅 -->
+        <div class="card flex items-start gap-4"
+             :class="isDark ? 'border-amber-500/20 bg-amber-500/5' : 'border-amber-200 bg-amber-50'">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+               :class="isDark ? 'bg-amber-500/15' : 'bg-amber-100'">
+            <AtomIcon class="w-5 h-5 text-amber-400" />
           </div>
-          <label class="input-label">参数集</label>
-          <Dropdown
-            v-model="aigis.paramSet"
-            :options="[
-              { value: 'AIGIS-sig-III', label: 'AIGIS-sig-III (NIST Level 3)' },
-              { value: 'AIGIS-sig-V', label: 'AIGIS-sig-V (NIST Level 5)' }
-            ]"
-            class="mb-3"
-          />
-          <button @click="genAigisKey" class="btn-secondary w-full justify-center mb-3">
-            <KeyIcon class="w-3.5 h-3.5" /> 生成签名密钥对
-          </button>
-          <div v-if="aigisResult.error && !aigisKeys.publicKey" class="p-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs mb-3">
-            {{ aigisResult.error }}
-          </div>
-          <div v-if="aigisKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
-            <div class="flex-1 min-h-0 flex flex-col">
-              <label class="input-label text-orange-300 shrink-0">私钥 (Private Key)</label>
-              <div class="relative flex-1">
-                <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-orange-300 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="aigisKeys.privateKey"></textarea>
-                <span class="bytes-badge-inside">
-                  {{ base64ByteLen(aigisKeys.privateKey) + ' bytes' }}
-                </span>
-              </div>
-            </div>
-            <div class="flex-1 min-h-0 flex flex-col mt-2">
-              <label class="input-label text-cyan-400 shrink-0">公钥 (Public Key)</label>
-              <div class="relative flex-1">
-                <textarea readonly class="result-area ck-key-hex !min-h-[96px] text-cyan-300 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="aigisKeys.publicKey"></textarea>
-                <span class="bytes-badge-inside">
-                  {{ base64ByteLen(aigisKeys.publicKey) + ' bytes' }}
-                </span>
-              </div>
-            </div>
+          <div>
+            <p class="text-sm font-bold mb-1" :class="isDark ? 'text-dark-text' : 'text-light-text'">
+              AIGIS-sig — 国密格签名算法
+            </p>
+            <p class="text-sm leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+              AIGIS-sig 是中国科学院信息工程研究所设计的基于格的数字签名算法，参加中国国密 PQC 算法征集。当前 Go 实现存在 NTT 常量表不完整的 bug，暂不可用。
+            </p>
           </div>
         </div>
-        <div class="card">
-          <CryptoPanel v-model="aigis.data" label="待签名数据 (hex)" type="textarea" :rows="3" clearable />
-        </div>
-      </div>
 
-      <div class="space-y-3 sym-main">
-        <div class="flex gap-2">
-          <button @click="aigisSign" :disabled="!aigisKeys.privateKey" class="btn-success flex-1 justify-center">
-            <PenIcon class="w-3.5 h-3.5" /> 签名
-          </button>
-          <button @click="aigisVerify" :disabled="!aigisKeys.publicKey || !aigisResult.data"
-                  class="btn-warning flex-1 justify-center">
-            <CheckCircleIcon class="w-3.5 h-3.5" /> 验签
-          </button>
-        </div>
-        <div class="card">
-          <CryptoPanel v-model="aigisResult.data" label="签名 (HEX)" type="result"
-                       :success="aigisResult.success" copyable class="break-all text-[11px]" />
-          <div v-if="aigisResult.error || aigisResult.data === 'true'" class="mt-2 text-xs"
-               :class="aigisResult.data === 'true' ? 'text-emerald-400' : 'text-red-400'">
-            {{ aigisResult.error || (aigisResult.data === 'true' ? '✅ 签名验证通过' : '') }}
+        <div class="card flex flex-col items-center justify-center py-12 text-dark-muted space-y-3 opacity-60 border-dashed">
+          <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+            <SettingsIcon class="w-6 h-6 text-amber-400 animate-spin-slow" />
           </div>
+          <p class="text-xs">等待官方标准测试向量及修复...</p>
         </div>
+
+        <!-- 参数预览 -->
         <div class="card">
           <p class="card-title">参数对比</p>
           <table class="w-full text-xs">
@@ -413,12 +375,27 @@
             </tbody>
           </table>
         </div>
-        <div class="card bg-gradient-to-br from-amber-500/5 to-transparent border-amber-500/10">
-          <p class="card-title text-amber-400">算法说明</p>
-          <div class="text-[11px] space-y-2 leading-relaxed opacity-80">
-            <p>• <b>来源:</b> 中国科学院信息工程研究所设计，参加国密 PQC 算法征集。</p>
-            <p>• <b>基础:</b> 与 ML-DSA (Dilithium) 共享相同数学基础，参数针对国密需求优化。</p>
-            <p>• <b>状态:</b> 实验性实现，参数基于公开论文，尚未经过官方测试向量验证。</p>
+      </div>
+
+      <!-- 右列: 算法原理 -->
+      <div class="card sym-main">
+        <p class="card-title">算法原理 (AIGIS-sig)</p>
+        <div class="text-sm space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+          <div class="p-3 rounded-xl border border-amber-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+            <p class="font-bold mb-2 text-amber-400 text-[13px]">设计基础</p>
+            <p class="text-[13px]">AIGIS-sig 基于模块格 (Module-Lattice) 的 Fiat-Shamir with Aborts 框架，与 ML-DSA (Dilithium) 共享相同的数学基础 (q = 8380417, n = 256)，但参数选择针对国密需求优化。</p>
+          </div>
+          <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+            <p class="font-bold mb-2 text-blue-400 text-[13px]">国密 PQC 征集</p>
+            <p class="text-[13px]">AIGIS-sig 参加中国国家密码管理局组织的后量子密码算法征集活动，是格基签名方向的主要候选之一。标准化工作仍在进行中 (GM/T XXXX 草案阶段)。</p>
+          </div>
+          <div class="p-3 rounded-xl border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+            <p class="font-bold mb-2 text-emerald-400 text-[13px]">与 ML-DSA 对比</p>
+            <p class="text-[13px]">AIGIS-sig 的参数尺寸与 ML-DSA 相近 (公钥 1312-1952B，签名 2420-3293B)，安全性基于相同的 MLWE/MSIS 难题。主要差异在于参数选择和国密合规性。</p>
+          </div>
+          <div class="p-3 rounded-xl border border-red-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+            <p class="font-bold mb-2 text-red-400 text-[13px]">实现状态</p>
+            <p class="text-[13px]">当前 Go 实验性实现存在 NTT (数论变换) 常量表不完整的 bug，导致密钥生成失败。需等待官方发布标准测试向量后修复。</p>
           </div>
         </div>
       </div>
@@ -791,7 +768,6 @@ import {
   SLHDSAKeyGen, SLHDSASign, SLHDSAVerify,
   XWingKeyGen, XWingEncapsulate, XWingDecapsulate,
   TLS13KeyGen, TLS13FullExchange,
-  AigisKeyGen, AigisSign, AigisVerify,
 } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
@@ -1020,34 +996,6 @@ const slhParams = [
   { name: 'SLH-DSA-SHAKE-256s', pubKey: '64B', sig: '29792B', security: 'NIST-5' },
   { name: 'SLH-DSA-SHAKE-256f', pubKey: '64B', sig: '49856B', security: 'NIST-5' },
 ]
-
-// AIGIS-sig
-const aigis = reactive({ paramSet: 'AIGIS-sig-III', data: '' })
-const aigisKeys = reactive({ privateKey: '', publicKey: '' })
-const aigisResult = reactive({ data: '', error: '', success: null })
-
-async function genAigisKey() {
-  try {
-    const r = await AigisKeyGen(aigis.paramSet)
-    if (r.success) {
-      aigisKeys.privateKey = r.privateKey
-      aigisKeys.publicKey = r.publicKey
-      aigisResult.error = ''
-    } else {
-      aigisResult.error = r.error || '密钥生成失败'
-    }
-  } catch (e) {
-    aigisResult.error = String(e)
-  }
-}
-async function aigisSign() {
-  const r = await AigisSign({ privateKey: aigisKeys.privateKey, data: aigis.data, paramSet: aigis.paramSet })
-  aigisResult.data = r.data; aigisResult.error = r.error; aigisResult.success = r.success
-}
-async function aigisVerify() {
-  const r = await AigisVerify({ publicKey: aigisKeys.publicKey, data: aigis.data, signature: aigisResult.data, paramSet: aigis.paramSet })
-  aigisResult.data = r.data; aigisResult.error = r.error; aigisResult.success = r.success
-}
 
 // X-Wing
 const xwingKeys = reactive({ privateKey: '', publicKey: '' })
