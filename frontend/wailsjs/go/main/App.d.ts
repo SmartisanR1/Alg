@@ -278,6 +278,8 @@ export function TLS13ServerExchange(arg1:pqc.TLS13KeyExchangeRequest):Promise<pq
 
 export function TLSConnect(arg1:utils.TLSConnectRequest):Promise<utils.TLSConnectResult>;
 
+export function TLSSelfTest(arg1:utils.TLSSelfTestRequest):Promise<utils.TLSSelfTestResult>;
+
 export function TimestampConvert(arg1:utils.TimestampRequest):Promise<utils.ToolResult>;
 
 export function URLDecode(arg1:string):Promise<utils.ToolResult>;

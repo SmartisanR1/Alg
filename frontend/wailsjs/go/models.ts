@@ -2024,6 +2024,7 @@ export namespace utils {
 	    clientEncCertPEM: string;
 	    clientEncKeyPEM: string;
 	    timeoutMs: number;
+	    enablePQC: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new TLSConnectRequest(source);
@@ -2042,6 +2043,7 @@ export namespace utils {
 	        this.clientEncCertPEM = source["clientEncCertPEM"];
 	        this.clientEncKeyPEM = source["clientEncKeyPEM"];
 	        this.timeoutMs = source["timeoutMs"];
+	        this.enablePQC = source["enablePQC"];
 	    }
 	}
 	export class TLSConnectResult {
@@ -2055,6 +2057,7 @@ export namespace utils {
 	    peerCertificates: CertInfo[];
 	    alpnProtocol: string;
 	    sessionReused: boolean;
+	    curveUsed: string;
 	    error: string;
 	
 	    static createFrom(source: any = {}) {
@@ -2073,6 +2076,79 @@ export namespace utils {
 	        this.peerCertificates = this.convertValues(source["peerCertificates"], CertInfo);
 	        this.alpnProtocol = source["alpnProtocol"];
 	        this.sessionReused = source["sessionReused"];
+	        this.curveUsed = source["curveUsed"];
+	        this.error = source["error"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class TLSSelfTestRequest {
+	    protocol: string;
+	    enablePQC: boolean;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLSSelfTestRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.protocol = source["protocol"];
+	        this.enablePQC = source["enablePQC"];
+	        this.message = source["message"];
+	    }
+	}
+	export class TLSSelfTestResult {
+	    success: boolean;
+	    protocol: string;
+	    cipherSuite: string;
+	    cipherSuiteId: string;
+	    tlsVersion: string;
+	    handshakeTimeMs: number;
+	    exchangeTimeMs: number;
+	    peerCertificates: CertInfo[];
+	    alpnProtocol: string;
+	    sessionReused: boolean;
+	    sentMessage: string;
+	    receivedMessage: string;
+	    curveUsed: string;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLSSelfTestResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.protocol = source["protocol"];
+	        this.cipherSuite = source["cipherSuite"];
+	        this.cipherSuiteId = source["cipherSuiteId"];
+	        this.tlsVersion = source["tlsVersion"];
+	        this.handshakeTimeMs = source["handshakeTimeMs"];
+	        this.exchangeTimeMs = source["exchangeTimeMs"];
+	        this.peerCertificates = this.convertValues(source["peerCertificates"], CertInfo);
+	        this.alpnProtocol = source["alpnProtocol"];
+	        this.sessionReused = source["sessionReused"];
+	        this.sentMessage = source["sentMessage"];
+	        this.receivedMessage = source["receivedMessage"];
+	        this.curveUsed = source["curveUsed"];
 	        this.error = source["error"];
 	    }
 	

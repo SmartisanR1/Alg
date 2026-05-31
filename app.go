@@ -703,3 +703,7 @@ func (a *App) ListTLSCipherSuites() utils.ToolResult {
 func (a *App) ListTLCPCipherSuites() utils.ToolResult {
 	return utils.ListTLCPCipherSuites()
 }
+
+func (a *App) TLSSelfTest(req utils.TLSSelfTestRequest) utils.TLSSelfTestResult {
+	return utils.TLSSelfTest(req)
+}

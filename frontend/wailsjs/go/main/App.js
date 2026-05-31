@@ -538,6 +538,10 @@ export function TLSConnect(arg1) {
   return window['go']['main']['App']['TLSConnect'](arg1);
 }
 
+export function TLSSelfTest(arg1) {
+  return window['go']['main']['App']['TLSSelfTest'](arg1);
+}
+
 export function TimestampConvert(arg1) {
   return window['go']['main']['App']['TimestampConvert'](arg1);
 }

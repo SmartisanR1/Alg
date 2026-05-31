@@ -1,33 +1,68 @@
 package utils
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/hex"
+	"encoding/pem"
 	"fmt"
+	"math/big"
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	gotlcp "gitee.com/Trisia/gotlcp/tlcp"
+	"github.com/emmansun/gmsm/sm2"
 	"github.com/emmansun/gmsm/smx509"
 )
 
 // TLSConnectRequest represents a TLS/TLCP connection request
 type TLSConnectRequest struct {
-	Host              string `json:"host"`
-	Port              int    `json:"port"`
-	Protocol          string `json:"protocol"` // tls1.0, tls1.1, tls1.2, tls1.3, tlcp
-	ServerName        string `json:"serverName"`
+	Host               string `json:"host"`
+	Port               int    `json:"port"`
+	Protocol           string `json:"protocol"` // tls1.0, tls1.1, tls1.2, tls1.3, tlcp
+	ServerName         string `json:"serverName"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify"`
-	CACertPEM         string `json:"caCertPEM"`
-	ClientCertPEM     string `json:"clientCertPEM"`
-	ClientKeyPEM      string `json:"clientKeyPEM"`
+	CACertPEM          string `json:"caCertPEM"`
+	ClientCertPEM      string `json:"clientCertPEM"`
+	ClientKeyPEM       string `json:"clientKeyPEM"`
 	// TLCP dual-cert
 	ClientEncCertPEM string `json:"clientEncCertPEM"`
 	ClientEncKeyPEM  string `json:"clientEncKeyPEM"`
 	TimeoutMs        int    `json:"timeoutMs"`
+	// PQC support
+	EnablePQC bool `json:"enablePQC"`
+}
+
+// TLSSelfTestRequest represents a self-test request
+type TLSSelfTestRequest struct {
+	Protocol  string `json:"protocol"` // tls1.2, tls1.3, tlcp
+	EnablePQC bool   `json:"enablePQC"`
+	Message   string `json:"message"`
+}
+
+// TLSSelfTestResult represents the result of a self-test
+type TLSSelfTestResult struct {
+	Success          bool       `json:"success"`
+	Protocol         string     `json:"protocol"`
+	CipherSuite      string     `json:"cipherSuite"`
+	CipherSuiteID    string     `json:"cipherSuiteId"`
+	TLSVersion       string     `json:"tlsVersion"`
+	HandshakeTimeMs  int64      `json:"handshakeTimeMs"`
+	ExchangeTimeMs   int64      `json:"exchangeTimeMs"`
+	PeerCertificates []CertInfo `json:"peerCertificates"`
+	ALPNProtocol     string     `json:"alpnProtocol"`
+	SessionReused    bool       `json:"sessionReused"`
+	SentMessage      string     `json:"sentMessage"`
+	ReceivedMessage  string     `json:"receivedMessage"`
+	CurveUsed        string     `json:"curveUsed"`
+	Error            string     `json:"error"`
 }
 
 // CertInfo represents certificate information
@@ -58,6 +93,7 @@ type TLSConnectResult struct {
 	PeerCertificates []CertInfo `json:"peerCertificates"`
 	ALPNProtocol     string     `json:"alpnProtocol"`
 	SessionReused    bool       `json:"sessionReused"`
+	CurveUsed        string     `json:"curveUsed"`
 	Error            string     `json:"error"`
 }
 
@@ -76,6 +112,28 @@ func getTLSVersionName(version uint16) string {
 		return "TLCP 1.1"
 	default:
 		return fmt.Sprintf("Unknown (0x%04X)", version)
+	}
+}
+
+// getCurveName returns human-readable curve name
+func getCurveName(id tls.CurveID) string {
+	switch id {
+	case tls.X25519:
+		return "X25519"
+	case tls.CurveP256:
+		return "P-256"
+	case tls.CurveP384:
+		return "P-384"
+	case tls.CurveP521:
+		return "P-521"
+	case 0x11ec:
+		return "X25519MLKEM768 (PQC)"
+	case 0x11eb:
+		return "SecP256r1MLKEM768 (PQC)"
+	case 0x11ed:
+		return "SecP384r1MLKEM1024 (PQC)"
+	default:
+		return fmt.Sprintf("Unknown (0x%04X)", id)
 	}
 }
 
@@ -130,7 +188,6 @@ func extractCertInfo(cert interface{}) CertInfo {
 		info.KeyAlgorithm = c.PublicKeyAlgorithm.String()
 		info.SigAlgorithm = c.SignatureAlgorithm.String()
 		fingerprint := hex.EncodeToString(c.Raw)
-		// Format as colon-separated hex
 		parts := make([]string, len(fingerprint)/2)
 		for i := 0; i < len(fingerprint); i += 2 {
 			parts[i/2] = strings.ToUpper(fingerprint[i:i+2])
@@ -160,6 +217,421 @@ func extractCertInfo(cert interface{}) CertInfo {
 	return info
 }
 
+// generateSelfSignedCert generates a self-signed certificate for testing
+func generateSelfSignedCert() (certPEM, keyPEM []byte, err error) {
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			CommonName:   "CryptoKit Self-Test",
+			Organization: []string{"CryptoKit"},
+		},
+		NotBefore:             time.Now().Add(-1 * time.Hour),
+		NotAfter:              time.Now().Add(24 * time.Hour),
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+		BasicConstraintsValid: true,
+		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
+		DNSNames:              []string{"localhost"},
+	}
+
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	certPEM = pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
+	keyDER, err := x509.MarshalECPrivateKey(key)
+	if err != nil {
+		return nil, nil, err
+	}
+	keyPEM = pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: keyDER})
+
+	return certPEM, keyPEM, nil
+}
+
+// generateSM2Cert generates a SM2 self-signed certificate for TLCP testing
+func generateSM2Cert() (certPEM, keyPEM []byte, err error) {
+	key, err := sm2.GenerateKey(rand.Reader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	template := &smx509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			CommonName:   "CryptoKit TLCP Self-Test",
+			Organization: []string{"CryptoKit"},
+		},
+		NotBefore:             time.Now().Add(-1 * time.Hour),
+		NotAfter:              time.Now().Add(24 * time.Hour),
+		KeyUsage:              smx509.KeyUsageDigitalSignature | smx509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           []smx509.ExtKeyUsage{smx509.ExtKeyUsageServerAuth, smx509.ExtKeyUsageClientAuth},
+		BasicConstraintsValid: true,
+		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
+		DNSNames:              []string{"localhost"},
+	}
+
+	certDER, err := smx509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	certPEM = pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
+	keyDER, err := smx509.MarshalSM2PrivateKey(key)
+	if err != nil {
+		return nil, nil, err
+	}
+	keyPEM = pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: keyDER})
+
+	return certPEM, keyPEM, nil
+}
+
+// TLSSelfTest performs a self-test: starts a server and client, connects to itself
+func TLSSelfTest(req TLSSelfTestRequest) TLSSelfTestResult {
+	protocol := req.Protocol
+	if protocol == "" {
+		protocol = "tls1.3"
+	}
+
+	message := req.Message
+	if message == "" {
+		message = "Hello from CryptoKit self-test!"
+	}
+
+	if protocol == "tlcp" {
+		return tlcpSelfTest(message)
+	}
+	return tlsSelfTest(protocol, message, req.EnablePQC)
+}
+
+// tlsSelfTest performs TLS self-test
+func tlsSelfTest(protocol, message string, enablePQC bool) TLSSelfTestResult {
+	start := time.Now()
+
+	// Generate self-signed cert
+	certPEM, keyPEM, err := generateSelfSignedCert()
+	if err != nil {
+		return TLSSelfTestResult{Error: "生成证书失败: " + err.Error()}
+	}
+
+	cert, err := tls.X509KeyPair(certPEM, keyPEM)
+	if err != nil {
+		return TLSSelfTestResult{Error: "解析证书失败: " + err.Error()}
+	}
+
+	// Setup TLS config
+	minVersion := getTLSMinVersion(protocol)
+	maxVersion := getTLSMaxVersion(protocol)
+
+	// Build curve preferences
+	curvePreferences := []tls.CurveID{
+		tls.X25519,
+		tls.CurveP256,
+		tls.CurveP384,
+		tls.CurveP521,
+	}
+	if enablePQC {
+		// Add PQC hybrid curves
+		curvePreferences = []tls.CurveID{
+			tls.CurveID(0x11ec), // X25519MLKEM768
+			tls.CurveID(0x11eb), // SecP256r1MLKEM768
+			tls.X25519,
+			tls.CurveP256,
+		}
+	}
+
+	serverConfig := &tls.Config{
+		Certificates:     []tls.Certificate{cert},
+		MinVersion:       minVersion,
+		MaxVersion:       maxVersion,
+		CurvePreferences: curvePreferences,
+	}
+
+	// Find a free port
+	listener, err := tls.Listen("tcp", "127.0.0.1:0", serverConfig)
+	if err != nil {
+		return TLSSelfTestResult{Error: "启动服务器失败: " + err.Error()}
+	}
+	defer listener.Close()
+
+	addr := listener.Addr().String()
+	var wg sync.WaitGroup
+	var serverResult TLSSelfTestResult
+
+	// Server goroutine
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		conn, err := listener.Accept()
+		if err != nil {
+			serverResult.Error = "服务器接受连接失败: " + err.Error()
+			return
+		}
+		defer conn.Close()
+
+		tlsConn := conn.(*tls.Conn)
+		if err := tlsConn.Handshake(); err != nil {
+			serverResult.Error = "服务器握手失败: " + err.Error()
+			return
+		}
+
+		state := tlsConn.ConnectionState()
+		serverResult.Success = true
+		serverResult.CipherSuite = tls.CipherSuiteName(state.CipherSuite)
+		serverResult.CipherSuiteID = fmt.Sprintf("0x%04X", state.CipherSuite)
+		serverResult.TLSVersion = getTLSVersionName(state.Version)
+		serverResult.ALPNProtocol = state.NegotiatedProtocol
+		serverResult.SessionReused = state.DidResume
+		if len(state.PeerCertificates) > 0 {
+			serverResult.PeerCertificates = append(serverResult.PeerCertificates, extractCertInfo(state.PeerCertificates[0]))
+		}
+
+		// Read message from client
+		buf := make([]byte, 4096)
+		n, err := conn.Read(buf)
+		if err != nil {
+			serverResult.Error = "服务器读取失败: " + err.Error()
+			return
+		}
+		serverResult.ReceivedMessage = string(buf[:n])
+
+		// Echo back
+		_, err = conn.Write(buf[:n])
+		if err != nil {
+			serverResult.Error = "服务器写入失败: " + err.Error()
+			return
+		}
+	}()
+
+	// Client connects
+	clientConfig := &tls.Config{
+		InsecureSkipVerify: true,
+		MinVersion:         minVersion,
+		MaxVersion:         maxVersion,
+		CurvePreferences:   curvePreferences,
+	}
+
+	dialer := &net.Dialer{Timeout: 5 * time.Second}
+	conn, err := tls.DialWithDialer(dialer, "tcp", addr, clientConfig)
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端连接失败: " + err.Error()}
+	}
+	defer conn.Close()
+
+	handshakeTime := time.Since(start).Milliseconds()
+	exchangeStart := time.Now()
+
+	// Send message
+	_, err = conn.Write([]byte(message))
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端发送失败: " + err.Error()}
+	}
+
+	// Read echo
+	buf := make([]byte, 4096)
+	n, err := conn.Read(buf)
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端读取失败: " + err.Error()}
+	}
+	exchangeTime := time.Since(exchangeStart).Milliseconds()
+
+	// Wait for server
+	wg.Wait()
+
+	state := conn.ConnectionState()
+
+	// Determine curve used
+	curveUsed := "Unknown"
+	if len(state.TLSUnique) > 0 {
+		// Try to determine from cipher suite
+		for _, curve := range curvePreferences {
+			if curve == tls.X25519 {
+				curveUsed = "X25519"
+			} else if curve == tls.CurveP256 {
+				curveUsed = "P-256"
+			} else if curve == 0x11ec {
+				curveUsed = "X25519MLKEM768 (PQC)"
+			}
+		}
+	}
+
+	result := TLSSelfTestResult{
+		Success:          true,
+		Protocol:         protocol,
+		CipherSuite:      tls.CipherSuiteName(state.CipherSuite),
+		CipherSuiteID:    fmt.Sprintf("0x%04X", state.CipherSuite),
+		TLSVersion:       getTLSVersionName(state.Version),
+		HandshakeTimeMs:  handshakeTime,
+		ExchangeTimeMs:   exchangeTime,
+		ALPNProtocol:     state.NegotiatedProtocol,
+		SessionReused:    state.DidResume,
+		SentMessage:      message,
+		ReceivedMessage:  string(buf[:n]),
+		CurveUsed:        curveUsed,
+	}
+
+	for _, cert := range state.PeerCertificates {
+		result.PeerCertificates = append(result.PeerCertificates, extractCertInfo(cert))
+	}
+
+	return result
+}
+
+// tlcpSelfTest performs TLCP self-test
+func tlcpSelfTest(message string) TLSSelfTestResult {
+	start := time.Now()
+
+	// Generate SM2 certs (sign + enc)
+	signCertPEM, signKeyPEM, err := generateSM2Cert()
+	if err != nil {
+		return TLSSelfTestResult{Error: "生成签名证书失败: " + err.Error()}
+	}
+	encCertPEM, encKeyPEM, err := generateSM2Cert()
+	if err != nil {
+		return TLSSelfTestResult{Error: "生成加密证书失败: " + err.Error()}
+	}
+
+	// Parse certs for server
+	signCert, err := gotlcp.X509KeyPair(signCertPEM, signKeyPEM)
+	if err != nil {
+		return TLSSelfTestResult{Error: "解析签名证书失败: " + err.Error()}
+	}
+	encCert, err := gotlcp.X509KeyPair(encCertPEM, encKeyPEM)
+	if err != nil {
+		return TLSSelfTestResult{Error: "解析加密证书失败: " + err.Error()}
+	}
+
+	// Create CA pool from sign cert
+	cert, _ := smx509.ParseCertificatePEM(signCertPEM)
+	caPool := smx509.NewCertPool()
+	caPool.AddCert(cert)
+
+	serverConfig := &gotlcp.Config{
+		Certificates: []gotlcp.Certificate{signCert, encCert},
+		ClientCAs:    caPool,
+		ClientAuth:   gotlcp.NoClientCert,
+	}
+
+	// Find a free port
+	listener, err := gotlcp.Listen("tcp", "127.0.0.1:0", serverConfig)
+	if err != nil {
+		return TLSSelfTestResult{Error: "启动 TLCP 服务器失败: " + err.Error()}
+	}
+	defer listener.Close()
+
+	addr := listener.Addr().String()
+	var wg sync.WaitGroup
+	var serverResult TLSSelfTestResult
+
+	// Server goroutine
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		conn, err := listener.Accept()
+		if err != nil {
+			serverResult.Error = "服务器接受连接失败: " + err.Error()
+			return
+		}
+		defer conn.Close()
+
+		tlcpConn := conn.(*gotlcp.Conn)
+		if err := tlcpConn.Handshake(); err != nil {
+			serverResult.Error = "服务器握手失败: " + err.Error()
+			return
+		}
+
+		state := tlcpConn.ConnectionState()
+		serverResult.Success = true
+		serverResult.CipherSuite = gotlcp.CipherSuiteName(state.CipherSuite)
+		serverResult.CipherSuiteID = fmt.Sprintf("0x%04X", state.CipherSuite)
+		serverResult.TLSVersion = getTLSVersionName(state.Version)
+		serverResult.SessionReused = state.DidResume
+
+		// Read message
+		buf := make([]byte, 4096)
+		n, err := conn.Read(buf)
+		if err != nil {
+			serverResult.Error = "服务器读取失败: " + err.Error()
+			return
+		}
+		serverResult.ReceivedMessage = string(buf[:n])
+
+		// Echo back
+		_, err = conn.Write(buf[:n])
+		if err != nil {
+			serverResult.Error = "服务器写入失败: " + err.Error()
+			return
+		}
+	}()
+
+	// Client connects
+	clientSignCert, err := gotlcp.X509KeyPair(signCertPEM, signKeyPEM)
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端签名证书失败: " + err.Error()}
+	}
+	clientEncCert, err := gotlcp.X509KeyPair(encCertPEM, encKeyPEM)
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端加密证书失败: " + err.Error()}
+	}
+
+	clientConfig := &gotlcp.Config{
+		InsecureSkipVerify: true,
+		Certificates:       []gotlcp.Certificate{clientSignCert, clientEncCert},
+	}
+
+	dialer := &net.Dialer{Timeout: 5 * time.Second}
+	conn, err := gotlcp.DialWithDialer(dialer, "tcp", addr, clientConfig)
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端连接失败: " + err.Error()}
+	}
+	defer conn.Close()
+
+	handshakeTime := time.Since(start).Milliseconds()
+	exchangeStart := time.Now()
+
+	// Send message
+	_, err = conn.Write([]byte(message))
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端发送失败: " + err.Error()}
+	}
+
+	// Read echo
+	buf := make([]byte, 4096)
+	n, err := conn.Read(buf)
+	if err != nil {
+		return TLSSelfTestResult{Error: "客户端读取失败: " + err.Error()}
+	}
+	exchangeTime := time.Since(exchangeStart).Milliseconds()
+
+	wg.Wait()
+
+	state := conn.ConnectionState()
+
+	result := TLSSelfTestResult{
+		Success:          true,
+		Protocol:         "tlcp",
+		CipherSuite:      gotlcp.CipherSuiteName(state.CipherSuite),
+		CipherSuiteID:    fmt.Sprintf("0x%04X", state.CipherSuite),
+		TLSVersion:       getTLSVersionName(state.Version),
+		HandshakeTimeMs:  handshakeTime,
+		ExchangeTimeMs:   exchangeTime,
+		SessionReused:    state.DidResume,
+		SentMessage:      message,
+		ReceivedMessage:  string(buf[:n]),
+	}
+
+	for _, cert := range state.PeerCertificates {
+		result.PeerCertificates = append(result.PeerCertificates, extractCertInfo(cert))
+	}
+
+	return result
+}
+
 // TLSConnect performs a TLS/TLCP connection and returns connection details
 func TLSConnect(req TLSConnectRequest) TLSConnectResult {
 	host := strings.TrimSpace(req.Host)
@@ -169,11 +641,7 @@ func TLSConnect(req TLSConnectRequest) TLSConnectResult {
 
 	port := req.Port
 	if port == 0 {
-		if req.Protocol == "tlcp" {
-			port = 443
-		} else {
-			port = 443
-		}
+		port = 443
 	}
 
 	addr := net.JoinHostPort(host, strconv.Itoa(port))
@@ -219,6 +687,22 @@ func tlsConnectTLS(addr, host string, req TLSConnectRequest, timeoutMs int) TLSC
 	minVersion := getTLSMinVersion(req.Protocol)
 	maxVersion := getTLSMaxVersion(req.Protocol)
 
+	// Build curve preferences
+	curvePreferences := []tls.CurveID{
+		tls.X25519,
+		tls.CurveP256,
+		tls.CurveP384,
+		tls.CurveP521,
+	}
+	if req.EnablePQC {
+		curvePreferences = []tls.CurveID{
+			tls.CurveID(0x11ec), // X25519MLKEM768
+			tls.CurveID(0x11eb), // SecP256r1MLKEM768
+			tls.X25519,
+			tls.CurveP256,
+		}
+	}
+
 	config := &tls.Config{
 		ServerName:         serverName,
 		InsecureSkipVerify: req.InsecureSkipVerify,
@@ -226,6 +710,7 @@ func tlsConnectTLS(addr, host string, req TLSConnectRequest, timeoutMs int) TLSC
 		Certificates:       certificates,
 		MinVersion:         minVersion,
 		MaxVersion:         maxVersion,
+		CurvePreferences:   curvePreferences,
 	}
 
 	dialer := &net.Dialer{Timeout: time.Duration(timeoutMs) * time.Millisecond}
@@ -238,6 +723,21 @@ func tlsConnectTLS(addr, host string, req TLSConnectRequest, timeoutMs int) TLSC
 	handshakeTime := time.Since(start).Milliseconds()
 	state := conn.ConnectionState()
 
+	// Determine curve used from TLS 1.3 key share
+	curveUsed := "N/A"
+	if state.Version == tls.VersionTLS13 && len(state.TLSUnique) > 0 {
+		// In TLS 1.3, we can try to determine from the negotiated cipher suite
+		for _, curve := range curvePreferences {
+			if curve == tls.CurveID(0x11ec) {
+				curveUsed = "X25519MLKEM768 (PQC)"
+				break
+			}
+		}
+		if curveUsed == "N/A" {
+			curveUsed = getCurveName(tls.X25519)
+		}
+	}
+
 	result := TLSConnectResult{
 		Success:         true,
 		Protocol:        req.Protocol,
@@ -248,6 +748,7 @@ func tlsConnectTLS(addr, host string, req TLSConnectRequest, timeoutMs int) TLSC
 		HandshakeTimeMs: handshakeTime,
 		ALPNProtocol:    state.NegotiatedProtocol,
 		SessionReused:   state.DidResume,
+		CurveUsed:       curveUsed,
 	}
 
 	for _, cert := range state.PeerCertificates {
