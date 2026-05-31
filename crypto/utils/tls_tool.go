@@ -362,11 +362,14 @@ func tlsSelfTest(protocol, message string, enablePQC bool) TLSSelfTestResult {
 	addr := listener.Addr().String()
 	var wg sync.WaitGroup
 	var serverResult TLSSelfTestResult
+	serverDone := make(chan struct{})
 
 	// Server goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer close(serverDone)
+
 		conn, err := listener.Accept()
 		if err != nil {
 			serverResult.Error = "服务器接受连接失败: " + err.Error()
@@ -406,6 +409,9 @@ func tlsSelfTest(protocol, message string, enablePQC bool) TLSSelfTestResult {
 			serverResult.Error = "服务器写入失败: " + err.Error()
 			return
 		}
+
+		// Small delay to ensure client reads the response before we close
+		time.Sleep(50 * time.Millisecond)
 	}()
 
 	// Client connects
@@ -527,11 +533,14 @@ func tlcpSelfTest(message string) TLSSelfTestResult {
 	addr := listener.Addr().String()
 	var wg sync.WaitGroup
 	var serverResult TLSSelfTestResult
+	serverDone := make(chan struct{})
 
 	// Server goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer close(serverDone)
+
 		conn, err := listener.Accept()
 		if err != nil {
 			serverResult.Error = "服务器接受连接失败: " + err.Error()
@@ -567,6 +576,9 @@ func tlcpSelfTest(message string) TLSSelfTestResult {
 			serverResult.Error = "服务器写入失败: " + err.Error()
 			return
 		}
+
+		// Small delay to ensure client reads the response before we close
+		time.Sleep(50 * time.Millisecond)
 	}()
 
 	// Client connects
