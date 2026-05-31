@@ -314,22 +314,28 @@
       </div>
     </div>
 
-    <!-- 套件列表 -->
-    <div v-if="activeTab === 'suites'" class="grid grid-cols-2 gap-4 animate-fade-in">
-      <Card title="TLS 密码套件">
-        <div class="space-y-1 text-xs">
-          <div v-for="s in tlsCipherSuites" :key="s" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 font-mono">
-            {{ s }}
+    <!-- 密码套件参考 (连接测试页面底部) -->
+    <div v-if="activeTab === 'connect'" class="mt-4">
+      <button @click="showSuites = !showSuites" class="flex items-center gap-2 text-xs font-semibold text-muted hover:text-text transition-colors">
+        <ChevronDownIcon class="w-3.5 h-3.5 transition-transform" :class="{ '-rotate-90': !showSuites }" />
+        密码套件参考
+      </button>
+      <div v-if="showSuites" class="grid grid-cols-2 gap-4 mt-3 animate-fade-in">
+        <Card title="TLS 密码套件">
+          <div class="space-y-1 text-xs">
+            <div v-for="s in tlsCipherSuites" :key="s" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 font-mono">
+              {{ s }}
+            </div>
           </div>
-        </div>
-      </Card>
-      <Card title="TLCP 密码套件 (国密)">
-        <div class="space-y-1 text-xs">
-          <div v-for="s in tlcpCipherSuites" :key="s" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 font-mono">
-            {{ s }}
+        </Card>
+        <Card title="TLCP 密码套件 (国密)">
+          <div class="space-y-1 text-xs">
+            <div v-for="s in tlcpCipherSuites" :key="s" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 font-mono">
+              {{ s }}
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   </PageLayout>
 </template>
@@ -337,7 +343,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { ShieldCheckIcon, LockIcon, FolderOpenIcon, ZapIcon } from '@lucide/vue'
+import { ShieldCheckIcon, LockIcon, FolderOpenIcon, ZapIcon, ChevronDownIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'
@@ -352,9 +358,9 @@ const { isDark } = storeToRefs(store)
 const tabs = [
   { id: 'connect', label: '连接测试' },
   { id: 'selftest', label: '自测模式' },
-  { id: 'suites', label: '密码套件' },
 ]
 const activeTab = ref('connect')
+const showSuites = ref(false)
 
 // Connect form
 const form = reactive({
