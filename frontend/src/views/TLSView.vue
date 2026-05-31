@@ -211,7 +211,7 @@
           </div>
           <div class="flex items-center gap-2 mb-3">
             <label class="flex items-center gap-2">
-              <input type="checkbox" v-model="selfTest.enablePQC" class="rounded" />
+              <input type="checkbox" :checked="selfTest.enablePQC" @change="selfTest.enablePQC = $event.target.checked" class="rounded" />
               <span class="text-xs text-violet-400">启用 PQC 混合密钥交换 (X25519MLKEM768)</span>
             </label>
           </div>
