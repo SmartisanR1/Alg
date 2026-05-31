@@ -118,6 +118,16 @@ func aigisPolySub(r, a, b *aigisPoly) {
 	}
 }
 
+// aigisPolyDecompose decomposes r into (r0, r1) such that r = r1*alpha + r0
+// where alpha = 2*gamma2, and r1 = HighBits(r), r0 = LowBits(r)
+func aigisPolyDecompose(r0, r1, r *aigisPoly, alpha int32) {
+	for i := range r {
+		v := aigisFreeze(r[i])
+		r1[i] = aigisHighBits(v, alpha)
+		r0[i] = aigisLowBits(v, alpha)
+	}
+}
+
 // 多项式数乘
 func aigisPolyScaleConst(r *aigisPoly, a *aigisPoly, c int32) {
 	for i := range r {
@@ -344,17 +354,30 @@ func aigisSampleInBall(c *aigisPoly, seed []byte, tau int32) {
 // ─────────────────────────────────────────────────────────────
 
 func aigisHighBits(a, alpha int32) int32 {
-	a1 := (a + 127) >> 7
-	if alpha == 190464 { // 2*gamma2 for AIGIS-V
-		a1 = (a1*11275 + (1 << 23)) >> 24
+	// 将 a 规范化到 [0, q) 范围
+	a = aigisFreeze(a)
+	if a < 0 {
+		a += aigisQ
+	}
+
+	// a1 = ⌈a / 128⌉
+	a1 := uint32(a+127) >> 7
+
+	if alpha == 523776 { // 2*gamma2 for AIGIS-V
+		// 1025/2²² is close enough to 1/4092
+		a1 = ((a1*1025 + (1 << 21)) >> 22)
+		// Corner-case: a1 = (q-1)/alpha = 16, set a1=0
+		a1 &= 15
+	} else if alpha == 190464 { // 2*gamma2 for AIGIS-III
+		// 1488/2²⁴ is close enough to 1/1488
+		a1 = ((a1 * 11275) + (1 << 23)) >> 24
+		// Corner-case: a1 = (q-1)/alpha = 44, set a1=0
 		if a1 > 44 {
 			a1 = 0
 		}
-	} else { // 2*gamma2 for AIGIS-III = 190464 or 261888
-		a1 = (a1*1025 + (1 << 21)) >> 22
-		a1 &= 0xF
 	}
-	return a1
+
+	return int32(a1)
 }
 
 func aigisLowBits(a, alpha int32) int32 {
@@ -638,57 +661,74 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 
 	// 正确反序列化私钥
 	rho, key, tr, s1, s2, t0 := aigisDeserializeSK(sk, p)
-	_ = key // key is used for PRF, not needed in simplified signing
-	_ = t0  // t0 is used in verification, not signing
-	_ = s2  // s2 is used in the full algorithm for w - cs2 check
 
-	// μ = H(tr || M)
+	// μ = CRH(tr || M)
 	mu := make([]byte, 64)
-	sha3.ShakeSum256(mu, append(tr, msg...))
+	h := sha3.NewShake256()
+	h.Write(tr)
+	h.Write(msg)
+	h.Read(mu)
 
-	// 随机化签名
+	// ρ' = CRH(key || μ)
 	rhoPrime := make([]byte, 64)
-	rnd := make([]byte, 32)
-	rand.Read(rnd)
-	sha3.ShakeSum256(rhoPrime, append(mu, rnd...))
+	h.Reset()
+	h.Write(key)
+	h.Write(mu)
+	h.Read(rhoPrime)
 
 	// 展开矩阵 A
 	var A [][]aigisPoly
 	aigisExpandA(&A, rho, p.K, p.L)
 
-	// NTT 变换 s1
+	// NTT 变换 s1, s2, t0
 	s1hat := make([]aigisPoly, p.L)
 	for i := range s1 {
 		s1hat[i] = s1[i]
 		aigisNTT(&s1hat[i])
 	}
+	s2hat := make([]aigisPoly, p.K)
+	for i := range s2 {
+		s2hat[i] = s2[i]
+		aigisNTT(&s2hat[i])
+	}
+	t0hat := make([]aigisPoly, p.K)
+	for i := range t0 {
+		t0hat[i] = t0[i]
+		aigisNTT(&t0hat[i])
+	}
 
-	// 拒绝采样循环
 	alpha := 2 * p.Gamma2
-	for kappa := 0; kappa < 1000; kappa++ {
+
+	// 拒绝采样循环 (参考 circl 实现)
+	var yNonce uint16
+	for attempt := 0; attempt < 1000; attempt++ {
 		// y ~ S^l_{gamma1-1}
 		y := make([]aigisPoly, p.L)
+		for i := range y {
+			aigisGamma1Poly(&y[i], rhoPrime, yNonce, p.Gamma1)
+			yNonce++
+		}
+
+		// w = A*y (NTT domain)
 		yhat := make([]aigisPoly, p.L)
 		for i := range y {
-			aigisGamma1Poly(&y[i], rhoPrime, uint16(kappa*p.L+i), p.Gamma1)
 			yhat[i] = y[i]
 			aigisNTT(&yhat[i])
 		}
-
-		// w = A*y
 		w := make([]aigisPoly, p.K)
 		aigisMatVecMul(w, A, yhat)
 		for i := range w {
 			aigisINTT(&w[i])
 		}
 
-		// w1 = HighBits(w)
+		// Decompose w into w0 and w1
 		w1 := make([]aigisPoly, p.K)
+		w0 := make([]aigisPoly, p.K)
 		for i := range w {
-			aigisPolyHighBits(&w1[i], &w[i], alpha)
+			aigisPolyDecompose(&w0[i], &w1[i], &w[i], alpha)
 		}
 
-		// c~ = H(mu || w1)
+		// c~ = H(μ || w1)
 		w1packed := make([]byte, 0, p.K*aigisN)
 		for i := range w1 {
 			for _, v := range w1[i] {
@@ -696,7 +736,10 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 			}
 		}
 		ctilde := make([]byte, 32)
-		sha3.ShakeSum256(ctilde, append(mu, w1packed...))
+		h.Reset()
+		h.Write(mu)
+		h.Write(w1packed)
+		h.Read(ctilde)
 
 		// c = SampleInBall(c~)
 		var c aigisPoly
@@ -704,21 +747,70 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 		chat := c
 		aigisNTT(&chat)
 
-		// z = y + c*s1
-		cs1 := make([]aigisPoly, p.L)
-		z := make([]aigisPoly, p.L)
-		for i := range s1 {
-			tmp := chat
-			aigisPolyPointwiseMontgomery(&cs1[i], &tmp, &s1hat[i])
-			aigisINTT(&cs1[i])
-			aigisPolyAdd(&z[i], &y[i], &cs1[i])
+		// 检查 ||w0 - c*s2||∞ < γ₂ - β
+		w0mcs2 := make([]aigisPoly, p.K)
+		for i := range s2 {
+			aigisPolyPointwiseMontgomery(&w0mcs2[i], &chat, &s2hat[i])
+			aigisINTT(&w0mcs2[i])
+		}
+		for i := range w0 {
+			aigisPolySub(&w0mcs2[i], &w0[i], &w0mcs2[i])
+		}
+		ok := true
+		for i := range w0mcs2 {
+			for _, v := range w0mcs2[i] {
+				if v > p.Gamma2-p.Beta || v < -(p.Gamma2-p.Beta) {
+					ok = false
+					break
+				}
+			}
+			if !ok {
+				break
+			}
+		}
+		if !ok {
+			continue
 		}
 
-		// 检查 ||z||∞ < gamma1 - beta
-		ok := true
+		// z = y + c*s1
+		z := make([]aigisPoly, p.L)
+		for i := range s1 {
+			aigisPolyPointwiseMontgomery(&z[i], &chat, &s1hat[i])
+			aigisINTT(&z[i])
+		}
+		for i := range y {
+			aigisPolyAdd(&z[i], &y[i], &z[i])
+		}
+
+		// 检查 ||z||∞ < γ₁ - β
+		ok = true
 		for i := range z {
 			for _, v := range z[i] {
 				if v > p.Gamma1-p.Beta || v < -(p.Gamma1-p.Beta) {
+					ok = false
+					break
+				}
+			}
+			if !ok {
+				break
+			}
+		}
+		if !ok {
+			continue
+		}
+
+		// 计算 c*t0
+		ct0 := make([]aigisPoly, p.K)
+		for i := range t0 {
+			aigisPolyPointwiseMontgomery(&ct0[i], &chat, &t0hat[i])
+			aigisINTT(&ct0[i])
+		}
+
+		// 检查 ||c*t0||∞ < γ₂
+		ok = true
+		for i := range ct0 {
+			for _, v := range ct0[i] {
+				if v > p.Gamma2 || v < -p.Gamma2 {
 					ok = false
 					break
 				}
@@ -736,14 +828,19 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 		copy(sigBuf[:32], ctilde)
 		for i, zi := range z {
 			for j, v := range zi {
-				sigBuf[32+i*aigisN*3+j*3] = byte(v)
-				sigBuf[32+i*aigisN*3+j*3+1] = byte(v >> 8)
-				sigBuf[32+i*aigisN*3+j*3+2] = byte(v >> 16)
+				// 将系数规范化到 [0, q) 范围
+				vn := v
+				if vn < 0 {
+					vn += aigisQ
+				}
+				sigBuf[32+i*aigisN*3+j*3] = byte(vn)
+				sigBuf[32+i*aigisN*3+j*3+1] = byte(vn >> 8)
+				sigBuf[32+i*aigisN*3+j*3+2] = byte(vn >> 16)
 			}
 		}
 		return sigBuf, nil
 	}
-	return nil, errors.New("签名失败: 拒绝采样超出限制 (实验性实现，签名算法尚待完善)")
+	return nil, errors.New("签名失败: 拒绝采样超出限制")
 }
 
 // ─────────────────────────────────────────────────────────────
