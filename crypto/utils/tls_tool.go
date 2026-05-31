@@ -362,13 +362,11 @@ func tlsSelfTest(protocol, message string, enablePQC bool) TLSSelfTestResult {
 	addr := listener.Addr().String()
 	var wg sync.WaitGroup
 	var serverResult TLSSelfTestResult
-	serverDone := make(chan struct{})
 
 	// Server goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		defer close(serverDone)
 
 		conn, err := listener.Accept()
 		if err != nil {
@@ -521,13 +519,11 @@ func tlcpSelfTest(message string) TLSSelfTestResult {
 	addr := listener.Addr().String()
 	var wg sync.WaitGroup
 	var serverResult TLSSelfTestResult
-	serverDone := make(chan struct{})
 
 	// Server goroutine
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		defer close(serverDone)
 
 		conn, err := listener.Accept()
 		if err != nil {
