@@ -64,8 +64,8 @@
               </div>
             </div>
             <div>
-              <label class="input-label text-cyan-200">公钥 ({{ asymKeyFormat.toUpperCase() }})</label>
-              <div class="result-area !min-h-0 !p-2 text-cyan-200 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+              <label class="input-label text-cyan-300">公钥 ({{ asymKeyFormat.toUpperCase() }})</label>
+              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? rsaKeys.publicKey : rsaKeys.pubHex }}
               </div>
             </div>
@@ -164,10 +164,10 @@
             </div>
             <div>
               <div class="flex justify-between mb-1.5">
-                <label class="input-label !mb-0 text-cyan-200">公钥 ({{ asymKeyFormat === 'hex' ? '裸值64字节 X||Y' : 'PEM' }})</label>
+                <label class="input-label !mb-0 text-cyan-300">公钥 ({{ asymKeyFormat === 'hex' ? '裸值64字节 X||Y' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? sm2Keys.publicKey : sm2Keys.rawPub)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[60px] text-cyan-200 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-cyan-500/10 bg-cyan-500/5">
+              <div class="result-area !min-h-[60px] text-cyan-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-cyan-500/10 bg-cyan-500/5">
                 {{ asymKeyFormat === 'pem' ? sm2Keys.publicKey : sm2Keys.rawPub }}
               </div>
             </div>
@@ -267,8 +267,8 @@
               </div>
             </div>
             <div>
-              <label class="input-label text-cyan-200">签名主公钥</label>
-              <div class="result-area !min-h-0 !p-2 text-cyan-200 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+              <label class="input-label text-cyan-300">签名主公钥</label>
+              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
                 {{ sm9Master.publicKey }}
               </div>
             </div>
@@ -282,8 +282,8 @@
               </div>
             </div>
             <div>
-              <label class="input-label text-cyan-200">加密主公钥</label>
-              <div class="result-area !min-h-0 !p-2 text-cyan-200 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+              <label class="input-label text-cyan-300">加密主公钥</label>
+              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
                 {{ sm9EncMaster.publicKey }}
               </div>
             </div>
@@ -343,10 +343,10 @@
             </div>
             <div>
               <div class="flex justify-between mb-1">
-                <label class="input-label !mb-0 text-cyan-200">公钥 ({{ asymKeyFormat === 'hex' ? '裸值 X||Y' : 'PEM' }})</label>
+                <label class="input-label !mb-0 text-cyan-300">公钥 ({{ asymKeyFormat === 'hex' ? '裸值 X||Y' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <div class="result-area !min-h-0 text-cyan-200 !text-[12px] break-all max-h-32 overflow-y-auto font-mono">
+              <div class="result-area !min-h-0 text-cyan-300 !text-[12px] break-all max-h-32 overflow-y-auto font-mono">
                 {{ asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex }}
               </div>
             </div>
@@ -398,8 +398,8 @@
               <div class="result-area !min-h-0 text-orange-300 text-[12px] font-mono break-all">{{ c25519.privateKey }}</div>
             </div>
             <div>
-              <label class="input-label text-cyan-200">公钥 (Hex)</label>
-              <div class="result-area !min-h-0 text-cyan-200 text-[12px] font-mono break-all">{{ c25519.publicKey }}</div>
+              <label class="input-label text-cyan-300">公钥 (Hex)</label>
+              <div class="result-area !min-h-0 text-cyan-300 text-[12px] font-mono break-all">{{ c25519.publicKey }}</div>
             </div>
           </div>
         </Card>

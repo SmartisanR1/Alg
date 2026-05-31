@@ -163,7 +163,7 @@
             </label>
             <button @click="copyExtra" class="ck-copy-btn text-cyan-400"><CopyIcon class="w-3 h-3" /> 复制</button>
           </div>
-          <div class="result-area !min-h-0 text-cyan-200">{{ result.extra }}</div>
+          <div class="result-area !min-h-0 text-cyan-300">{{ result.extra }}</div>
         </div>
         
       </div>
@@ -254,7 +254,7 @@
               {{ sm4.mode === 'GCM' ? 'Nonce' : 'IV' }}
             </label>
           </div>
-          <div class="result-area !min-h-0 text-cyan-200">{{ sm4Result.extra }}</div>
+          <div class="result-area !min-h-0 text-cyan-300">{{ sm4Result.extra }}</div>
         </div>
       </div>
     </div>
@@ -448,7 +448,7 @@
               {{ des.iv ? '运算后' : '自动生成的' }} IV
             </label>
           </div>
-          <div class="result-area !min-h-0 text-cyan-200">{{ desResult.extra }}</div>
+          <div class="result-area !min-h-0 text-cyan-300">{{ desResult.extra }}</div>
         </div>
       </div>
     </div>
