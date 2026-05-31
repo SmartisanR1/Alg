@@ -341,6 +341,9 @@
           <button @click="genAigisKey" class="btn-secondary w-full justify-center mb-3">
             <KeyIcon class="w-3.5 h-3.5" /> 生成签名密钥对
           </button>
+          <div v-if="aigisResult.error && !aigisKeys.publicKey" class="p-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs mb-3">
+            {{ aigisResult.error }}
+          </div>
           <div v-if="aigisKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
             <div class="flex-1 min-h-0 flex flex-col">
               <label class="input-label text-orange-300 shrink-0">私钥 (Private Key)</label>
@@ -1024,8 +1027,18 @@ const aigisKeys = reactive({ privateKey: '', publicKey: '' })
 const aigisResult = reactive({ data: '', error: '', success: null })
 
 async function genAigisKey() {
-  const r = await AigisKeyGen(aigis.paramSet)
-  if (r.success) { aigisKeys.privateKey = r.privateKey; aigisKeys.publicKey = r.publicKey }
+  try {
+    const r = await AigisKeyGen(aigis.paramSet)
+    if (r.success) {
+      aigisKeys.privateKey = r.privateKey
+      aigisKeys.publicKey = r.publicKey
+      aigisResult.error = ''
+    } else {
+      aigisResult.error = r.error || '密钥生成失败'
+    }
+  } catch (e) {
+    aigisResult.error = String(e)
+  }
 }
 async function aigisSign() {
   const r = await AigisSign({ privateKey: aigisKeys.privateKey, data: aigis.data, paramSet: aigis.paramSet })
