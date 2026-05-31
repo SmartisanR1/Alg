@@ -451,20 +451,8 @@ func tlsSelfTest(protocol, message string, enablePQC bool) TLSSelfTestResult {
 
 	state := conn.ConnectionState()
 
-	// Determine curve used
-	curveUsed := "Unknown"
-	if len(state.TLSUnique) > 0 {
-		// Try to determine from cipher suite
-		for _, curve := range curvePreferences {
-			if curve == tls.X25519 {
-				curveUsed = "X25519"
-			} else if curve == tls.CurveP256 {
-				curveUsed = "P-256"
-			} else if curve == 0x11ec {
-				curveUsed = "X25519MLKEM768 (PQC)"
-			}
-		}
-	}
+	// Get the negotiated curve from ConnectionState
+	curveUsed := getCurveName(state.CurveID)
 
 	result := TLSSelfTestResult{
 		Success:          true,
@@ -735,20 +723,8 @@ func tlsConnectTLS(addr, host string, req TLSConnectRequest, timeoutMs int) TLSC
 	handshakeTime := time.Since(start).Milliseconds()
 	state := conn.ConnectionState()
 
-	// Determine curve used from TLS 1.3 key share
-	curveUsed := "N/A"
-	if state.Version == tls.VersionTLS13 && len(state.TLSUnique) > 0 {
-		// In TLS 1.3, we can try to determine from the negotiated cipher suite
-		for _, curve := range curvePreferences {
-			if curve == tls.CurveID(0x11ec) {
-				curveUsed = "X25519MLKEM768 (PQC)"
-				break
-			}
-		}
-		if curveUsed == "N/A" {
-			curveUsed = getCurveName(tls.X25519)
-		}
-	}
+	// Get the negotiated curve (key exchange algorithm)
+	curveUsed := getCurveName(state.CurveID)
 
 	result := TLSConnectResult{
 		Success:         true,
