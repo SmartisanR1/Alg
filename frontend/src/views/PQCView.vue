@@ -329,13 +329,6 @@
             <span class="badge bg-amber-500/20 text-amber-400">国密 PQC</span>
             <p class="text-sm font-medium">AIGIS-sig — 国密格签名算法</p>
           </div>
-          <!-- 状态提示 -->
-          <div class="p-2 rounded-lg border mb-3"
-               :class="isDark ? 'border-amber-500/20 bg-amber-500/5' : 'border-amber-200 bg-amber-50'">
-            <p class="text-xs" :class="isDark ? 'text-amber-400' : 'text-amber-600'">
-              密钥生成可用，签名算法实验性实现尚待完善
-            </p>
-          </div>
           <label class="input-label">参数集</label>
           <Dropdown
             v-model="aigis.paramSet"
@@ -372,29 +365,9 @@
             </div>
           </div>
         </div>
-        <div class="card">
-          <CryptoPanel v-model="aigis.data" label="待签名数据 (hex)" type="textarea" :rows="3" clearable />
-        </div>
       </div>
 
       <div class="space-y-3 sym-main">
-        <div class="flex gap-2">
-          <button @click="aigisSign" :disabled="!aigisKeys.privateKey" class="btn-success flex-1 justify-center">
-            <PenIcon class="w-3.5 h-3.5" /> 签名
-          </button>
-          <button @click="aigisVerify" :disabled="!aigisKeys.publicKey || !aigisResult.data"
-                  class="btn-warning flex-1 justify-center">
-            <CheckCircleIcon class="w-3.5 h-3.5" /> 验签
-          </button>
-        </div>
-        <div class="card">
-          <CryptoPanel v-model="aigisResult.data" label="签名 (HEX)" type="result"
-                       :success="aigisResult.success" copyable class="break-all text-[11px]" />
-          <div v-if="aigisResult.error || aigisResult.data === 'true'" class="mt-2 text-xs"
-               :class="aigisResult.data === 'true' ? 'text-emerald-400' : 'text-red-400'">
-            {{ aigisResult.error || (aigisResult.data === 'true' ? '✅ 签名验证通过' : '') }}
-          </div>
-        </div>
         <div class="card">
           <p class="card-title">参数对比</p>
           <table class="w-full text-xs">
@@ -425,7 +398,15 @@
           <div class="text-[11px] space-y-2 leading-relaxed opacity-80">
             <p>• <b>来源:</b> 中国科学院信息工程研究所设计，参加国密 PQC 算法征集。</p>
             <p>• <b>基础:</b> 与 ML-DSA (Dilithium) 共享相同数学基础，参数针对国密需求优化。</p>
-            <p>• <b>状态:</b> 密钥生成已可用，签名算法实验性实现尚待完善。</p>
+            <p>• <b>状态:</b> 密钥生成已可用，签名/验签待国密标准正式发布后实现。</p>
+          </div>
+        </div>
+        <div class="card flex items-center gap-3"
+             :class="isDark ? 'border-amber-500/20 bg-amber-500/5' : 'border-amber-200 bg-amber-50'">
+          <div class="text-2xl">⏳</div>
+          <div>
+            <p class="text-sm font-bold" :class="isDark ? 'text-amber-400' : 'text-amber-600'">签名/验签暂未开放</p>
+            <p class="text-xs" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">待国密 PQC 标准 (GM/T XXXX) 正式发布及官方测试向量公布后上线。</p>
           </div>
         </div>
       </div>
@@ -798,7 +779,7 @@ import {
   SLHDSAKeyGen, SLHDSASign, SLHDSAVerify,
   XWingKeyGen, XWingEncapsulate, XWingDecapsulate,
   TLS13KeyGen, TLS13FullExchange,
-  AigisKeyGen, AigisSign, AigisVerify,
+  AigisKeyGen,
 } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
@@ -1029,9 +1010,9 @@ const slhParams = [
 ]
 
 // AIGIS-sig
-const aigis = reactive({ paramSet: 'AIGIS-sig-III', data: '' })
+const aigis = reactive({ paramSet: 'AIGIS-sig-III' })
 const aigisKeys = reactive({ privateKey: '', publicKey: '' })
-const aigisResult = reactive({ data: '', error: '', success: null })
+const aigisResult = reactive({ error: '' })
 
 async function genAigisKey() {
   try {
@@ -1046,14 +1027,6 @@ async function genAigisKey() {
   } catch (e) {
     aigisResult.error = String(e)
   }
-}
-async function aigisSign() {
-  const r = await AigisSign({ privateKey: aigisKeys.privateKey, data: aigis.data, paramSet: aigis.paramSet })
-  aigisResult.data = r.data; aigisResult.error = r.error; aigisResult.success = r.success
-}
-async function aigisVerify() {
-  const r = await AigisVerify({ publicKey: aigisKeys.publicKey, data: aigis.data, signature: aigisResult.data, paramSet: aigis.paramSet })
-  aigisResult.data = r.data; aigisResult.error = r.error; aigisResult.success = r.success
 }
 
 // X-Wing
