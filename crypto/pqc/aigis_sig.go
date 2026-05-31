@@ -14,7 +14,7 @@ package pqc
 
 import (
 	"bytes"
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"errors"

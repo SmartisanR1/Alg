@@ -452,7 +452,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { FingerprintIcon } from 'lucide-vue-next'
+import { FingerprintIcon } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'

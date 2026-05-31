@@ -215,7 +215,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { ShieldHalfIcon, ShieldCheckIcon, KeyIcon } from 'lucide-vue-next'
+import { ShieldHalfIcon, ShieldCheckIcon, KeyIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'

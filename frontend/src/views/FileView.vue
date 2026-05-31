@@ -154,7 +154,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { FileIcon, FolderOpenIcon, HashIcon, LockIcon, UnlockIcon, CopyIcon, ShieldCheckIcon, InfoIcon, XIcon } from 'lucide-vue-next'
+import { FileIcon, FolderOpenIcon, HashIcon, LockIcon, UnlockIcon, CopyIcon, ShieldCheckIcon, InfoIcon, XIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'

@@ -667,3 +667,23 @@ func (a *App) XWingEncapsulate(req pqc.XWingRequest) pqc.PQCEncapResult {
 func (a *App) XWingDecapsulate(req pqc.XWingRequest) symmetric.CryptoResult {
 	return pqc.XWingDecapsulate(req)
 }
+
+// ============================================================
+// TLS 1.3 混合密钥交换 API
+// ============================================================
+
+func (a *App) TLS13KeyGen(group string) pqc.TLS13KeyGenResult {
+	return pqc.TLS13KeyGen(group)
+}
+
+func (a *App) TLS13ServerExchange(req pqc.TLS13KeyExchangeRequest) pqc.TLS13ExchangeResult {
+	return pqc.TLS13ServerExchange(req)
+}
+
+func (a *App) TLS13ClientExchange(group string, serverKeyShare string) pqc.TLS13ClientResult {
+	return pqc.TLS13ClientExchange(group, serverKeyShare)
+}
+
+func (a *App) TLS13FullExchange(group string) symmetric.CryptoResult {
+	return pqc.TLS13FullExchange(group)
+}

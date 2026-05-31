@@ -1136,6 +1136,72 @@ export namespace pqc {
 	        this.paramSet = source["paramSet"];
 	    }
 	}
+	export class TLS13ClientResult {
+	    success: boolean;
+	    sharedSecret: string;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLS13ClientResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.sharedSecret = source["sharedSecret"];
+	        this.error = source["error"];
+	    }
+	}
+	export class TLS13ExchangeResult {
+	    success: boolean;
+	    sharedSecret: string;
+	    serverKeyShare: string;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLS13ExchangeResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.sharedSecret = source["sharedSecret"];
+	        this.serverKeyShare = source["serverKeyShare"];
+	        this.error = source["error"];
+	    }
+	}
+	export class TLS13KeyExchangeRequest {
+	    group: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLS13KeyExchangeRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.group = source["group"];
+	    }
+	}
+	export class TLS13KeyGenResult {
+	    success: boolean;
+	    publicKey: string;
+	    privateKey: string;
+	    group: string;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLS13KeyGenResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.publicKey = source["publicKey"];
+	        this.privateKey = source["privateKey"];
+	        this.group = source["group"];
+	        this.error = source["error"];
+	    }
+	}
 	export class XWingRequest {
 	    publicKey: string;
 	    ciphertext: string;

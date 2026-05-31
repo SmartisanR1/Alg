@@ -33,7 +33,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ShieldCheckIcon, ChevronRightIcon, ChevronLeftIcon } from 'lucide-vue-next'
+import { ShieldCheckIcon, ChevronRightIcon, ChevronLeftIcon } from '@lucide/vue'
 
 const props = defineProps({
   groups: {

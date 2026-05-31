@@ -496,13 +496,100 @@
         </div>
       </div>
     </div>
+
+    <!-- TLS 1.3 Key Exchange -->
+    <div v-if="activeTab === 'tls13'" class="grid grid-cols-2 gap-4 animate-fade-in">
+      <div class="space-y-3">
+        <Card>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="badge bg-blue-500/20 text-blue-400">RFC 8446</span>
+            <p class="text-sm font-medium">TLS 1.3 混合密钥交换</p>
+          </div>
+          <div>
+            <label class="input-label">密钥交换组</label>
+            <Dropdown
+              v-model="tls13.group"
+              :options="tls13Groups"
+              class="mb-3"
+            />
+          </div>
+          <Button variant="secondary" block @click="genTLS13Key" class="mb-3">
+            <KeyIcon class="w-3.5 h-3.5" /> 生成密钥对
+          </Button>
+          <div v-if="tls13Keys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
+            <div class="flex-1 min-h-0 flex flex-col">
+              <div class="flex justify-between mb-1 shrink-0">
+                <label class="input-label !mb-0 text-orange-300">私钥</label>
+                <Button variant="tool" size="sm" @click="copy(tls13Keys.privateKey)"><CopyIcon class="w-3 h-3" /></Button>
+              </div>
+              <div class="relative flex-1">
+                <textarea readonly class="result-area ck-key-hex !min-h-[48px] text-orange-300 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="tls13Keys.privateKey"></textarea>
+              </div>
+            </div>
+            <div class="flex-1 min-h-0 flex flex-col mt-2">
+              <div class="flex justify-between mb-1 shrink-0">
+                <label class="input-label !mb-0 text-cyan-400">公钥</label>
+                <Button variant="tool" size="sm" @click="copy(tls13Keys.publicKey)"><CopyIcon class="w-3 h-3" /></Button>
+              </div>
+              <div class="relative flex-1">
+                <textarea readonly class="result-area ck-key-hex !min-h-[48px] text-cyan-300 text-[12px] font-mono w-full h-full resize-none bg-transparent outline-none border-none overflow-y-auto pb-6" :value="tls13Keys.publicKey"></textarea>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div class="space-y-3 sym-main">
+        <Card title="密钥交换演示" class="space-y-3">
+          <Button variant="success" block @click="doTLS13Exchange">
+            <LockIcon class="w-3.5 h-3.5" /> 执行完整密钥交换
+          </Button>
+          <div v-if="tls13Result.success || tls13Result.error" class="space-y-2 animate-in fade-in">
+            <div v-if="tls13Result.data">
+              <div class="flex justify-between mb-1">
+                <label class="input-label !mb-0 text-emerald-400">共享密钥 (Shared Secret)</label>
+                <Button variant="tool" size="sm" @click="copy(tls13Result.data)"><CopyIcon class="w-3 h-3" /></Button>
+              </div>
+              <div class="result-area text-emerald-300 font-mono text-[12px]">{{ tls13Result.data }}</div>
+            </div>
+            <div v-if="tls13Result.extra">
+              <label class="input-label text-violet-400">密钥交换详情</label>
+              <div class="result-area text-violet-300 text-[11px] whitespace-pre-wrap">{{ tls13Result.extra }}</div>
+            </div>
+            <div v-if="tls13Result.error">
+              <label class="input-label text-red-400">错误</label>
+              <div class="result-area text-red-400 text-[12px]">{{ tls13Result.error }}</div>
+            </div>
+          </div>
+        </Card>
+        <Card title="TLS 1.3 密钥交换原理">
+          <div class="text-xs space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+            <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+              <p class="font-bold mb-2 text-blue-400">支持的密钥交换组</p>
+              <p>• 经典组：X25519、P-256、P-384、P-521、SM2</p>
+              <p>• 混合组：X25519+ML-KEM-768、P-256+ML-KEM-768、P-384+ML-KEM-1024、SM2+ML-KEM-768</p>
+            </div>
+            <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+              <p class="font-bold mb-2 text-violet-400">工作流程</p>
+              <p>1. Client 生成密钥对，发送 ClientHello + KeyShare</p>
+              <p>2. Server 生成密钥对，计算共享密钥，发送 ServerHello + KeyShare</p>
+              <p>3. Client 使用 Server KeyShare 计算相同的共享密钥</p>
+            </div>
+            <div class="p-3 rounded-xl border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
+              <p class="font-bold mb-2 text-emerald-400">标准化</p>
+              <p>遵循 RFC 8446 (TLS 1.3) 和 draft-ietf-tls-hybrid-design (混合密钥交换)。</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
   </PageLayout>
 </template>
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { AtomIcon, KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, XCircleIcon, CopyIcon, InfoIcon, XIcon, SettingsIcon } from 'lucide-vue-next'
+import { AtomIcon, KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, XCircleIcon, CopyIcon, InfoIcon, XIcon, SettingsIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'
@@ -516,6 +603,7 @@ import {
   MLDSAKeyGen, MLDSASign, MLDSAVerify,
   SLHDSAKeyGen, SLHDSASign, SLHDSAVerify,
   XWingKeyGen, XWingEncapsulate, XWingDecapsulate,
+  TLS13KeyGen, TLS13FullExchange,
 } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
@@ -529,6 +617,7 @@ const tabs = [
   { id: 'xwing', label: 'X-Wing' },
   { id: 'falcon', label: 'FALCON' },
   { id: 'hqc', label: 'HQC' },
+  { id: 'tls13', label: 'TLS 1.3 混合交换' },
 ]
 const activeTab = ref('mlkem')
 
@@ -558,6 +647,10 @@ const principles = {
   xwing: {
     title: 'X-Wing 混合 KEM 原理',
     content: 'X-Wing 是 PQ/T 混合密钥封装机制，结合 ML-KEM-768 和 X25519。\n- 设计目标：即使 ML-KEM 被破解，仍有 X25519 的经典安全性保障。\n- 公钥 = ML-KEM-768 公钥 || X25519 公钥 (共 1184+32=1216 字节)\n- 适用于需要最高安全保障的过渡期场景。'
+  },
+  tls13: {
+    title: 'TLS 1.3 混合密钥交换原理',
+    content: 'TLS 1.3 密钥交换原语，支持经典和后量子混合模式。\n- 支持的组：X25519、P-256、P-384、P-521、SM2\n- 混合组：X25519+ML-KEM-768、P-256+ML-KEM-768、P-384+ML-KEM-1024、SM2+ML-KEM-768\n- 工作流程：ClientHello → ServerHello → 共享密钥\n- 优势：遵循 RFC 8446 和 draft-ietf-tls-hybrid-design 标准'
   }
 }
 const currentPrinciple = computed(() => principles[activeTab.value])
@@ -704,6 +797,42 @@ async function xwingEncap() {
 async function xwingDecap() {
   const r = await XWingDecapsulate({ privateKey: xwingKeys.privateKey, ciphertext: xwingEncapResult.ciphertext })
   xwingDecapResult.data = r.data; xwingDecapResult.error = r.error
+}
+
+// TLS 1.3 Key Exchange
+const tls13 = reactive({ group: 'X25519MLKEM768' })
+const tls13Keys = reactive({ publicKey: '', privateKey: '' })
+const tls13Result = reactive({ success: false, data: '', extra: '', error: '' })
+
+const tls13Groups = [
+  { value: 'X25519', label: 'X25519 (经典)' },
+  { value: 'P256', label: 'P-256 (经典)' },
+  { value: 'P384', label: 'P-384 (经典)' },
+  { value: 'P521', label: 'P-521 (经典)' },
+  { value: 'SM2', label: 'SM2 (国密)' },
+  { value: 'X25519MLKEM768', label: 'X25519+ML-KEM-768 (混合)' },
+  { value: 'P256MLKEM768', label: 'P-256+ML-KEM-768 (混合)' },
+  { value: 'P384MLKEM1024', label: 'P-384+ML-KEM-1024 (混合)' },
+  { value: 'SM2MLKEM768', label: 'SM2+ML-KEM-768 (混合)' },
+]
+
+async function genTLS13Key() {
+  const r = await TLS13KeyGen(tls13.group)
+  if (r.success) {
+    tls13Keys.publicKey = r.publicKey
+    tls13Keys.privateKey = r.privateKey
+    tls13Result.success = false
+    tls13Result.data = ''
+    tls13Result.error = ''
+  }
+}
+
+async function doTLS13Exchange() {
+  const r = await TLS13FullExchange(tls13.group)
+  tls13Result.success = r.success
+  tls13Result.data = r.data
+  tls13Result.extra = r.extra
+  tls13Result.error = r.error
 }
 
 async function copy(text) {

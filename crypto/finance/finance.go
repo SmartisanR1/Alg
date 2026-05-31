@@ -4,7 +4,7 @@ import (
 	"crypto/cipher"
 	"crypto/des"
 	"crypto/ecdsa"
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"

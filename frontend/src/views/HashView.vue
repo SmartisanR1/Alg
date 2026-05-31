@@ -203,7 +203,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { HashIcon, CopyIcon, ShieldCheckIcon, InfoIcon, XIcon } from 'lucide-vue-next'
+import { HashIcon, CopyIcon, ShieldCheckIcon, InfoIcon, XIcon } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import Card from '../components/Card.vue'

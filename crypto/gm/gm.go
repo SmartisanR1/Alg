@@ -5,7 +5,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/hmac"
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"

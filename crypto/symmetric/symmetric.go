@@ -5,7 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/des"
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"crypto/rc4"
 	"encoding/hex"
 	"fmt"

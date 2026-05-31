@@ -264,6 +264,14 @@ export function TDESDecrypt(arg1:finance.TDESRequest):Promise<symmetric.CryptoRe
 
 export function TDESEncrypt(arg1:finance.TDESRequest):Promise<symmetric.CryptoResult>;
 
+export function TLS13ClientExchange(arg1:string,arg2:string):Promise<pqc.TLS13ClientResult>;
+
+export function TLS13FullExchange(arg1:string):Promise<symmetric.CryptoResult>;
+
+export function TLS13KeyGen(arg1:string):Promise<pqc.TLS13KeyGenResult>;
+
+export function TLS13ServerExchange(arg1:pqc.TLS13KeyExchangeRequest):Promise<pqc.TLS13ExchangeResult>;
+
 export function TimestampConvert(arg1:utils.TimestampRequest):Promise<utils.ToolResult>;
 
 export function URLDecode(arg1:string):Promise<utils.ToolResult>;

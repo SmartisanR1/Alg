@@ -254,7 +254,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { SendIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, UploadIcon, CopyIcon, InfoIcon, XIcon, ShieldCheckIcon } from 'lucide-vue-next'
+import { SendIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, UploadIcon, CopyIcon, InfoIcon, XIcon, ShieldCheckIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'

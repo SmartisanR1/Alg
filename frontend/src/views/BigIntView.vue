@@ -125,7 +125,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { CalculatorIcon, InfoIcon, XIcon, CopyIcon } from 'lucide-vue-next'
+import { CalculatorIcon, InfoIcon, XIcon, CopyIcon } from '@lucide/vue'
 import { storeToRefs } from 'pinia'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'

@@ -65,7 +65,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { CopyIcon, CheckIcon, XIcon } from 'lucide-vue-next'
+import { CopyIcon, CheckIcon, XIcon } from '@lucide/vue'
 import { useAppStore } from '../stores/app'
 
 const store = useAppStore()

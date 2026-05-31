@@ -1,7 +1,7 @@
 package kdf
 
 import (
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"

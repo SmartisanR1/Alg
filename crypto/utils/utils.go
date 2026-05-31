@@ -4,7 +4,7 @@ import (
 	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -34,6 +34,24 @@ type ToolResult struct {
 	Success bool   `json:"success"`
 	Data    string `json:"data"`
 	Error   string `json:"error"`
+}
+
+// randInt generates a random big integer in [0, max) using the provided reader
+func randInt(reader io.Reader, max *big.Int) (*big.Int, error) {
+	// Calculate number of bytes needed
+	bits := max.BitLen()
+	bytes := (bits + 7) / 8
+	
+	// Generate random bytes
+	buf := make([]byte, bytes)
+	if _, err := io.ReadFull(reader, buf); err != nil {
+		return nil, err
+	}
+	
+	// Convert to big.Int and take modulo
+	result := new(big.Int).SetBytes(buf)
+	result.Mod(result, max)
+	return result, nil
 }
 
 // ============================================================
@@ -594,7 +612,7 @@ var (
 func init() {
 	// Initialize internal SM2 CA
 	internalSM2CAKey, _ = sm2.GenerateKey(rand.Reader)
-	serial, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	serial, _ := randInt(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	tmpl := &smx509.Certificate{
 		SerialNumber: serial,
 		Subject: pkix.Name{
@@ -613,7 +631,7 @@ func init() {
 
 	// Initialize internal RSA CA
 	internalRSACAKey, _ = rsa.GenerateKey(rand.Reader, 2048)
-	serialRSA, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	serialRSA, _ := randInt(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	tmplRSA := &x509.Certificate{
 		SerialNumber: serialRSA,
 		Subject: pkix.Name{
@@ -644,8 +662,8 @@ func GenerateDualCertificates(req SelfSignedCertRequest) DualCertResult {
 	encPriv, _ := sm2.GenerateKey(rand.Reader)
 	encPub := &encPriv.PublicKey
 
-	serialSign, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
-	serialEnc, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	serialSign, _ := randInt(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	serialEnc, _ := randInt(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	notBefore := time.Now()
 	notAfter := notBefore.Add(time.Duration(req.Days) * 24 * time.Hour)
 
@@ -816,7 +834,7 @@ func GenerateInternalSignedCert(req SelfSignedCertRequest) InternalCAResult {
 		pubKey = &p.PublicKey
 	}
 
-	serialNumber, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	serialNumber, _ := randInt(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	notBefore := time.Now()
 	notAfter := notBefore.Add(time.Duration(req.Days) * 24 * time.Hour)
 
@@ -1059,7 +1077,7 @@ func GenerateSelfSignedCert(req SelfSignedCertRequest) SelfSignedCertResult {
 		pubKey = &p.PublicKey
 	}
 
-	serialNumber, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	serialNumber, _ := randInt(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	notBefore := time.Now()
 	notAfter := notBefore.Add(time.Duration(req.Days) * 24 * time.Hour)
 
@@ -1195,7 +1213,7 @@ func GenerateCertificate(req CertGenRequest) ToolResult {
 	}
 
 	// 4. Template
-	serialNumber, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	serialNumber, _ := randInt(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	notBefore := time.Now()
 	notAfter := notBefore.Add(time.Duration(req.Days) * 24 * time.Hour)
 

@@ -1,7 +1,7 @@
 package pqc
 
 import (
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"encoding/hex"
 
 	"cryptokit/crypto/symmetric"

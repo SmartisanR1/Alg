@@ -437,7 +437,7 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
-import { KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, CopyIcon, LinkIcon, InfoIcon, XIcon, ShieldCheckIcon, ZapIcon } from 'lucide-vue-next'
+import { KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, CopyIcon, LinkIcon, InfoIcon, XIcon, ShieldCheckIcon, ZapIcon } from '@lucide/vue'
 import PageLayout from '../components/PageLayout.vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'

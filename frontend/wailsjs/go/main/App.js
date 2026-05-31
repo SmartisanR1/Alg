@@ -510,6 +510,22 @@ export function TDESEncrypt(arg1) {
   return window['go']['main']['App']['TDESEncrypt'](arg1);
 }
 
+export function TLS13ClientExchange(arg1, arg2) {
+  return window['go']['main']['App']['TLS13ClientExchange'](arg1, arg2);
+}
+
+export function TLS13FullExchange(arg1) {
+  return window['go']['main']['App']['TLS13FullExchange'](arg1);
+}
+
+export function TLS13KeyGen(arg1) {
+  return window['go']['main']['App']['TLS13KeyGen'](arg1);
+}
+
+export function TLS13ServerExchange(arg1) {
+  return window['go']['main']['App']['TLS13ServerExchange'](arg1);
+}
+
 export function TimestampConvert(arg1) {
   return window['go']['main']['App']['TimestampConvert'](arg1);
 }

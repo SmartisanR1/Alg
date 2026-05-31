@@ -121,7 +121,7 @@ import {
   CalculatorIcon,
   LockIcon, KeyIcon, HashIcon, ShieldHalfIcon,
   AtomIcon, WrenchIcon, FileIcon, FingerprintIcon, SendIcon
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 const store = useAppStore()
 const { isDark, accentColor, colorSchemes, history, toast } = storeToRefs(store)

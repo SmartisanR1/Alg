@@ -641,7 +641,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
-import { WrenchIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, KeyIcon, ShieldCheckIcon } from 'lucide-vue-next'
+import { WrenchIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, KeyIcon, ShieldCheckIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'

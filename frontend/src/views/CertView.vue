@@ -536,7 +536,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { ShieldCheckIcon, DownloadIcon, KeyIcon, SettingsIcon, ChevronDownIcon, FileIcon, CopyIcon, UploadIcon, InfoIcon, XIcon } from 'lucide-vue-next'
+import { ShieldCheckIcon, DownloadIcon, KeyIcon, SettingsIcon, ChevronDownIcon, FileIcon, CopyIcon, UploadIcon, InfoIcon, XIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'

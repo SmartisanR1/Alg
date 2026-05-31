@@ -5,7 +5,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/sha512"

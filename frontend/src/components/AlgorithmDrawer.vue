@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { XIcon } from 'lucide-vue-next'
+import { XIcon } from '@lucide/vue'
 import { useAppStore } from '../stores/app'
 import { storeToRefs } from 'pinia'
 

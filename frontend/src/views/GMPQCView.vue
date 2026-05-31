@@ -39,7 +39,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { ZapIcon, LockIcon } from 'lucide-vue-next'
+import { ZapIcon, LockIcon } from '@lucide/vue'
 import PageLayout from '../components/PageLayout.vue'
 import Card from '../components/Card.vue'
 

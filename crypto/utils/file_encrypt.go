@@ -3,7 +3,7 @@ package utils
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
+	"github.com/emmansun/gmsm/rand"
 	"encoding/hex"
 	"fmt"
 	"io"

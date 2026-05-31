@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { ChevronDownIcon, CheckIcon } from 'lucide-vue-next'
+import { ChevronDownIcon, CheckIcon } from '@lucide/vue'
 
 const props = defineProps({
   modelValue: {
