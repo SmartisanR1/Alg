@@ -2,6 +2,7 @@ package kdf
 
 import (
 	"github.com/emmansun/gmsm/rand"
+	"github.com/emmansun/gmsm/sm3"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
@@ -18,7 +19,7 @@ import (
 )
 
 type KDFRequest struct {
-	Algorithm  string `json:"algorithm"`  // PBKDF2-SHA256 PBKDF2-SHA512 HKDF-SHA256 HKDF-SHA512 bcrypt scrypt Argon2i Argon2d Argon2id
+	Algorithm  string `json:"algorithm"`  // PBKDF2-SHA256 PBKDF2-SHA512 HKDF-SHA256 HKDF-SHA512 HKDF-SM3 bcrypt scrypt Argon2i Argon2d Argon2id
 	Password   string `json:"password"`   // hex (or plain text for bcrypt)
 	Salt       string `json:"salt"`       // hex
 	Info       string `json:"info"`       // hex, for HKDF
@@ -104,6 +105,15 @@ func Derive(req KDFRequest) symmetric.CryptoResult {
 		out := make([]byte, keyLen)
 		if _, err := r.Read(out); err != nil {
 			return symmetric.CryptoResult{Error: "HKDF-SHA512 失败: " + err.Error()}
+		}
+		return symmetric.CryptoResult{Success: true, Data: hexUpper(out)}
+
+	case "HKDF-SM3":
+		infoBytes, _ := hex.DecodeString(req.Info)
+		r := hkdf.New(sm3.New, passBytes, saltBytes, infoBytes)
+		out := make([]byte, keyLen)
+		if _, err := r.Read(out); err != nil {
+			return symmetric.CryptoResult{Error: "HKDF-SM3 失败: " + err.Error()}
 		}
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(out)}
 

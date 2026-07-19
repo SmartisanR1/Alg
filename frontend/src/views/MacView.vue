@@ -37,7 +37,9 @@
               { value: 'CMAC-AES', label: 'CMAC-AES (RFC 4493)' },
               { value: 'GMAC', label: 'GMAC (AES-GCM)' },
               { value: 'Poly1305', label: 'Poly1305 (RFC 8439)' },
-              { value: 'SipHash-2-4', label: 'SipHash-2-4' }
+              { value: 'SipHash-2-4', label: 'SipHash-2-4' },
+              { value: 'CBC-MAC-SM4', label: 'CBC-MAC-SM4 (GB/T 15821.1, 国密)' },
+              { value: 'CBC-MAC-AES', label: 'CBC-MAC-AES (GB/T 15821.1)' }
             ]"
             class="mb-3"
           />
@@ -97,7 +99,6 @@
     <div v-if="activeTab === 'kdf'" class="grid grid-cols-2 gap-4 animate-fade-in">
       <div class="space-y-3">
         <Card title="KDF 算法">
-          <label class="input-label">KDF算法</label>
           <Dropdown
             v-model="kdf.algorithm"
             :options="[
@@ -106,6 +107,7 @@
               { value: 'PBKDF2-SHA512', label: 'PBKDF2-SHA512' },
               { value: 'HKDF-SHA256', label: 'HKDF-SHA256' },
               { value: 'HKDF-SHA512', label: 'HKDF-SHA512' },
+              { value: 'HKDF-SM3', label: 'HKDF-SM3 (国密)' },
               { value: 'bcrypt', label: 'bcrypt' },
               { value: 'scrypt', label: 'scrypt' },
               { value: 'Argon2i', label: 'Argon2i' },
@@ -136,7 +138,7 @@
               </span>
             </div>
           </div>
-          <div v-if="['HKDF-SHA256','HKDF-SHA512'].includes(kdf.algorithm)">
+          <div v-if="['HKDF-SHA256','HKDF-SHA512','HKDF-SM3'].includes(kdf.algorithm)">
             <Input v-model="kdf.info" label="Info (hex, 可选)" class="font-mono ck-trim-space mb-2" />
             <div v-if="kdfInfoHint" :class="['mt-1 text-xs', hintClass(kdfInfoHint)]">{{ kdfInfoHint }}</div>
             <div v-if="kdf.info" class="flex gap-3 mt-1">
@@ -202,7 +204,7 @@
         <Card title="安全建议">
           <div class="text-sm space-y-1.5" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
             <p class="text-[13px]">🔐 <strong>密码存储</strong>: 推荐 Argon2id > bcrypt > scrypt</p>
-            <p class="text-[13px]">🔑 <strong>密钥派生</strong>: 推荐 HKDF-SHA256 (RFC 5869)</p>
+            <p class="text-[13px]">🔑 <strong>密钥派生</strong>: 推荐 HKDF-SHA256 (RFC 5869) / HKDF-SM3 (国密)</p>
             <p class="text-[13px]">📁 <strong>加密密钥</strong>: PBKDF2-SHA256 (迭代≥100000)</p>
             <p class="text-[13px]">⚠️ Argon2id: time=3, mem=64MB, threads=4</p>
           </div>
@@ -245,8 +247,11 @@ const macKeyHint = computed(() => {
   if (mac.algorithm === 'SipHash-2-4' && byteLen !== 16) {
     return 'SipHash 推荐 16 字节(32位Hex) 密钥'
   }
-  if ((mac.algorithm === 'CMAC-AES' || mac.algorithm === 'GMAC') && ![16, 24, 32].includes(byteLen)) {
+  if ((mac.algorithm === 'CMAC-AES' || mac.algorithm === 'GMAC' || mac.algorithm === 'CBC-MAC-AES') && ![16, 24, 32].includes(byteLen)) {
     return 'AES 密钥长度应为 16/24/32 字节(32/48/64位Hex)'
+  }
+  if (mac.algorithm === 'CBC-MAC-SM4' && byteLen !== 16) {
+    return 'SM4 密钥必须为 16 字节(32位Hex)'
   }
   return ''
 })
@@ -302,6 +307,24 @@ const macPrinciple = computed(() => {
           '常用于哈希表键的消息认证。'
         ]
       }
+    case 'CBC-MAC-SM4':
+      return {
+        title: 'CBC-MAC-SM4 (GB/T 15821.1-2020)',
+        lines: [
+          '国密标准分组密码消息认证码，基于 SM4 分组密码。',
+          '采用 CBC 模式 + ISO 9797-1 method 2 填充。',
+          'GM/T 0002 配套的完整性校验标准。'
+        ]
+      }
+    case 'CBC-MAC-AES':
+      return {
+        title: 'CBC-MAC-AES (GB/T 15821.1-2020)',
+        lines: [
+          '基于 AES 分组密码的 CBC 消息认证码。',
+          '采用 CBC 模式 + ISO 9797-1 method 2 填充。',
+          '与 CMAC 的区别：不使用子密钥处理最后一块。'
+        ]
+      }
     default:
       return { title: 'MAC', lines: [] }
   }
@@ -310,11 +333,11 @@ const macPrinciple = computed(() => {
 const principles = {
   'mac': {
     title: 'MAC (消息认证码) 原理',
-    content: '设计目标: 验证消息的完整性和真实性，防止消息被篡改或伪造。\n核心机制: 使用共享密钥和消息生成认证标签 (Tag)，接收方用相同密钥验证。\n常见算法:\n• CMAC: 基于 AES 分组密码，NIST 标准。\n• GMAC: GCM 的认证部分，可并行处理。\n• Poly1305: 一次性 MAC，常与 ChaCha20 配合。\n• SipHash-2-4: 为哈希表设计的快速 MAC。\n应用场景: API 签名、数据完整性校验、安全通信协议。'
+    content: '设计目标: 验证消息的完整性和真实性，防止消息被篡改或伪造。\n核心机制: 使用共享密钥和消息生成认证标签 (Tag)，接收方用相同密钥验证。\n常见算法:\n• CMAC: 基于 AES 分组密码，NIST 标准。\n• GMAC: GCM 的认证部分，可并行处理。\n• Poly1305: 一次性 MAC，常与 ChaCha20 配合。\n• SipHash-2-4: 为哈希表设计的快速 MAC。\n• CBC-MAC: 国标 GB/T 15821.1，支持 SM4/AES。\n应用场景: API 签名、数据完整性校验、安全通信协议。'
   },
   'kdf': {
     title: 'KDF (密钥派生函数) 原理',
-    content: '设计目标: 从密码或主密钥派生出加密密钥，增加破解难度。\n核心机制: 通过盐值 (Salt)、迭代次数、内存消耗等参数增加计算成本。\n常见算法:\n• PBKDF2: 最广泛使用的标准，通过多次迭代增加强度。\n• HKDF: 基于 HMAC 的密钥派生，适合已有高熵密钥的场景。\n• bcrypt/scrypt/Argon2: 密码哈希专用，抗暴力破解。\n安全建议: 密码存储推荐 Argon2id，密钥派生推荐 HKDF。'
+    content: '设计目标: 从密码或主密钥派生出加密密钥，增加破解难度。\n核心机制: 通过盐值 (Salt)、迭代次数、内存消耗等参数增加计算成本。\n常见算法:\n• PBKDF2: 最广泛使用的标准，通过多次迭代增加强度。\n• HKDF: 基于 HMAC 的密钥派生，适合已有高熵密钥的场景。\n• HKDF-SM3: 基于国密 SM3 的 HKDF，GM/T 标准。\n• bcrypt/scrypt/Argon2: 密码哈希专用，抗暴力破解。\n安全建议: 密码存储推荐 Argon2id，密钥派生推荐 HKDF。'
   }
 }
 const currentPrinciple = computed(() => {
@@ -347,7 +370,9 @@ async function computeMAC() {
   macResult.data = r.data; macResult.error = r.error; macResult.success = r.success
 }
 function genMacKey() {
-  const len = mac.algorithm === 'Poly1305' ? 32 : 16
+  let len = 16
+  if (mac.algorithm === 'Poly1305') len = 32
+  else if (mac.algorithm === 'CBC-MAC-SM4') len = 16
   const b = new Uint8Array(len); crypto.getRandomValues(b)
   mac.key = Array.from(b).map(x => x.toString(16).padStart(2,'0')).join('').toUpperCase()
 }
@@ -371,7 +396,7 @@ const kdfSaltHint = computed(() => {
   return ''
 })
 const kdfInfoHint = computed(() => {
-  if (!['HKDF-SHA256', 'HKDF-SHA512'].includes(kdf.algorithm)) return ''
+  if (!['HKDF-SHA256', 'HKDF-SHA512', 'HKDF-SM3'].includes(kdf.algorithm)) return ''
   const clean = (kdf.info || '').replace(/\s+/g, '')
   if (!clean) return ''
   if (clean.length % 2 !== 0) return 'Info Hex 长度必须为偶数位'

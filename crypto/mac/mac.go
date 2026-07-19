@@ -9,11 +9,13 @@ import (
 
 	"cryptokit/crypto/symmetric"
 
+	"github.com/emmansun/gmsm/cbcmac"
+	"github.com/emmansun/gmsm/sm4"
 	"golang.org/x/crypto/poly1305"
 )
 
 type MACRequest struct {
-	Algorithm string `json:"algorithm"` // CMAC-AES GMAC Poly1305 SipHash-2-4
+	Algorithm string `json:"algorithm"` // CMAC-AES GMAC Poly1305 SipHash-2-4 CBC-MAC-SM4 CBC-MAC-AES
 	Key       string `json:"key"`       // hex
 	Data      string `json:"data"`      // hex
 	IV        string `json:"iv"`        // hex, for GMAC
@@ -76,6 +78,27 @@ func Compute(req MACRequest) symmetric.CryptoResult {
 		}
 		result := sipHash24(keyBytes[:16], dataBytes)
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(result)}
+
+	case "CBC-MAC-SM4":
+		// GB/T 15821.1-2020 — MAC scheme 1 using SM4
+		if len(keyBytes) != 16 {
+			return symmetric.CryptoResult{Error: "SM4 密钥必须为 16 字节 (32位hex)"}
+		}
+		block, err := sm4.NewCipher(keyBytes)
+		if err != nil {
+			return symmetric.CryptoResult{Error: "SM4 cipher 初始化失败: " + err.Error()}
+		}
+		mac := cbcmac.NewCBCMAC(block, sm4.BlockSize)
+		return symmetric.CryptoResult{Success: true, Data: hexUpper(mac.MAC(dataBytes))}
+
+	case "CBC-MAC-AES":
+		// GB/T 15821.1-2020 — MAC scheme 1 using AES
+		block, err := aes.NewCipher(keyBytes)
+		if err != nil {
+			return symmetric.CryptoResult{Error: "AES cipher 初始化失败: " + err.Error()}
+		}
+		mac := cbcmac.NewCBCMAC(block, block.BlockSize())
+		return symmetric.CryptoResult{Success: true, Data: hexUpper(mac.MAC(dataBytes))}
 
 	default:
 		return symmetric.CryptoResult{Error: "不支持的MAC算法: " + req.Algorithm}

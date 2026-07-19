@@ -33,9 +33,8 @@ func main() {
 		DisableResize: false,
 		Fullscreen:    false,
 		Frameless:     false,
-		// 秒开关键: 隐藏启动，DOM就绪后在 domReady() 中调用 WindowShow
-		// 彻底消除 Windows 下 WebView2 初始化时的白屏等待感
-		StartHidden:       true,
+		// 隐藏启动：关闭以兼容 macOS 及国内网络（避免 Google Fonts 阻塞 domReady）
+		StartHidden:       false,
 		HideWindowOnClose: false,
 		BackgroundColour:  &options.RGBA{R: 18, G: 18, B: 26, A: 1},
 		AssetServer: &assetserver.Options{

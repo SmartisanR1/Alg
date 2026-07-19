@@ -8,7 +8,7 @@ require (
 	github.com/cloudflare/circl v1.6.3
 	github.com/emmansun/gmsm v0.43.0
 	github.com/secure-io/siv-go v0.0.0-20180922214919-5ff40651e2c4
-	github.com/wailsapp/wails/v2 v2.12.0
+	github.com/wailsapp/wails/v2 v2.13.0
 	github.com/zeebo/blake3 v0.2.4
 	golang.org/x/crypto v0.52.0
 	golang.org/x/exp v0.0.0-20260529124908-c761662dc8c9
