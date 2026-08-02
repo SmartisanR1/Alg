@@ -7,18 +7,19 @@
 ## ✨ 功能特性
 
 ### 🌐 国际标准算法
-- **对称加密**: AES-128/192/256 (ECB/CBC/CFB/OFB/CTR/GCM/CCM), DES/3DES, ChaCha20/XChaCha20, ChaCha20-Poly1305
+- **对称加密**: AES-128/192/256 (ECB/CBC/CFB/OFB/CTR/GCM/CCM), DES/3DES, ChaCha20/XChaCha20, ChaCha20-Poly1305, RC4, AES-SIV/AES-GCM-SIV
+- **格式保留加密 (FPE)**: FF1, FF3-1 (NIST SP 800-38G), FFX
 - **非对称加密**: RSA-1024/2048/4096 (PKCS1/OAEP/PSS), ECDSA/ECDH (P-256/384/521)
 - **现代椭圆曲线**: X25519, Ed25519, X448, Ed448
 - **哈希**: MD5, SHA-1, SHA-2全系列, SHA-3全系列, SHAKE128/256, BLAKE2b/2s, BLAKE3, RIPEMD-160
 - **HMAC**: HMAC-MD5/SHA1/SHA256/SHA512/SHA3/BLAKE2/SM3
-- **MAC**: CMAC-AES, GMAC, Poly1305, SipHash-2-4
-- **KDF**: PBKDF2, HKDF, bcrypt, scrypt, Argon2i/d/id
+- **MAC**: CMAC-AES, GMAC, Poly1305, SipHash-2-4, CBC-MAC (AES/SM4)
+- **KDF**: PBKDF2, HKDF (SHA256/SHA512/SM3), bcrypt, scrypt, Argon2i/d/id
 
 ### 🇨🇳 国密算法 (GM/T 标准)
-- **SM2**: 加解密、数字签名/验签、密钥协商 (GM/T 0003)
-- **SM3**: 哈希、HMAC-SM3 (GM/T 0004)
-- **SM4**: ECB/CBC/GCM 全模式 (GM/T 0006)
+- **SM2**: 加解密、数字签名/验签、密钥协商、PIN加密 (GM/T 0003)
+- **SM3**: 哈希、HMAC-SM3、带ID哈希 (GM/T 0004)
+- **SM4**: ECB/CBC/CFB/OFB/CTR/GCM 全模式 (GM/T 0006)
 - **SM9**: 标识密码 (IBC): 加密、签名、密钥封装 (GM/T 0044)
 - **ZUC**: 祖冲之流密码 ZUC-128/256 (GM/T 0001)
 
@@ -26,16 +27,38 @@
 - **ML-KEM** (Kyber): 512/768/1024 — FIPS 203
 - **ML-DSA** (Dilithium): 44/65/87 — FIPS 204
 - **SLH-DSA** (SPHINCS+): FIPS 205
+- **Falcon**: 512/1024
+- **HQC**: 128/192/256
+- **AIGIS-sig**: III/V (国密PQC竞赛算法, 与ML-DSA同构)
+- **X-Wing**: 混合KEM (X25519 + ML-KEM-768)
 
-### 🔧 工具箱
-- Hex ↔ 字符串 ↔ Base64 (Standard/URL/NoPadding)
-- URL编解码, Unicode转义
-- XOR异或运算, 进制转换 (2/8/10/16)
+### � TLS 1.3 混合密钥交换
+- X25519, P-256/384/521, SM2
+- X25519MLKEM768, P256MLKEM768, P384MLKEM1024, SM2MLKEM768
+- 完整密钥交换演示 (客户端/服务器双向)
+
+### 🏦 金融密码工具
+- **PIN Block**: 生成/解析 (ISO 9564 Format 0/1/3), SM2/SM4 PIN 加解密
+- **CVV/CVV2**: 卡验证值生成
+- **PVV**: PIN 验证值 (IBM 3624 方法)
+- **EMV**: UDK 派生 (3DES/SM4), ARQC/TC/AAC 生成, 双重单向派生
+- **TDES**: 金融 3DES 加解密
+- **SM4 金融**: SM4 加解密/CMAC/Retain MAC
+- **Retail MAC**: ISO 9797-1 (方法1/2)
+
+### �🔧 工具箱
+- 编解码: Hex ↔ 字符串, Base64 (Standard/URL/NoPadding), Base32, Base58, Bech32
+- URL编解码, Unicode转义, JSON 格式化
+- XOR异或运算, 进制转换 (2/8/10/16/36)
 - 随机密钥/IV/Nonce生成
-- 数据填充 (PKCS7/PKCS5/Zero/ISO10126/ANSIX923)
+- 数据填充 (PKCS7/PKCS5/Zero/ISO10126/ANSIX923/ISO9797-1)
 - 时间戳转换 (Unix10/13, RFC3339, 日期时间)
-- 文件哈希计算 (拖拽支持)
-- 文件加解密 (AES-256-GCM)
+- 文件哈希计算 (拖拽支持), 文件加解密 (AES-256-GCM)
+- ASN.1 解析 (文本/文件), 大整数运算
+- JWT 解析
+- 证书工具: CSR 生成, 自签名证书, 内部CA签发, SM2双证书, 证书解析, 证书链校验, PKCS12 解析
+- TLS/TLCP 连接测试, 密码套件列表, 自检
+- 数据包发送 (TCP/UDP)
 
 ---
 
@@ -44,7 +67,7 @@
 ### 1. 环境依赖
 
 ```bash
-# 安装 Go 1.22+
+# 安装 Go 1.25+
 https://go.dev/dl/
 
 # 安装 Node.js 18+ (含 npm)
@@ -109,17 +132,19 @@ GOOS=linux GOARCH=amd64 wails build
 cryptokit/
 ├── main.go                  # Wails 入口
 ├── app.go                   # 所有后端 API 绑定
+├── appicon.png              # 应用图标 (构建时自动同步到 build/)
 ├── wails.json               # Wails 配置
 ├── go.mod / go.sum          # Go 模块
 ├── crypto/
-│   ├── symmetric/           # AES / DES / ChaCha20
-│   ├── asymmetric/          # RSA / ECC / Ed25519 / X25519
+│   ├── symmetric/           # AES / DES / ChaCha20 / RC4 / SIV / FPE
+│   ├── asymmetric/          # RSA / ECC / Ed25519 / X25519 / Ed448 / X448
 │   ├── hash/                # Hash + HMAC
-│   ├── mac/                 # MAC (CMAC/GMAC/Poly1305)
+│   ├── mac/                 # MAC (CMAC/GMAC/Poly1305/SipHash/CBC-MAC)
 │   ├── kdf/                 # PBKDF2 / HKDF / bcrypt / scrypt / Argon2
 │   ├── gm/                  # SM2 / SM3 / SM4 / SM9 / ZUC
-│   ├── pqc/                 # ML-KEM / ML-DSA / SLH-DSA
-│   └── utils/               # 编解码工具
+│   ├── pqc/                 # ML-KEM / ML-DSA / SLH-DSA / Falcon / HQC / AIGIS-sig / X-Wing / TLS 1.3
+│   ├── finance/             # PIN Block / CVV / PVV / EMV / TDES / SM4金融
+│   └── utils/               # 编解码 / 证书 / JWT / ASN.1 / 文件 / TLS
 └── frontend/
     ├── src/
     │   ├── App.vue           # 主布局（侧边栏+路由+历史）
@@ -135,9 +160,13 @@ cryptokit/
 | 依赖 | 用途 |
 |------|------|
 | `github.com/emmansun/gmsm` | SM2/SM3/SM4/SM9/ZUC 国密算法 |
-| `github.com/cloudflare/circl` | ML-KEM/ML-DSA (PQC) |
+| `github.com/cloudflare/circl` | ML-KEM/ML-DSA/SLH-DSA/Falcon/HQC (PQC) |
+| `gitee.com/Trisia/gotlcp` | TLCP/TLS 1.3 连接测试 |
 | `golang.org/x/crypto` | ChaCha20/Ed25519/X25519/bcrypt/scrypt/Argon2 |
 | `github.com/zeebo/blake3` | BLAKE3 哈希 |
+| `github.com/secure-io/siv-go` | AES-SIV / AES-GCM-SIV |
+| `github.com/btcsuite/btcutil` | Base58 编解码 |
+| `software.sslmate.com/src/go-pkcs12` | PKCS12 解析 |
 | `github.com/wailsapp/wails/v2` | 跨平台桌面框架 |
 | Vue 3 + TailwindCSS | 前端 UI |
 
@@ -147,7 +176,7 @@ cryptokit/
 
 由于 没有 Apple Developer 签名，从 Release 下载的 CryptoKit.app 可能会被 macOS 报告：
 
-“无法验证开发者，可能包含恶意软件或泄露隐私”
+"无法验证开发者，可能包含恶意软件或泄露隐私"
 
 解决办法（无需 Apple 账号）：
 
@@ -160,10 +189,9 @@ cryptokit/
 在终端执行以下命令（假设下载在 ~/Downloads）：
 
     sudo xattr -r -d com.apple.quarantine ~/Downloads/CryptoKit.app
-    
-•	解除后可直接双击运行
 
-•	仅需执行一次
+-	解除后可直接双击运行
+-	仅需执行一次
 
 
 ## ⚠️ 安全说明
@@ -172,6 +200,7 @@ cryptokit/
 - **仅供学习/测试使用**，生产环境请参考正式密码工程规范
 - ECB模式存在安全缺陷，不推荐在生产中使用
 - RSA-1024 已不满足安全需求，建议使用 RSA-2048+
+- AIGIS-sig 为实验性实现，参数基于公开论文，尚待官方标准测试向量验证
 
 ---
 

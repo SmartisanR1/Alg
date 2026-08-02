@@ -863,11 +863,12 @@ func GenerateInternalSignedCert(req SelfSignedCertRequest) InternalCAResult {
 	}
 
 	// 1. CSR
-	csrTemplate := x509.CertificateRequest{Subject: subj}
 	var csrBytes []byte
 	if req.Algo == "SM2" {
+		csrTemplate := smx509.CertificateRequest{Subject: subj}
 		csrBytes, _ = smx509.CreateCertificateRequest(rand.Reader, &csrTemplate, priv.(*sm2.PrivateKey))
 	} else {
+		csrTemplate := x509.CertificateRequest{Subject: subj}
 		csrBytes, _ = x509.CreateCertificateRequest(rand.Reader, &csrTemplate, priv)
 	}
 	csrPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
@@ -1106,13 +1107,12 @@ func GenerateSelfSignedCert(req SelfSignedCertRequest) SelfSignedCertResult {
 	}
 
 	// 1. Generate CSR
-	csrTemplate := x509.CertificateRequest{
-		Subject: subj,
-	}
 	var csrBytes []byte
 	if req.Algo == "SM2" {
+		csrTemplate := smx509.CertificateRequest{Subject: subj}
 		csrBytes, _ = smx509.CreateCertificateRequest(rand.Reader, &csrTemplate, priv.(*sm2.PrivateKey))
 	} else {
+		csrTemplate := x509.CertificateRequest{Subject: subj}
 		csrBytes, _ = x509.CreateCertificateRequest(rand.Reader, &csrTemplate, priv)
 	}
 	csrPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE REQUEST", Bytes: csrBytes})
@@ -1339,7 +1339,11 @@ func GenerateCSR(req CSRRequest) ToolResult {
 			return ToolResult{Error: "内部错误: 无法获取 SM2 私钥"}
 		}
 
-		csrBytes, err = smx509.CreateCertificateRequest(rand.Reader, &template, privKey)
+		smxTemplate := smx509.CertificateRequest{
+			Subject:            subj,
+			SignatureAlgorithm: 0, // Automatically choose
+		}
+		csrBytes, err = smx509.CreateCertificateRequest(rand.Reader, &smxTemplate, privKey)
 		if err != nil {
 			return ToolResult{Error: "创建 SM2 CSR 失败: " + err.Error()}
 		}
