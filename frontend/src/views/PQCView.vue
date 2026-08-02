@@ -333,8 +333,9 @@
           <Dropdown
             v-model="aigis.paramSet"
             :options="[
-              { value: 'AIGIS-sig-III', label: 'AIGIS-sig-III (NIST Level 3)' },
-              { value: 'AIGIS-sig-V', label: 'AIGIS-sig-V (NIST Level 5)' }
+              { value: 'AIGIS-sig-1', label: 'AIGIS-sig-1' },
+              { value: 'AIGIS-sig-2', label: 'AIGIS-sig-2' },
+              { value: 'AIGIS-sig-3', label: 'AIGIS-sig-3' }
             ]"
             class="mb-3"
           />
@@ -379,16 +380,22 @@
             </tr></thead>
             <tbody :class="isDark ? 'text-dark-text' : 'text-light-text'">
               <tr class="border-t" :class="isDark ? 'border-dark-border' : 'border-light-border'">
-                <td class="py-1 font-mono">AIGIS-sig-III</td>
-                <td class="text-right">1312B</td>
-                <td class="text-right">2420B</td>
-                <td class="text-right">Level 3</td>
+                <td class="py-1 font-mono">AIGIS-sig-1</td>
+                <td class="text-right">1056B</td>
+                <td class="text-right">1852B</td>
+                <td class="text-right">Level 1</td>
               </tr>
               <tr class="border-t" :class="isDark ? 'border-dark-border' : 'border-light-border'">
-                <td class="py-1 font-mono">AIGIS-sig-V</td>
-                <td class="text-right">1952B</td>
-                <td class="text-right">3293B</td>
-                <td class="text-right">Level 5</td>
+                <td class="py-1 font-mono">AIGIS-sig-2</td>
+                <td class="text-right">1312B</td>
+                <td class="text-right">2445B</td>
+                <td class="text-right">Level 2</td>
+              </tr>
+              <tr class="border-t" :class="isDark ? 'border-dark-border' : 'border-light-border'">
+                <td class="py-1 font-mono">AIGIS-sig-3</td>
+                <td class="text-right">1568B</td>
+                <td class="text-right">3046B</td>
+                <td class="text-right">Level 3</td>
               </tr>
             </tbody>
           </table>
@@ -816,11 +823,10 @@ const principles = {
   aigis: {
     title: 'AIGIS-sig 算法原理',
     content: `AIGIS-sig 是中国科学院信息工程研究所设计的基于格的数字签名算法，参加中国国密 PQC 算法征集。
-- 前身：Dilithium 算法的变体。
 - 安全性：基于模块学习误差 (MLWE) 和模块短整数解 (MSIS) 难题。
-- 特点：与 ML-DSA 共享相同的数学基础 (q = 8380417, n = 256)，但参数选择针对国密需求优化。
-- 参数集：AIGIS-sig-III (NIST Level 3) 和 AIGIS-sig-V (NIST Level 5)。
-- 注意：实验性实现，参数基于公开论文，尚未经过官方标准测试向量验证。`
+- 特点：支持 SM3 / SHAKE 双哈希模式，提供 AIGIS-sig-1/2/3 三组参数。
+- 参数集：AIGIS-sig-1 (pk 1056B / sk 2448B / sig 1852B)、AIGIS-sig-2 (pk 1312B / sk 3376B / sig 2445B)、AIGIS-sig-3 (pk 1568B / sk 3888B / sig 3046B)。
+- 说明：已按官方 PQMagic 参考实现完整移植，并通过官方测试向量验证。`
   },
   falcon: {
     title: 'FALCON 算法原理',
@@ -1010,7 +1016,7 @@ const slhParams = [
 ]
 
 // AIGIS-sig
-const aigis = reactive({ paramSet: 'AIGIS-sig-III' })
+const aigis = reactive({ paramSet: 'AIGIS-sig-1' })
 const aigisKeys = reactive({ privateKey: '', publicKey: '' })
 const aigisResult = reactive({ error: '' })
 
