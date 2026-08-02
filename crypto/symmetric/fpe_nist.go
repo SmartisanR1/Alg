@@ -55,7 +55,7 @@ func fpeNIST(req FPERequest, encrypt bool) CryptoResult {
 
 	switch mode {
 	case "FF1":
-		block, err := fpeBlock(req.Cipher, keyBytes, false)
+		block, err := fpeBlock(req.Cipher, keyBytes)
 		if err != nil {
 			return CryptoResult{Error: err.Error()}
 		}
@@ -80,7 +80,7 @@ func fpeNIST(req FPERequest, encrypt bool) CryptoResult {
 		} else if len(tweak) != 7 {
 			return CryptoResult{Error: "FF3-1 的 Tweak 必须是 7 字节(14位Hex)"}
 		}
-		block, err := fpeBlock(req.Cipher, keyBytes, true)
+		block, err := fpeBlock(req.Cipher, keyBytes)
 		if err != nil {
 			return CryptoResult{Error: err.Error()}
 		}
@@ -103,15 +103,7 @@ func fpeNIST(req FPERequest, encrypt bool) CryptoResult {
 	}
 }
 
-func fpeBlock(name string, key []byte, reverseKey bool) (cipher.Block, error) {
-	if reverseKey {
-		rev := make([]byte, len(key))
-		for i := 0; i < len(key); i++ {
-			rev[i] = key[len(key)-1-i]
-		}
-		key = rev
-	}
-
+func fpeBlock(name string, key []byte) (cipher.Block, error) {
 	switch strings.ToUpper(strings.TrimSpace(name)) {
 	case "", "AES":
 		if len(key) != 16 && len(key) != 24 && len(key) != 32 {

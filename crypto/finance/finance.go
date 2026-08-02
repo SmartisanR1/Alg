@@ -4,12 +4,13 @@ import (
 	"crypto/cipher"
 	"crypto/des"
 	"crypto/ecdsa"
-	"github.com/emmansun/gmsm/rand"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/emmansun/gmsm/rand"
 
 	"cryptokit/crypto/symmetric"
 
@@ -654,15 +655,14 @@ func DeriveEMVUDK(req UDKRequest) UDKResult {
 	if len(panClean) < 13 {
 		return UDKResult{Error: "PAN长度不足"}
 	}
-	// 取右起16位(不含校验位)
-	core := panClean[:len(panClean)-1]
-	if len(core) > 16 {
-		core = core[len(core)-16:]
+	// 标准(EMV Book 2 A1.4.1 Option A): 派生数据 Y = (PAN || PSN) 右起16位
+	dataDigits := panClean + psn
+	if len(dataDigits) > 16 {
+		dataDigits = dataDigits[len(dataDigits)-16:]
 	}
-	if len(core) < 16 {
-		return UDKResult{Error: "PAN长度不足16位(去校验位后)"}
+	if len(dataDigits) < 16 {
+		return UDKResult{Error: "PAN+PSN长度不足16位"}
 	}
-	dataDigits := core[:14] + psn
 	dataBytes, err := bcdEncode(dataDigits)
 	if err != nil {
 		return UDKResult{Error: "分散数据编码失败: " + err.Error()}
@@ -898,18 +898,31 @@ func SM4EncryptFinance(req SM4FinanceRequest) symmetric.CryptoResult {
 	switch mode {
 	case "ECB":
 		padded := padDataSM4Finance(dataBytes, 16, padding)
+		if len(padded) == 0 || len(padded)%16 != 0 {
+			return symmetric.CryptoResult{Error: "ECB模式: 明文填充后长度必须是16字节的倍数(可改用PKCS7/Zero/ISO9797填充)"}
+		}
 		out := make([]byte, len(padded))
 		for i := 0; i < len(padded); i += 16 {
 			block.Encrypt(out[i:i+16], padded[i:i+16])
 		}
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(out)}
 	case "CBC":
-		iv, err := decodeHex(req.IV)
-		if err != nil || len(iv) != 16 {
+		var iv []byte
+		if req.IV == "" {
+			// 未提供 IV 时随机生成, 通过 Extra 返回, 与解密端保持一致
 			iv = make([]byte, 16)
 			rand.Read(iv)
+		} else {
+			var err error
+			iv, err = decodeHex(req.IV)
+			if err != nil || len(iv) != 16 {
+				return symmetric.CryptoResult{Error: "CBC模式需要16字节IV"}
+			}
 		}
 		padded := padDataSM4Finance(dataBytes, 16, padding)
+		if len(padded) == 0 || len(padded)%16 != 0 {
+			return symmetric.CryptoResult{Error: "CBC模式: 明文填充后长度必须是16字节的倍数(可改用PKCS7/Zero/ISO9797填充)"}
+		}
 		out := make([]byte, len(padded))
 		cipher.NewCBCEncrypter(block, iv).CryptBlocks(out, padded)
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(out), Extra: hexUpper(iv)}
@@ -944,6 +957,9 @@ func SM4DecryptFinance(req SM4FinanceRequest) symmetric.CryptoResult {
 
 	switch mode {
 	case "ECB":
+		if len(dataBytes) == 0 || len(dataBytes)%16 != 0 {
+			return symmetric.CryptoResult{Error: "ECB解密: 密文长度必须是16字节的倍数"}
+		}
 		out := make([]byte, len(dataBytes))
 		for i := 0; i < len(dataBytes); i += 16 {
 			block.Decrypt(out[i:i+16], dataBytes[i:i+16])
@@ -954,6 +970,9 @@ func SM4DecryptFinance(req SM4FinanceRequest) symmetric.CryptoResult {
 		iv, err := decodeHex(req.IV)
 		if err != nil || len(iv) != 16 {
 			return symmetric.CryptoResult{Error: "CBC模式需要16字节IV"}
+		}
+		if len(dataBytes) == 0 || len(dataBytes)%16 != 0 {
+			return symmetric.CryptoResult{Error: "CBC解密: 密文长度必须是16字节的倍数"}
 		}
 		out := make([]byte, len(dataBytes))
 		cipher.NewCBCDecrypter(block, iv).CryptBlocks(out, dataBytes)
@@ -968,7 +987,7 @@ func padDataSM4Finance(data []byte, blockSize int, padding string) []byte {
 	switch padding {
 	case "NoPadding":
 		return data
-	case "PKCS7", "ISO9797-1-P1":
+	case "PKCS7":
 		padLen := blockSize - (len(data) % blockSize)
 		padded := make([]byte, len(data)+padLen)
 		copy(padded, data)
@@ -976,7 +995,8 @@ func padDataSM4Finance(data []byte, blockSize int, padding string) []byte {
 			padded[i] = byte(padLen)
 		}
 		return padded
-	case "Zero":
+	case "ISO9797-1-P1", "Zero":
+		// ISO 9797-1 method 1: 补全零
 		padded := make([]byte, ((len(data)+blockSize-1)/blockSize)*blockSize)
 		copy(padded, data)
 		return padded
@@ -994,7 +1014,7 @@ func unpadDataSM4(data []byte, padding string) []byte {
 	switch padding {
 	case "NoPadding":
 		return data
-	case "PKCS7", "ISO9797-1-P1":
+	case "PKCS7":
 		if len(data) == 0 {
 			return data
 		}
@@ -1003,7 +1023,7 @@ func unpadDataSM4(data []byte, padding string) []byte {
 			return data
 		}
 		return data[:len(data)-padLen]
-	case "Zero":
+	case "ISO9797-1-P1", "Zero":
 		i := len(data) - 1
 		for i >= 0 && data[i] == 0 {
 			i--
@@ -1290,7 +1310,11 @@ func xorHex(a, b string) string {
 func xorBytes(a, b []byte) []byte {
 	out := make([]byte, len(a))
 	for i := range a {
-		out[i] = a[i] ^ b[i]
+		if i < len(b) {
+			out[i] = a[i] ^ b[i]
+		} else {
+			out[i] = a[i]
+		}
 	}
 	return out
 }

@@ -14,7 +14,6 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"errors"
-	"fmt"
 	"hash"
 	"math/big"
 	"strings"
@@ -362,13 +361,15 @@ func prettyJSON(b []byte) string {
 }
 
 func hashID(newHash func() hash.Hash) crypto.Hash {
-	switch fmt.Sprintf("%T", newHash()) {
-	case "*sha256.digest":
+	// 按摘要长度判定哈希算法, 不依赖具体类型名(Go 1.24+ fips140 重构后
+	// crypto/sha512 返回类型为 *sha512.Digest, %T 字符串匹配会全部失效)。
+	switch newHash().Size() {
+	case 32:
 		return crypto.SHA256
-	case "*sha512.digest":
-		return crypto.SHA512
-	case "*sha512.digest384":
+	case 48:
 		return crypto.SHA384
+	case 64:
+		return crypto.SHA512
 	default:
 		return crypto.SHA256
 	}

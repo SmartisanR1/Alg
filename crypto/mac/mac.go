@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"math/bits"
 
 	"cryptokit/crypto/symmetric"
@@ -55,6 +56,9 @@ func Compute(req MACRequest) symmetric.CryptoResult {
 		gcm, err := cipher.NewGCM(block)
 		if err != nil {
 			return symmetric.CryptoResult{Error: "GMAC GCM init失败: " + err.Error()}
+		}
+		if len(nonceBytes) != gcm.NonceSize() {
+			return symmetric.CryptoResult{Error: fmt.Sprintf("无效的Nonce: GCM nonce必须为 %d 字节(%d位hex)", gcm.NonceSize(), gcm.NonceSize()*2)}
 		}
 		// GMAC = GCM with empty plaintext, AAD = data
 		tag := gcm.Seal(nil, nonceBytes, nil, dataBytes)

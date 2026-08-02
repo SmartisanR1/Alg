@@ -1,8 +1,9 @@
 package pqc
 
 import (
-	"github.com/emmansun/gmsm/rand"
 	"encoding/hex"
+
+	"github.com/emmansun/gmsm/rand"
 
 	"cryptokit/crypto/symmetric"
 
@@ -257,7 +258,10 @@ func MLDSAVerify(req MLDSAVerifyRequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的公钥: " + err.Error()}
 	}
-	msg, _ := hex.DecodeString(req.Data)
+	msg, err := hex.DecodeString(req.Data)
+	if err != nil {
+		return symmetric.CryptoResult{Error: "无效的数据: " + err.Error()}
+	}
 	sig, err := hex.DecodeString(req.Signature)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的签名: " + err.Error()}
@@ -284,7 +288,7 @@ func MLDSAVerify(req MLDSAVerifyRequest) symmetric.CryptoResult {
 		valid = mldsa87.Verify(&pub, msg, nil, sig)
 	}
 	if !valid {
-		return symmetric.CryptoResult{Success: true, Data: "false", Error: "签名验证失败"}
+		return symmetric.CryptoResult{Success: false, Data: "false", Error: "签名验证失败"}
 	}
 	return symmetric.CryptoResult{Success: true, Data: "true"}
 }
@@ -366,7 +370,7 @@ func SLHDSAVerify(req SLHDSAVerifyRequest) symmetric.CryptoResult {
 		return symmetric.CryptoResult{Error: "解析公钥失败: " + err.Error()}
 	}
 	if !slhdsa.Verify(&pub, slhdsa.NewMessage(msg), sig, nil) {
-		return symmetric.CryptoResult{Success: true, Data: "false", Error: "签名验证失败"}
+		return symmetric.CryptoResult{Success: false, Data: "false", Error: "签名验证失败"}
 	}
 	return symmetric.CryptoResult{Success: true, Data: "true"}
 }

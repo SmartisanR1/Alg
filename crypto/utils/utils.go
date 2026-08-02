@@ -4,7 +4,6 @@ import (
 	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"github.com/emmansun/gmsm/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -13,6 +12,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -22,6 +22,8 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/emmansun/gmsm/rand"
 
 	hashpkg "cryptokit/crypto/hash"
 
@@ -37,21 +39,34 @@ type ToolResult struct {
 }
 
 // randInt generates a random big integer in [0, max) using the provided reader
+// 使用拒绝采样消除模偏差: 直接取模会因 max 不整除 2^(8*字节数) 而产生偏差
 func randInt(reader io.Reader, max *big.Int) (*big.Int, error) {
+	if max == nil || max.Sign() <= 0 {
+		return nil, errors.New("randInt: max 必须为正整数")
+	}
+
 	// Calculate number of bytes needed
 	bits := max.BitLen()
 	bytes := (bits + 7) / 8
-	
-	// Generate random bytes
+	extra := bytes*8 - bits // 最高字节冗余位数
+
 	buf := make([]byte, bytes)
-	if _, err := io.ReadFull(reader, buf); err != nil {
-		return nil, err
+	for {
+		// Generate random bytes
+		if _, err := io.ReadFull(reader, buf); err != nil {
+			return nil, err
+		}
+		// 清除最高字节的冗余高位, 使候选值 < 2^bits
+		if extra > 0 {
+			buf[0] &= byte(0xFF >> extra)
+		}
+
+		// Convert to big.Int and reject if >= max, 消除模偏差
+		result := new(big.Int).SetBytes(buf)
+		if result.Cmp(max) < 0 {
+			return result, nil
+		}
 	}
-	
-	// Convert to big.Int and take modulo
-	result := new(big.Int).SetBytes(buf)
-	result.Mod(result, max)
-	return result, nil
 }
 
 // ============================================================

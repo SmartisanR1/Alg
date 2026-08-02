@@ -89,11 +89,13 @@ func AESEncrypt(req AESRequest) CryptoResult {
 			return CryptoResult{Error: err.Error()}
 		}
 		padded := applyPadding(dataBytes, aes.BlockSize, req.Padding)
+		if len(padded) == 0 || len(padded)%aes.BlockSize != 0 {
+			return CryptoResult{Error: "CBC模式: 明文填充后长度必须是16字节的倍数(可改用PKCS7/Zero填充)"}
+		}
 		ciphertext := make([]byte, len(padded))
 		cipher.NewCBCEncrypter(block, ivBytes).CryptBlocks(ciphertext, padded)
-		// CBC模式：加密后IV变为最后一个密文块
-		newIV := ciphertext[len(ciphertext)-aes.BlockSize:]
-		return CryptoResult{Success: true, Data: hexUpper(ciphertext), Extra: hexUpper(newIV)}
+		// 返回实际使用的 IV (解密时必须使用同一个 IV)
+		return CryptoResult{Success: true, Data: hexUpper(ciphertext), Extra: hexUpper(ivBytes)}
 
 	case "CFB":
 		ivBytes, err := getOrGenIV(req.IV, aes.BlockSize)
@@ -203,6 +205,9 @@ func AESDecrypt(req AESRequest) CryptoResult {
 		if err != nil || len(ivBytes) != aes.BlockSize {
 			return CryptoResult{Error: "CBC模式需要提供正确长度的IV"}
 		}
+		if len(dataBytes) == 0 || len(dataBytes)%aes.BlockSize != 0 {
+			return CryptoResult{Error: "CBC解密: 密文长度必须是16字节的倍数"}
+		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewCBCDecrypter(block, ivBytes).CryptBlocks(plaintext, dataBytes)
 		plaintext = removePadding(plaintext, req.Padding)
@@ -213,6 +218,9 @@ func AESDecrypt(req AESRequest) CryptoResult {
 		if err != nil {
 			return CryptoResult{Error: "CFB模式需要IV: " + err.Error()}
 		}
+		if len(ivBytes) != aes.BlockSize {
+			return CryptoResult{Error: "CFB模式需要16字节IV"}
+		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewCFBDecrypter(block, ivBytes).XORKeyStream(plaintext, dataBytes)
 		return CryptoResult{Success: true, Data: hexUpper(plaintext)}
@@ -222,6 +230,9 @@ func AESDecrypt(req AESRequest) CryptoResult {
 		if err != nil {
 			return CryptoResult{Error: "OFB模式需要IV: " + err.Error()}
 		}
+		if len(ivBytes) != aes.BlockSize {
+			return CryptoResult{Error: "OFB模式需要16字节IV"}
+		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewOFB(block, ivBytes).XORKeyStream(plaintext, dataBytes)
 		return CryptoResult{Success: true, Data: hexUpper(plaintext)}
@@ -230,6 +241,9 @@ func AESDecrypt(req AESRequest) CryptoResult {
 		ivBytes, err := hex.DecodeString(req.IV)
 		if err != nil {
 			return CryptoResult{Error: "CTR模式需要IV: " + err.Error()}
+		}
+		if len(ivBytes) != aes.BlockSize {
+			return CryptoResult{Error: "CTR模式需要16字节IV"}
 		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewCTR(block, ivBytes).XORKeyStream(plaintext, dataBytes)
@@ -247,6 +261,9 @@ func AESDecrypt(req AESRequest) CryptoResult {
 		nonceBytes, err := hex.DecodeString(req.Nonce)
 		if err != nil {
 			return CryptoResult{Error: "GCM模式需要Nonce: " + err.Error()}
+		}
+		if len(nonceBytes) != gcm.NonceSize() {
+			return CryptoResult{Error: "GCM模式需要12字节Nonce"}
 		}
 		var aad []byte
 		if req.AAD != "" {
@@ -266,6 +283,9 @@ func AESDecrypt(req AESRequest) CryptoResult {
 		nonceBytes, err := hex.DecodeString(req.Nonce)
 		if err != nil {
 			return CryptoResult{Error: "CCM模式需要Nonce: " + err.Error()}
+		}
+		if len(nonceBytes) != gcm.NonceSize() {
+			return CryptoResult{Error: "CCM模式需要12字节Nonce"}
 		}
 		plaintext, err := gcm.Open(nil, nonceBytes, dataBytes, nil)
 		if err != nil {
@@ -415,6 +435,7 @@ func DESDecrypt(req DESRequest) CryptoResult {
 		return CryptoResult{Error: "创建DES cipher失败: " + err.Error()}
 	}
 
+	blockSize := block.BlockSize()
 	switch req.Mode {
 	case "ECB":
 		result, err := ecbDecrypt(block, dataBytes, req.Padding)
@@ -424,8 +445,11 @@ func DESDecrypt(req DESRequest) CryptoResult {
 		return CryptoResult{Success: true, Data: hexUpper(result)}
 	case "CBC":
 		ivBytes, err := hex.DecodeString(req.IV)
-		if err != nil {
-			return CryptoResult{Error: "需要IV: " + err.Error()}
+		if err != nil || len(ivBytes) != blockSize {
+			return CryptoResult{Error: "CBC模式需要8字节IV"}
+		}
+		if len(dataBytes) == 0 || len(dataBytes)%blockSize != 0 {
+			return CryptoResult{Error: "CBC解密: 密文长度必须是8字节的倍数"}
 		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewCBCDecrypter(block, ivBytes).CryptBlocks(plaintext, dataBytes)
@@ -436,6 +460,9 @@ func DESDecrypt(req DESRequest) CryptoResult {
 		if err != nil {
 			return CryptoResult{Error: "需要IV: " + err.Error()}
 		}
+		if len(ivBytes) != blockSize {
+			return CryptoResult{Error: "CFB模式需要8字节IV"}
+		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewCFBDecrypter(block, ivBytes).XORKeyStream(plaintext, dataBytes)
 		return CryptoResult{Success: true, Data: hexUpper(plaintext)}
@@ -444,6 +471,9 @@ func DESDecrypt(req DESRequest) CryptoResult {
 		if err != nil {
 			return CryptoResult{Error: "需要IV: " + err.Error()}
 		}
+		if len(ivBytes) != blockSize {
+			return CryptoResult{Error: "OFB模式需要8字节IV"}
+		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewOFB(block, ivBytes).XORKeyStream(plaintext, dataBytes)
 		return CryptoResult{Success: true, Data: hexUpper(plaintext)}
@@ -451,6 +481,9 @@ func DESDecrypt(req DESRequest) CryptoResult {
 		ivBytes, err := hex.DecodeString(req.IV)
 		if err != nil {
 			return CryptoResult{Error: "需要IV: " + err.Error()}
+		}
+		if len(ivBytes) != blockSize {
+			return CryptoResult{Error: "CTR模式需要8字节IV"}
 		}
 		plaintext := make([]byte, len(dataBytes))
 		cipher.NewCTR(block, ivBytes).XORKeyStream(plaintext, dataBytes)

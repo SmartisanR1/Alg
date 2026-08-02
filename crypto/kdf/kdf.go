@@ -1,13 +1,14 @@
 package kdf
 
 import (
-	"github.com/emmansun/gmsm/rand"
-	"github.com/emmansun/gmsm/sm3"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
+
+	"github.com/emmansun/gmsm/rand"
+	"github.com/emmansun/gmsm/sm3"
 
 	"cryptokit/crypto/symmetric"
 
@@ -36,13 +37,27 @@ type KDFRequest struct {
 	Threads uint8  `json:"threads"`
 }
 
+// decodeHexOrNil 将 hex 字符串解码; 空字符串返回 nil(允许可选参数留空), 非法 hex 报错
+func decodeHexOrNil(s string) ([]byte, error) {
+	if s == "" {
+		return nil, nil
+	}
+	return hex.DecodeString(s)
+}
+
 func Derive(req KDFRequest) symmetric.CryptoResult {
 	passBytes, err := hex.DecodeString(req.Password)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的密码(需要hex): " + err.Error()}
 	}
 
-	saltBytes, _ := hex.DecodeString(req.Salt)
+	var saltBytes []byte
+	if req.Salt != "" {
+		saltBytes, err = hex.DecodeString(req.Salt)
+		if err != nil {
+			return symmetric.CryptoResult{Error: "无效的盐(需要hex): " + err.Error()}
+		}
+	}
 	if len(saltBytes) == 0 && req.Algorithm != "bcrypt" {
 		saltBytes = make([]byte, 16)
 		rand.Read(saltBytes)
@@ -91,7 +106,10 @@ func Derive(req KDFRequest) symmetric.CryptoResult {
 		}
 
 	case "HKDF-SHA256":
-		infoBytes, _ := hex.DecodeString(req.Info)
+		infoBytes, err := decodeHexOrNil(req.Info)
+		if err != nil {
+			return symmetric.CryptoResult{Error: "无效的Info(需要hex): " + err.Error()}
+		}
 		r := hkdf.New(sha256.New, passBytes, saltBytes, infoBytes)
 		out := make([]byte, keyLen)
 		if _, err := r.Read(out); err != nil {
@@ -100,7 +118,10 @@ func Derive(req KDFRequest) symmetric.CryptoResult {
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(out)}
 
 	case "HKDF-SHA512":
-		infoBytes, _ := hex.DecodeString(req.Info)
+		infoBytes, err := decodeHexOrNil(req.Info)
+		if err != nil {
+			return symmetric.CryptoResult{Error: "无效的Info(需要hex): " + err.Error()}
+		}
 		r := hkdf.New(sha512.New, passBytes, saltBytes, infoBytes)
 		out := make([]byte, keyLen)
 		if _, err := r.Read(out); err != nil {
@@ -109,7 +130,10 @@ func Derive(req KDFRequest) symmetric.CryptoResult {
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(out)}
 
 	case "HKDF-SM3":
-		infoBytes, _ := hex.DecodeString(req.Info)
+		infoBytes, err := decodeHexOrNil(req.Info)
+		if err != nil {
+			return symmetric.CryptoResult{Error: "无效的Info(需要hex): " + err.Error()}
+		}
 		r := hkdf.New(sm3.New, passBytes, saltBytes, infoBytes)
 		out := make([]byte, keyLen)
 		if _, err := r.Read(out); err != nil {

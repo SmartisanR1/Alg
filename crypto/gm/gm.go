@@ -5,13 +5,14 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/hmac"
-	"github.com/emmansun/gmsm/rand"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"math/big"
 	"strings"
+
+	"github.com/emmansun/gmsm/rand"
 
 	"cryptokit/crypto/symmetric"
 
@@ -388,6 +389,9 @@ func SM4Encrypt(req SM4Request) symmetric.CryptoResult {
 			return symmetric.CryptoResult{Error: err.Error()}
 		}
 		padded := applyPadding(dataBytes, sm4.BlockSize, req.Padding)
+		if len(padded) == 0 || len(padded)%sm4.BlockSize != 0 {
+			return symmetric.CryptoResult{Error: "CBC模式: 明文填充后长度必须是16字节的倍数(可改用PKCS7/Zero填充)"}
+		}
 		ct := make([]byte, len(padded))
 		// ✅ 标准 cipher.NewCBCEncrypter 适用于任何 cipher.Block
 		cipher.NewCBCEncrypter(block, ivBytes).CryptBlocks(ct, padded)
@@ -451,7 +455,11 @@ func SM4Encrypt(req SM4Request) symmetric.CryptoResult {
 		}
 		var aad []byte
 		if req.AAD != "" {
-			aad, _ = hex.DecodeString(req.AAD)
+			var err error
+			aad, err = hex.DecodeString(req.AAD)
+			if err != nil {
+				return symmetric.CryptoResult{Error: "无效的AAD: " + err.Error()}
+			}
 		}
 		ct := gcm.Seal(nil, nonceBytes, dataBytes, aad)
 		return symmetric.CryptoResult{
@@ -494,6 +502,9 @@ func SM4Decrypt(req SM4Request) symmetric.CryptoResult {
 		if err != nil || len(ivBytes) != sm4.BlockSize {
 			return symmetric.CryptoResult{Error: "CBC模式需要16字节IV"}
 		}
+		if len(dataBytes) == 0 || len(dataBytes)%sm4.BlockSize != 0 {
+			return symmetric.CryptoResult{Error: "CBC解密: 密文长度必须是16字节的倍数"}
+		}
 		pt := make([]byte, len(dataBytes))
 		cipher.NewCBCDecrypter(block, ivBytes).CryptBlocks(pt, dataBytes)
 		pt = removePadding(pt, req.Padding)
@@ -504,6 +515,9 @@ func SM4Decrypt(req SM4Request) symmetric.CryptoResult {
 		if err != nil {
 			return symmetric.CryptoResult{Error: "CFB需要IV: " + err.Error()}
 		}
+		if len(ivBytes) != sm4.BlockSize {
+			return symmetric.CryptoResult{Error: "CFB需要16字节IV"}
+		}
 		pt := make([]byte, len(dataBytes))
 		cipher.NewCFBDecrypter(block, ivBytes).XORKeyStream(pt, dataBytes)
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(pt)}
@@ -513,6 +527,9 @@ func SM4Decrypt(req SM4Request) symmetric.CryptoResult {
 		if err != nil {
 			return symmetric.CryptoResult{Error: "OFB需要IV: " + err.Error()}
 		}
+		if len(ivBytes) != sm4.BlockSize {
+			return symmetric.CryptoResult{Error: "OFB需要16字节IV"}
+		}
 		pt := make([]byte, len(dataBytes))
 		cipher.NewOFB(block, ivBytes).XORKeyStream(pt, dataBytes)
 		return symmetric.CryptoResult{Success: true, Data: hexUpper(pt)}
@@ -521,6 +538,9 @@ func SM4Decrypt(req SM4Request) symmetric.CryptoResult {
 		ivBytes, err := hex.DecodeString(req.IV)
 		if err != nil {
 			return symmetric.CryptoResult{Error: "CTR需要IV: " + err.Error()}
+		}
+		if len(ivBytes) != sm4.BlockSize {
+			return symmetric.CryptoResult{Error: "CTR需要16字节IV"}
 		}
 		pt := make([]byte, len(dataBytes))
 		cipher.NewCTR(block, ivBytes).XORKeyStream(pt, dataBytes)
@@ -537,7 +557,11 @@ func SM4Decrypt(req SM4Request) symmetric.CryptoResult {
 		}
 		var aad []byte
 		if req.AAD != "" {
-			aad, _ = hex.DecodeString(req.AAD)
+			var err error
+			aad, err = hex.DecodeString(req.AAD)
+			if err != nil {
+				return symmetric.CryptoResult{Error: "无效的AAD: " + err.Error()}
+			}
 		}
 		pt, err := gcm.Open(nil, nonceBytes, dataBytes, aad)
 		if err != nil {
@@ -736,7 +760,10 @@ func SM9Verify(req SM9VerifyRequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "解析SM9签名主公钥失败: " + err.Error()}
 	}
-	dataBytes, _ := hex.DecodeString(req.Data)
+	dataBytes, err := hex.DecodeString(req.Data)
+	if err != nil {
+		return symmetric.CryptoResult{Error: "无效的数据: " + err.Error()}
+	}
 	sigBytes, err := hex.DecodeString(req.Signature)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的签名: " + err.Error()}
@@ -745,7 +772,7 @@ func SM9Verify(req SM9VerifyRequest) symmetric.CryptoResult {
 	const hidSign byte = 0x01
 	valid := sm9.VerifyASN1(masterPub, []byte(req.UID), hidSign, dataBytes, sigBytes)
 	if !valid {
-		return symmetric.CryptoResult{Success: true, Data: "false", Error: "SM9签名验证失败"}
+		return symmetric.CryptoResult{Success: false, Data: "false", Error: "SM9签名验证失败"}
 	}
 	return symmetric.CryptoResult{Success: true, Data: "true"}
 }

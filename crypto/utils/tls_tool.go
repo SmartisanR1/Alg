@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -187,10 +188,10 @@ func extractCertInfo(cert interface{}) CertInfo {
 		info.IsCA = c.IsCA
 		info.KeyAlgorithm = c.PublicKeyAlgorithm.String()
 		info.SigAlgorithm = c.SignatureAlgorithm.String()
-		fingerprint := hex.EncodeToString(c.Raw)
-		parts := make([]string, len(fingerprint)/2)
-		for i := 0; i < len(fingerprint); i += 2 {
-			parts[i/2] = strings.ToUpper(fingerprint[i:i+2])
+		fingerprint := sha256.Sum256(c.Raw)
+		parts := make([]string, len(fingerprint))
+		for i, b := range fingerprint {
+			parts[i] = strings.ToUpper(hex.EncodeToString([]byte{b}))
 		}
 		info.Fingerprint = strings.Join(parts, ":")
 	case *smx509.Certificate:
@@ -206,10 +207,10 @@ func extractCertInfo(cert interface{}) CertInfo {
 		info.IsCA = c.IsCA
 		info.KeyAlgorithm = c.PublicKeyAlgorithm.String()
 		info.SigAlgorithm = c.SignatureAlgorithm.String()
-		fingerprint := hex.EncodeToString(c.Raw)
-		parts := make([]string, len(fingerprint)/2)
-		for i := 0; i < len(fingerprint); i += 2 {
-			parts[i/2] = strings.ToUpper(fingerprint[i:i+2])
+		fingerprint := sha256.Sum256(c.Raw)
+		parts := make([]string, len(fingerprint))
+		for i, b := range fingerprint {
+			parts[i] = strings.ToUpper(hex.EncodeToString([]byte{b}))
 		}
 		info.Fingerprint = strings.Join(parts, ":")
 	}
@@ -453,18 +454,18 @@ func tlsSelfTest(protocol, message string, enablePQC bool) TLSSelfTestResult {
 	curveUsed := getCurveName(state.CurveID)
 
 	result := TLSSelfTestResult{
-		Success:          true,
-		Protocol:         protocol,
-		CipherSuite:      tls.CipherSuiteName(state.CipherSuite),
-		CipherSuiteID:    fmt.Sprintf("0x%04X", state.CipherSuite),
-		TLSVersion:       getTLSVersionName(state.Version),
-		HandshakeTimeMs:  handshakeTime,
-		ExchangeTimeMs:   exchangeTime,
-		ALPNProtocol:     state.NegotiatedProtocol,
-		SessionReused:    state.DidResume,
-		SentMessage:      message,
-		ReceivedMessage:  string(buf[:n]),
-		CurveUsed:        curveUsed,
+		Success:         true,
+		Protocol:        protocol,
+		CipherSuite:     tls.CipherSuiteName(state.CipherSuite),
+		CipherSuiteID:   fmt.Sprintf("0x%04X", state.CipherSuite),
+		TLSVersion:      getTLSVersionName(state.Version),
+		HandshakeTimeMs: handshakeTime,
+		ExchangeTimeMs:  exchangeTime,
+		ALPNProtocol:    state.NegotiatedProtocol,
+		SessionReused:   state.DidResume,
+		SentMessage:     message,
+		ReceivedMessage: string(buf[:n]),
+		CurveUsed:       curveUsed,
 	}
 
 	for _, cert := range state.PeerCertificates {
@@ -609,16 +610,16 @@ func tlcpSelfTest(message string) TLSSelfTestResult {
 	state := conn.ConnectionState()
 
 	result := TLSSelfTestResult{
-		Success:          true,
-		Protocol:         "tlcp",
-		CipherSuite:      gotlcp.CipherSuiteName(state.CipherSuite),
-		CipherSuiteID:    fmt.Sprintf("0x%04X", state.CipherSuite),
-		TLSVersion:       getTLSVersionName(state.Version),
-		HandshakeTimeMs:  handshakeTime,
-		ExchangeTimeMs:   exchangeTime,
-		SessionReused:    state.DidResume,
-		SentMessage:      message,
-		ReceivedMessage:  string(buf[:n]),
+		Success:         true,
+		Protocol:        "tlcp",
+		CipherSuite:     gotlcp.CipherSuiteName(state.CipherSuite),
+		CipherSuiteID:   fmt.Sprintf("0x%04X", state.CipherSuite),
+		TLSVersion:      getTLSVersionName(state.Version),
+		HandshakeTimeMs: handshakeTime,
+		ExchangeTimeMs:  exchangeTime,
+		SessionReused:   state.DidResume,
+		SentMessage:     message,
+		ReceivedMessage: string(buf[:n]),
 	}
 
 	for _, cert := range state.PeerCertificates {

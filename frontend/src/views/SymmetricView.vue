@@ -730,7 +730,7 @@
               <div class="help-note">
                 <p class="help-note-title">{{ aes.mode }} 模式怎么选</p>
                 <p class="text-[13px]" v-if="aes.mode === 'ECB'">每个分组独立处理，最容易理解，但会暴露重复明文块的结构，只适合测试或兼容旧接口，不建议业务数据直接使用。</p>
-                <p class="text-[13px]" v-else-if="aes.mode === 'CBC'">传统工程里最常见的模式之一，兼容性强，适合文件和数据库场景。注意 IV 不能重复，且通常需要配合额外 MAC 才能防篡改。加密后 IV 自动更新为最后一个密文块。</p>
+                <p class="text-[13px]" v-else-if="aes.mode === 'CBC'">传统工程里最常见的模式之一，兼容性强，适合文件和数据库场景。注意 IV 不能重复，且通常需要配合额外 MAC 才能防篡改。未提供 IV 时自动生成，Extra 返回实际使用的 IV。</p>
                 <p class="text-[13px]" v-else-if="aes.mode === 'CFB'">把分组密码转换成流式处理方式，不要求块对齐，适合边到边传输，但新项目里通常会优先考虑更现代的 CTR 或 GCM。</p>
                 <p class="text-[13px]" v-else-if="aes.mode === 'OFB'">通过独立密钥流工作，位错误不会连带扩散，但也因此更依赖正确的参数管理，工程上没有 GCM 那么常见。</p>
                 <p class="text-[13px]" v-else-if="aes.mode === 'CTR'">性能好、可并行、支持随机访问，适合高吞吐处理；但它只负责机密性，不负责完整性，通常要再配认证机制。</p>
@@ -802,7 +802,7 @@
                 <div class="help-note">
                   <p class="help-note-title">模式选择</p>
                   <p class="text-[13px]" v-if="sm4.mode === 'ECB'">ECB 模式每个块独立加密，仅用于测试或兼容。</p>
-                  <p class="text-[13px]" v-else-if="sm4.mode === 'CBC'">CBC 是最常用的模式，需要 IV，适合大多数场景。加密后 IV 自动更新为最后一个密文块。</p>
+                  <p class="text-[13px]" v-else-if="sm4.mode === 'CBC'">CBC 是最常用的模式，需要 IV，适合大多数场景。未提供 IV 时自动生成，Extra 返回实际使用的 IV。</p>
                   <p class="text-[13px]" v-else-if="sm4.mode === 'GCM'">GCM 提供认证加密 (AEAD)，是现代首选。</p>
                   <p class="text-[13px]" v-else>{{ sm4.mode }} 模式适用于特定场景。</p>
                 </div>
@@ -1029,7 +1029,7 @@ const currentPrinciple = computed(() => {
   if (activeTab.value === 'aes') {
     const modeInfo = {
       'ECB': '当前模式: ECB - 每个块独立加密，不推荐用于生产环境。',
-      'CBC': '当前模式: CBC - 需要 IV，传统常用模式，需配合 MAC 防篡改。\n运算后 IV 变为最后一个密文块，可用于下次加密的初始 IV。',
+      'CBC': '当前模式: CBC - 需要 IV，传统常用模式，需配合 MAC 防篡改。\n未提供 IV 时自动生成，Extra 返回实际使用的 IV。',
       'CFB': '当前模式: CFB - 流式处理，不需要填充。',
       'OFB': '当前模式: OFB - 独立密钥流，错误不扩散。',
       'CTR': '当前模式: CTR - 高性能可并行，需额外完整性校验。\n运算后计数器递增，Nonce 保持不变。',
@@ -1049,7 +1049,7 @@ const currentPrinciple = computed(() => {
   } else if (activeTab.value === 'des') {
     const modeInfo = {
       'ECB': '当前模式: ECB - 不需要 IV，但会暴露重复块形状。',
-      'CBC': '当前模式: CBC - 遗留系统最常见选项。运算后 IV 变为最后一个密文块。',
+      'CBC': '当前模式: CBC - 遗留系统最常见选项。未提供 IV 时自动生成，Extra 返回实际使用的 IV。',
       'CFB': '当前模式: CFB - 可做流式处理。',
       'OFB': '当前模式: OFB - 独立密钥流。',
       'CTR': '当前模式: CTR - 可并行处理。'
@@ -1058,7 +1058,7 @@ const currentPrinciple = computed(() => {
   } else if (activeTab.value === 'sm4') {
     const modeInfo = {
       'ECB': '当前模式: ECB - 每个块独立加密。',
-      'CBC': '当前模式: CBC - 需要 IV，最常用模式。运算后 IV 变为最后一个密文块。',
+      'CBC': '当前模式: CBC - 需要 IV，最常用模式。未提供 IV 时自动生成，Extra 返回实际使用的 IV。',
       'CFB': '当前模式: CFB - 流式处理。',
       'OFB': '当前模式: OFB - 独立密钥流。',
       'CTR': '当前模式: CTR - 高性能可并行。运算后计数器递增。',

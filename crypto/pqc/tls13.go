@@ -65,7 +65,12 @@ func getCurveID(group string) (tls13.CurveID, error) {
 	}
 }
 
-// TLS13KeyGen generates a key pair for TLS 1.3 key exchange
+// TLS13KeyGen generates a key pair for TLS 1.3 key exchange.
+//
+// TLS 1.3 使用临时(ephemeral)密钥: gmsm/tls13 库的 ClassicalKeyPair 接口
+// 只暴露公钥(PublicKeyBytes)与 ECDH 计算, 不提供私钥字节导出 API
+// (stdlib crypto/ecdh.PrivateKey 无 Bytes(), ML-KEM 私钥同样不可导出)。
+// 因此这里只返回公钥, 私钥仅存在于内存中, 用于后续 ClientSharedSecret。
 func TLS13KeyGen(group string) TLS13KeyGenResult {
 	curveID, err := getCurveID(group)
 	if err != nil {
@@ -77,17 +82,9 @@ func TLS13KeyGen(group string) TLS13KeyGenResult {
 		return TLS13KeyGenResult{Error: "创建密钥交换实例失败: " + err.Error()}
 	}
 
-	priv, keyShares, err := ke.KeyShares(rand.Reader)
+	_, keyShares, err := ke.KeyShares(rand.Reader)
 	if err != nil {
 		return TLS13KeyGenResult{Error: "生成密钥对失败: " + err.Error()}
-	}
-
-	// Serialize private key (ECDHE part + optional MLKEM part)
-	privBytes := priv.ECDHE.PublicKeyBytes()
-	if priv.MLKEM != nil {
-		// For hybrid, we need to store both parts
-		// The private key is the concatenation of the ECDHE private key bytes
-		// We'll store the public key bytes as the identifier
 	}
 
 	// The public key is the client key share data
@@ -96,7 +93,7 @@ func TLS13KeyGen(group string) TLS13KeyGenResult {
 	return TLS13KeyGenResult{
 		Success:    true,
 		PublicKey:  hexUpper(pubBytes),
-		PrivateKey: hexUpper(privBytes),
+		PrivateKey: "(临时密钥) TLS 1.3 密钥交换使用瞬时密钥, 私钥由 gmsm 库在内存中持有, 不支持导出。请使用\"执行完整密钥交换\"完成演示。",
 		Group:      group,
 	}
 }

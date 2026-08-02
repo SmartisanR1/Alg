@@ -51,7 +51,6 @@ func (ff1 *FF1) cipherRunes(X []rune, T []byte, enc bool) ([]rune, error) {
 	P[0] = 1
 	P[1] = 2
 	binary.BigEndian.PutUint32(P[2:6], uint32(radix))
-	P[2] = 1
 	P[6] = 10
 	P[7] = byte(u)
 	binary.BigEndian.PutUint32(P[8:12], uint32(n))

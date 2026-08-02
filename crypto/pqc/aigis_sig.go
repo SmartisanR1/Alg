@@ -56,9 +56,9 @@ var aigisIIIParams = aigisParamSet{
 	Gamma1: 131072, Gamma2: 95232, Beta: 78, Omega: 80,
 	Name:      "AIGIS-sig-III",
 	SeedBytes: 32,
-	PKBytes:   1312, // 32(rho) + 3*256*(Q.BitLen/8) ≈
-	SKBytes:   2560,
-	SigBytes:  2420,
+	PKBytes:   992, // 32(rho) + K*320(t1)
+	SKBytes:   1984,
+	SigBytes:  1664, // 32(c) + L*768(z) + K*32(hint 位图)
 }
 
 // AIGIS-sig-V: 约 NIST 安全等级 5
@@ -67,9 +67,9 @@ var aigisVParams = aigisParamSet{
 	Gamma1: 524288, Gamma2: 261888, Beta: 196, Omega: 90,
 	Name:      "AIGIS-sig-V",
 	SeedBytes: 32,
-	PKBytes:   1952,
-	SKBytes:   4000,
-	SigBytes:  3293,
+	PKBytes:   1312,
+	SKBytes:   2656,
+	SigBytes:  2464, // 32(c) + L*768(z) + K*32(hint 位图)
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -89,9 +89,18 @@ func aigisCenteredReduce(a int32) int32 {
 	return a
 }
 
-// Barrett 约减 (近似，确保结果 ∈ [0, 2q))
+// Montgomery 约减 (Dilithium 参考实现): 输入 a, 输出 a*2^-32 mod q ∈ (-q, q)
+const aigisQInv = 58728449 // q^(-1) mod 2^32
+
+func aigisMontReduce(a int64) int32 {
+	t := int32(a) * aigisQInv
+	t = int32((a - int64(t)*aigisQBig) >> 32)
+	return t
+}
+
+// Barrett 约减 (Dilithium 参考实现): 输入 |a| <= 2^31-2^22-1, 输出 ∈ (-q, q)
 func aigisReduce32(a int32) int32 {
-	t := (int64(a)*int64(4236238848) + (1 << 31)) >> 32
+	t := (int64(a) + (1 << 22)) >> 23
 	return a - int32(t)*aigisQ
 }
 
@@ -122,16 +131,14 @@ func aigisPolySub(r, a, b *aigisPoly) {
 // where alpha = 2*gamma2, and r1 = HighBits(r), r0 = LowBits(r)
 func aigisPolyDecompose(r0, r1, r *aigisPoly, alpha int32) {
 	for i := range r {
-		v := aigisFreeze(r[i])
-		r1[i] = aigisHighBits(v, alpha)
-		r0[i] = aigisLowBits(v, alpha)
+		r0[i], r1[i] = aigisDecompose(r[i], alpha)
 	}
 }
 
 // 多项式数乘
 func aigisPolyScaleConst(r *aigisPoly, a *aigisPoly, c int32) {
 	for i := range r {
-		r[i] = aigisFreeze(aigisReduce32(a[i]) * aigisFreeze(c))
+		r[i] = int32((int64(aigisFreeze(a[i])) * int64(aigisFreeze(c))) % aigisQBig)
 	}
 }
 
@@ -185,7 +192,7 @@ func aigisNTT(a *aigisPoly) {
 			zeta := aigisZetas[k]
 			k++
 			for j := start; j < start+len_; j++ {
-				t := aigisReduce32(zeta * a[j+len_])
+				t := aigisMontReduce(int64(zeta) * int64(a[j+len_]))
 				a[j+len_] = a[j] - t
 				a[j] = a[j] + t
 			}
@@ -204,19 +211,19 @@ func aigisINTT(a *aigisPoly) {
 				t := a[j]
 				a[j] = t + a[j+len_]
 				a[j+len_] = t - a[j+len_]
-				a[j+len_] = aigisReduce32(zeta * a[j+len_])
+				a[j+len_] = aigisMontReduce(int64(zeta) * int64(a[j+len_]))
 			}
 		}
 	}
 	for j := range a {
-		a[j] = aigisReduce32(f * a[j])
+		a[j] = aigisMontReduce(int64(f) * int64(a[j]))
 	}
 }
 
-// 点乘 (NTT 域内)
+// 点乘 (NTT 域内, Montgomery 乘法)
 func aigisPolyPointwiseMontgomery(r, a, b *aigisPoly) {
 	for i := range r {
-		r[i] = int32(int64(a[i]) * int64(b[i]) % aigisQBig)
+		r[i] = aigisMontReduce(int64(a[i]) * int64(b[i]))
 	}
 }
 
@@ -299,7 +306,7 @@ func aigisEtaPoly(a *aigisPoly, seed []byte, nonce uint16, eta int32) {
 	}
 }
 
-// 从 [-gamma1+1, gamma1] 采样 (用于 y)
+// 从 [-gamma1, gamma1] 均匀采样 (用于 y)
 func aigisGamma1Poly(a *aigisPoly, seed []byte, nonce uint16, gamma1 int32) {
 	state := sha3.NewShake256()
 	state.Write(seed)
@@ -307,15 +314,14 @@ func aigisGamma1Poly(a *aigisPoly, seed []byte, nonce uint16, gamma1 int32) {
 	binary.LittleEndian.PutUint16(n[:], nonce)
 	state.Write(n[:])
 
-	// Simplified: just use rejection sampling approach
+	// 均匀采样 raw ∈ [0, 2^24), 取 raw mod (2*gamma1+1) 得到 x ∈ [0, 2*gamma1],
+	// 映射为 y = x - gamma1 ∈ [-gamma1, gamma1]
 	for j := range a {
 		var b [3]byte
 		state.Read(b[:])
-		raw := int32(b[0]) | int32(b[1])<<8 | int32(b[2]&0x03)<<16
-		a[j] = gamma1 - (raw%(2*gamma1+1) - gamma1)
-		if a[j] < -gamma1 || a[j] > gamma1 {
-			a[j] = 0
-		}
+		raw := int32(b[0]) | int32(b[1])<<8 | int32(b[2])<<16
+		x := raw % (2*gamma1 + 1)
+		a[j] = x - gamma1
 	}
 }
 
@@ -353,36 +359,31 @@ func aigisSampleInBall(c *aigisPoly, seed []byte, tau int32) {
 // HighBits / LowBits / MakeHint / UseHint
 // ─────────────────────────────────────────────────────────────
 
-func aigisHighBits(a, alpha int32) int32 {
-	// 将 a 规范化到 [0, q) 范围
+// aigisDecompose: 将 a ∈ [0, q) 分解为 a = a1*alpha + a0
+// 参考 Dilithium round-3 decompose()。
+func aigisDecompose(a, alpha int32) (a0, a1 int32) {
 	a = aigisFreeze(a)
-	if a < 0 {
-		a += aigisQ
-	}
-
-	// a1 = ⌈a / 128⌉
-	a1 := uint32(a+127) >> 7
-
-	if alpha == 523776 { // 2*gamma2 for AIGIS-V
-		// 1025/2²² is close enough to 1/4092
-		a1 = ((a1*1025 + (1 << 21)) >> 22)
-		// Corner-case: a1 = (q-1)/alpha = 16, set a1=0
+	a1 = (a + 127) >> 7
+	if alpha == 523776 { // AIGIS-sig-V: GAMMA2 = 261888 = alpha/2
+		a1 = (a1*1025 + (1 << 21)) >> 22
 		a1 &= 15
-	} else if alpha == 190464 { // 2*gamma2 for AIGIS-III
-		// 1488/2²⁴ is close enough to 1/1488
-		a1 = ((a1 * 11275) + (1 << 23)) >> 24
-		// Corner-case: a1 = (q-1)/alpha = 44, set a1=0
-		if a1 > 44 {
-			a1 = 0
-		}
+	} else { // AIGIS-sig-III: GAMMA2 = 95232 = alpha/2
+		a1 = (a1*11275 + (1 << 23)) >> 24
+		a1 ^= ((43 - a1) >> 31) & a1
 	}
+	a0 = a - a1*alpha
+	a0 -= (((aigisQ-1)/2 - a0) >> 31) & aigisQ
+	return
+}
 
-	return int32(a1)
+func aigisHighBits(a, alpha int32) int32 {
+	_, a1 := aigisDecompose(a, alpha)
+	return a1
 }
 
 func aigisLowBits(a, alpha int32) int32 {
-	a1 := aigisHighBits(a, alpha)
-	return a - a1*alpha
+	a0, _ := aigisDecompose(a, alpha)
+	return a0
 }
 
 func aigisMakeHint(a0, a1, alpha int32) int32 {
@@ -392,23 +393,28 @@ func aigisMakeHint(a0, a1, alpha int32) int32 {
 	return 0
 }
 
-func aigisUseHint(h, a, alpha int32) int32 {
-	a0 := aigisLowBits(a, alpha)
-	a1 := aigisHighBits(a, alpha)
-	m := (aigisQ - 1) / alpha
-	if h == 1 && a0 > 0 {
-		if a1 == m {
+func aigisUseHint(a, h, alpha int32) int32 {
+	a0, a1 := aigisDecompose(a, alpha)
+	if h == 0 {
+		return a1
+	}
+	if alpha == 523776 { // AIGIS-sig-V
+		if a0 > 0 {
+			return (a1 + 1) & 15
+		}
+		return (a1 - 1) & 15
+	}
+	// AIGIS-sig-III
+	if a0 > 0 {
+		if a1 == 43 {
 			return 0
 		}
 		return a1 + 1
 	}
-	if h == 1 && a0 <= 0 {
-		if a1 == 0 {
-			return m
-		}
-		return a1 - 1
+	if a1 == 0 {
+		return 43
 	}
-	return a1
+	return a1 - 1
 }
 
 func aigisPolyHighBits(r, a *aigisPoly, alpha int32) {
@@ -450,14 +456,23 @@ func aigisPackPoly(buf []byte, a *aigisPoly, bitsPerCoeff int) {
 			v1 := 2 - a[2*i+1]
 			buf[i] = byte(v0) | byte(v1)<<4
 		}
-	case 13: // t0 with d=13
+	case 13: // t0 with d=13, 8 coeffs * 13 bits = 104 bits = 13 bytes
+		// 参考 polyt0_pack: t0 ∈ (-2^(d-1), 2^(d-1)] 居中, 存偏移 2^(d-1) - t0
 		for i := 0; i < aigisN/8; i++ {
-			// simplified 13-bit pack
-			for j := 0; j < 8; j++ {
-				v := uint32((1 << (aigisD - 1)) - a[8*i+j])
-				_ = v
+			slot := buf[13*i : 13*i+13]
+			for k := range slot {
+				slot[k] = 0
 			}
-			binary.LittleEndian.PutUint64(buf[13*i:], uint64(a[8*i])&0x1FFF)
+			bitOff := 0
+			for j := 0; j < 8; j++ {
+				v := uint32((1<<(aigisD-1))-a[8*i+j]) & 0x1FFF
+				for b := 0; b < 13; b++ {
+					if v&(1<<b) != 0 {
+						slot[(bitOff+b)/8] |= 1 << ((bitOff + b) % 8)
+					}
+				}
+				bitOff += 13
+			}
 		}
 	case 10: // t1 = Power2Round high bits with d=13
 		for i := 0; i < aigisN/4; i++ {
@@ -479,17 +494,22 @@ func aigisUnpackPoly(a *aigisPoly, buf []byte, bitsPerCoeff int) {
 	case 4: // eta=2 coefficients ∈ [-2,2] → stored as 4+val
 		for i := 0; i < aigisN/2; i++ {
 			v := buf[i]
-			a[2*i] = int32(v&0x0F) - 2
-			a[2*i+1] = int32(v>>4) - 2
+			a[2*i] = 2 - int32(v&0x0F)
+			a[2*i+1] = 2 - int32(v>>4)
 		}
-	case 13: // t0 with d=13
+	case 13: // t0 with d=13, 8 coeffs * 13 bits = 104 bits = 13 bytes
+		// 参考 polyt0_unpack: 恢复居中 t0 = 2^(d-1) - t
 		for i := 0; i < aigisN/8; i++ {
-			v := binary.LittleEndian.Uint64(buf[13*i:])
-			a[8*i] = int32(v & 0x1FFF)
-			// Simplified: only unpack first coefficient per group
-			// Full implementation would unpack all 8 coefficients
-			for j := 1; j < 8; j++ {
-				a[8*i+j] = int32((v >> (13 * j)) & 0x1FFF)
+			bitOff := 0
+			for j := 0; j < 8; j++ {
+				var v uint32
+				for b := 0; b < 13; b++ {
+					if buf[13*i+(bitOff+b)/8]&(1<<((bitOff+b)%8)) != 0 {
+						v |= 1 << b
+					}
+				}
+				a[8*i+j] = (1 << (aigisD - 1)) - int32(v)
+				bitOff += 13
 			}
 		}
 	case 10: // t1 = Power2Round high bits with d=13
@@ -625,18 +645,22 @@ func aigisKeyGen(p aigisParamSet) (aigisKeyPair, error) {
 	t := make([]aigisPoly, p.K)
 	aigisMatVecMul(t, A, s1hat)
 	for i := range t {
+		for j := range t[i] {
+			t[i][j] = aigisReduce32(t[i][j])
+		}
 		aigisINTT(&t[i])
 		aigisPolyAdd(&t[i], &t[i], &s2[i])
 	}
 
-	// Power2Round(t)
+	// Power2Round(t): t = t1*2^d + t0, t0 ∈ (-2^(d-1), 2^(d-1)]
 	t1 := make([]aigisPoly, p.K)
 	t0 := make([]aigisPoly, p.K)
 	for i := range t {
 		for j := range t[i] {
 			tv := aigisFreeze(t[i][j])
-			t0[i][j] = tv % (1 << aigisD)
-			t1[i][j] = (tv - t0[i][j]) >> aigisD
+			a1 := (tv + (1 << (aigisD - 1)) - 1) >> aigisD
+			t1[i][j] = a1
+			t0[i][j] = tv - (a1 << aigisD)
 		}
 	}
 
@@ -699,10 +723,10 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 
 	alpha := 2 * p.Gamma2
 
-	// 拒绝采样循环 (参考 circl 实现)
+	// 拒绝采样循环 (参考 Dilithium round-3)
 	var yNonce uint16
 	for attempt := 0; attempt < 1000; attempt++ {
-		// y ~ S^l_{gamma1-1}
+		// y ~ S^l_{gamma1}
 		y := make([]aigisPoly, p.L)
 		for i := range y {
 			aigisGamma1Poly(&y[i], rhoPrime, yNonce, p.Gamma1)
@@ -718,6 +742,9 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 		w := make([]aigisPoly, p.K)
 		aigisMatVecMul(w, A, yhat)
 		for i := range w {
+			for j := range w[i] {
+				w[i][j] = aigisReduce32(w[i][j])
+			}
 			aigisINTT(&w[i])
 		}
 
@@ -747,44 +774,15 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 		chat := c
 		aigisNTT(&chat)
 
-		// 检查 ||w0 - c*s2||∞ < γ₂ - β
-		w0mcs2 := make([]aigisPoly, p.K)
-		for i := range s2 {
-			aigisPolyPointwiseMontgomery(&w0mcs2[i], &chat, &s2hat[i])
-			aigisINTT(&w0mcs2[i])
-		}
-		for i := range w0 {
-			aigisPolySub(&w0mcs2[i], &w0[i], &w0mcs2[i])
-		}
-		ok := true
-		for i := range w0mcs2 {
-			for _, v := range w0mcs2[i] {
-				if v > p.Gamma2-p.Beta || v < -(p.Gamma2-p.Beta) {
-					ok = false
-					break
-				}
-			}
-			if !ok {
-				break
-			}
-		}
-		if !ok {
-			continue
-		}
-
-		// z = y + c*s1
+		// z = y + c*s1, 检查 ||z||∞ < γ₁ - β
 		z := make([]aigisPoly, p.L)
 		for i := range s1 {
 			aigisPolyPointwiseMontgomery(&z[i], &chat, &s1hat[i])
 			aigisINTT(&z[i])
 		}
+		ok := true
 		for i := range y {
 			aigisPolyAdd(&z[i], &y[i], &z[i])
-		}
-
-		// 检查 ||z||∞ < γ₁ - β
-		ok = true
-		for i := range z {
 			for _, v := range z[i] {
 				if v > p.Gamma1-p.Beta || v < -(p.Gamma1-p.Beta) {
 					ok = false
@@ -799,18 +797,17 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 			continue
 		}
 
-		// 计算 c*t0
-		ct0 := make([]aigisPoly, p.K)
-		for i := range t0 {
-			aigisPolyPointwiseMontgomery(&ct0[i], &chat, &t0hat[i])
-			aigisINTT(&ct0[i])
+		// w0 = w0 - c*s2, 检查 ||w0 - c*s2||∞ < γ₂ - β
+		cs2 := make([]aigisPoly, p.K)
+		for i := range s2 {
+			aigisPolyPointwiseMontgomery(&cs2[i], &chat, &s2hat[i])
+			aigisINTT(&cs2[i])
 		}
-
-		// 检查 ||c*t0||∞ < γ₂
-		ok = true
-		for i := range ct0 {
-			for _, v := range ct0[i] {
-				if v > p.Gamma2 || v < -p.Gamma2 {
+		for i := range w0 {
+			aigisPolySub(&w0[i], &w0[i], &cs2[i])
+			for j := range w0[i] {
+				w0[i][j] = aigisReduce32(w0[i][j])
+				if w0[i][j] > p.Gamma2-p.Beta || w0[i][j] < -(p.Gamma2-p.Beta) {
 					ok = false
 					break
 				}
@@ -823,19 +820,61 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 			continue
 		}
 
-		// 打包签名: (ctilde, z)
-		sigBuf := make([]byte, 32+p.L*aigisN*3)
+		// h = c*t0, 检查 ||c*t0||∞ < γ₂
+		ct0 := make([]aigisPoly, p.K)
+		for i := range t0 {
+			aigisPolyPointwiseMontgomery(&ct0[i], &chat, &t0hat[i])
+			aigisINTT(&ct0[i])
+			for j := range ct0[i] {
+				ct0[i][j] = aigisReduce32(ct0[i][j])
+				if ct0[i][j] > p.Gamma2 || ct0[i][j] < -p.Gamma2 {
+					ok = false
+					break
+				}
+			}
+			if !ok {
+				break
+			}
+		}
+		if !ok {
+			continue
+		}
+
+		// w0 += c*t0, 生成 hint, 检查 hint 数量 ≤ Ω
+		hints := make([]aigisPoly, p.K)
+		n := 0
+		for i := range w0 {
+			for j := range w0[i] {
+				w0[i][j] += ct0[i][j]
+				hv := aigisMakeHint(w0[i][j], w1[i][j], alpha)
+				hints[i][j] = hv
+				n += int(hv)
+			}
+		}
+		if n > p.Omega {
+			continue
+		}
+
+		// 打包签名: (ctilde, z, hints)
+		sigLen := 32 + p.L*aigisN*3 + p.K*32
+		sigBuf := make([]byte, sigLen)
 		copy(sigBuf[:32], ctilde)
 		for i, zi := range z {
 			for j, v := range zi {
-				// 将系数规范化到 [0, q) 范围
-				vn := v
-				if vn < 0 {
-					vn += aigisQ
+				// 参考 polyz_pack: 存偏移 GAMMA1 - v (24 位小端)
+				off := 32 + i*aigisN*3 + j*3
+				t := uint32(p.Gamma1 - v)
+				sigBuf[off] = byte(t)
+				sigBuf[off+1] = byte(t >> 8)
+				sigBuf[off+2] = byte(t >> 16)
+			}
+		}
+		for i := range hints {
+			base := 32 + p.L*aigisN*3 + i*32
+			for j := range hints[i] {
+				if hints[i][j] != 0 {
+					sigBuf[base+j/8] |= 1 << (uint(j) % 8)
 				}
-				sigBuf[32+i*aigisN*3+j*3] = byte(vn)
-				sigBuf[32+i*aigisN*3+j*3+1] = byte(vn >> 8)
-				sigBuf[32+i*aigisN*3+j*3+2] = byte(vn >> 16)
 			}
 		}
 		return sigBuf, nil
@@ -848,7 +887,8 @@ func aigisSign(sk, msg []byte, p aigisParamSet) ([]byte, error) {
 // ─────────────────────────────────────────────────────────────
 
 func aigisVerify(pk, msg, sig []byte, p aigisParamSet) bool {
-	if len(pk) < 32 || len(sig) < 32 {
+	sigLen := 32 + p.L*aigisN*3 + p.K*32
+	if len(pk) < 32+p.K*320 || len(sig) < sigLen {
 		return false
 	}
 	rho := pk[:32]
@@ -861,21 +901,29 @@ func aigisVerify(pk, msg, sig []byte, p aigisParamSet) bool {
 	mu := make([]byte, 64)
 	sha3.ShakeSum256(mu, append(tr, msg...))
 
-	// 解包签名
+	// 解包签名: ctilde || z || hints
 	ctilde := sig[:32]
 	z := make([]aigisPoly, p.L)
 	for i := range z {
 		for j := range z[i] {
 			off := 32 + i*aigisN*3 + j*3
-			if off+2 >= len(sig) {
-				return false
-			}
 			v := int32(sig[off]) | int32(sig[off+1])<<8 | int32(sig[off+2])<<16
-			if v > (1 << 23) {
-				v -= (1 << 24)
-			}
-			z[i][j] = v
+			z[i][j] = p.Gamma1 - v
 		}
+	}
+	hints := make([]aigisPoly, p.K)
+	nHints := 0
+	for i := range hints {
+		base := 32 + p.L*aigisN*3 + i*32
+		for j := range hints[i] {
+			if sig[base+j/8]&(1<<(uint(j)%8)) != 0 {
+				hints[i][j] = 1
+				nHints++
+			}
+		}
+	}
+	if nHints > p.Omega { // 参考 unpack_sig: hint 数量超限则拒绝
+		return false
 	}
 
 	// 检查 ||z||∞ < gamma1 - beta
@@ -891,29 +939,51 @@ func aigisVerify(pk, msg, sig []byte, p aigisParamSet) bool {
 	var c aigisPoly
 	aigisSampleInBall(&c, ctilde, p.Tau)
 
-	// 展开 A, t1
+	// 展开 A, 并解包 t1 (pk 中 k*320 字节, 每个系数 10 bit)
 	var A [][]aigisPoly
 	aigisExpandA(&A, rho, p.K, p.L)
 
-	// 近似验证: w1' = HighBits(A*z - c*t1*2^d)
-	// (简化: 用 z 直接计算 w, 检查 c~ = H(mu || w1))
+	t1 := make([]aigisPoly, p.K)
+	for i := range t1 {
+		aigisUnpackPoly(&t1[i], pk[32+i*320:32+(i+1)*320], 10)
+	}
+
+	// w1' = UseHint(HighBits(Az - c*t1*2^d))
 	zhat := make([]aigisPoly, p.L)
 	for i := range z {
 		zhat[i] = z[i]
 		aigisNTT(&zhat[i])
 	}
-
 	az := make([]aigisPoly, p.K)
 	aigisMatVecMul(az, A, zhat)
 	for i := range az {
-		aigisINTT(&az[i])
+		for j := range az[i] {
+			az[i][j] = aigisReduce32(az[i][j])
+		}
 	}
 
-	// w1' = HighBits(A*z)  (simplified, full impl subtracts c*t1*2^d)
+	// c_hat ⊙ t1_hat, 并缩放 2^d (NTT 域): NTT(c*t1*2^d)
+	chat := c
+	aigisNTT(&chat)
+	ct1 := make([]aigisPoly, p.K)
+	for i := range t1 {
+		aigisNTT(&t1[i])
+		aigisPolyPointwiseMontgomery(&ct1[i], &chat, &t1[i])
+		for j := range ct1[i] {
+			ct1[i][j] = int32((int64(ct1[i][j]) * (1 << aigisD)) % aigisQBig)
+		}
+	}
+
 	alpha := 2 * p.Gamma2
 	w1p := make([]aigisPoly, p.K)
 	for i := range az {
-		aigisPolyHighBits(&w1p[i], &az[i], alpha)
+		for j := range az[i] {
+			az[i][j] = aigisFreeze(az[i][j] - ct1[i][j])
+		}
+		aigisINTT(&az[i])
+		for j := range w1p[i] {
+			w1p[i][j] = aigisUseHint(az[i][j], hints[i][j], alpha)
+		}
 	}
 
 	// c~' = H(mu || w1')
@@ -979,7 +1049,10 @@ func AigisVerify(req SLHDSAVerifyRequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效公钥(hex): " + err.Error()}
 	}
-	msgBytes, _ := hex.DecodeString(req.Data)
+	msgBytes, err := hex.DecodeString(req.Data)
+	if err != nil {
+		return symmetric.CryptoResult{Error: "无效数据(hex): " + err.Error()}
+	}
 	sigBytes, err := hex.DecodeString(req.Signature)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效签名(hex): " + err.Error()}
@@ -987,5 +1060,5 @@ func AigisVerify(req SLHDSAVerifyRequest) symmetric.CryptoResult {
 	if aigisVerify(pkBytes, msgBytes, sigBytes, p) {
 		return symmetric.CryptoResult{Success: true, Data: "true"}
 	}
-	return symmetric.CryptoResult{Success: true, Data: "false", Error: "验签失败"}
+	return symmetric.CryptoResult{Success: false, Data: "false", Error: "验签失败"}
 }

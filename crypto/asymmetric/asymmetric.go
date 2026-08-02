@@ -5,7 +5,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
-	"github.com/emmansun/gmsm/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/sha512"
@@ -15,6 +14,8 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
+
+	"github.com/emmansun/gmsm/rand"
 
 	"cryptokit/crypto/symmetric"
 
@@ -195,7 +196,7 @@ func RSAVerify(req RSAVerifyRequest) symmetric.CryptoResult {
 		err = rsa.VerifyPKCS1v15(rsaPub, hashID, digest, sigBytes)
 	}
 	if err != nil {
-		return symmetric.CryptoResult{Success: true, Data: "false", Error: "签名验证失败"}
+		return symmetric.CryptoResult{Success: false, Data: "false", Error: "签名验证失败"}
 	}
 	return symmetric.CryptoResult{Success: true, Data: "true"}
 }
@@ -379,7 +380,7 @@ func ECCVerify(req ECCVerifyRequest) symmetric.CryptoResult {
 
 	valid := ecdsa.Verify(ecPub, digest, r, s)
 	if !valid {
-		return symmetric.CryptoResult{Success: true, Data: "false", Error: "签名验证失败"}
+		return symmetric.CryptoResult{Success: false, Data: "false", Error: "签名验证失败"}
 	}
 	return symmetric.CryptoResult{Success: true, Data: "true"}
 }
@@ -395,7 +396,12 @@ func ECDHCompute(req ECDHRequest) symmetric.CryptoResult {
 	}
 
 	x, _ := priv.Curve.ScalarMult(peerPub.X, peerPub.Y, priv.D.Bytes())
-	shared := x.Bytes()
+	if x == nil {
+		return symmetric.CryptoResult{Error: "ECDH计算失败: 无效的密钥点"}
+	}
+	// 定长输出: x.Bytes() 会丢弃前导零导致短于曲线定长
+	shared := make([]byte, (priv.Curve.Params().BitSize+7)/8)
+	x.FillBytes(shared)
 	return symmetric.CryptoResult{Success: true, Data: hexUpper(shared)}
 }
 
@@ -461,6 +467,9 @@ func Ed25519Sign(req EdDSARequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的私钥: " + err.Error()}
 	}
+	if len(privBytes) != ed25519.PrivateKeySize {
+		return symmetric.CryptoResult{Error: "Ed25519私钥长度应为64字节(32字节seed+32字节公钥)"}
+	}
 	dataBytes, err := hex.DecodeString(req.Data)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的数据: " + err.Error()}
@@ -474,6 +483,9 @@ func Ed25519Verify(req EdDSAVerifyRequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的公钥: " + err.Error()}
 	}
+	if len(pubBytes) != ed25519.PublicKeySize {
+		return symmetric.CryptoResult{Error: "Ed25519公钥长度应为32字节"}
+	}
 	dataBytes, err := hex.DecodeString(req.Data)
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的数据: " + err.Error()}
@@ -482,9 +494,12 @@ func Ed25519Verify(req EdDSAVerifyRequest) symmetric.CryptoResult {
 	if err != nil {
 		return symmetric.CryptoResult{Error: "无效的签名: " + err.Error()}
 	}
+	if len(sigBytes) != ed25519.SignatureSize {
+		return symmetric.CryptoResult{Error: "Ed25519签名长度应为64字节"}
+	}
 	valid := ed25519.Verify(ed25519.PublicKey(pubBytes), dataBytes, sigBytes)
 	if !valid {
-		return symmetric.CryptoResult{Success: true, Data: "false", Error: "签名验证失败"}
+		return symmetric.CryptoResult{Success: false, Data: "false", Error: "签名验证失败"}
 	}
 	return symmetric.CryptoResult{Success: true, Data: "true"}
 }
@@ -548,7 +563,7 @@ func Ed448Verify(req Ed448VerifyRequest) symmetric.CryptoResult {
 	}
 	valid := ed448.Verify(ed448.PublicKey(pubBytes), dataBytes, sigBytes, req.Context)
 	if !valid {
-		return symmetric.CryptoResult{Success: true, Data: "false", Error: "签名验证失败"}
+		return symmetric.CryptoResult{Success: false, Data: "false", Error: "签名验证失败"}
 	}
 	return symmetric.CryptoResult{Success: true, Data: "true"}
 }
