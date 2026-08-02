@@ -342,8 +342,8 @@
           <button @click="genAigisKey" class="btn-secondary w-full justify-center mb-3">
             <KeyIcon class="w-3.5 h-3.5" /> 生成签名密钥对
           </button>
-          <div v-if="aigisResult.error && !aigisKeys.publicKey" class="p-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs mb-3">
-            {{ aigisResult.error }}
+          <div v-if="aigisKeyError.error && !aigisKeys.publicKey" class="p-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs mb-3">
+            {{ aigisKeyError.error }}
           </div>
           <div v-if="aigisKeys.publicKey" class="space-y-2 flex-1 min-h-0 flex flex-col">
             <div class="flex-1 min-h-0 flex flex-col">
@@ -366,9 +366,29 @@
             </div>
           </div>
         </div>
+        <div class="card">
+          <CryptoPanel v-model="aigis.data" label="待签名数据 (hex)" type="textarea" :rows="3" clearable />
+        </div>
       </div>
 
       <div class="space-y-3 sym-main">
+        <div class="flex gap-2">
+          <button @click="aigisSign" :disabled="!aigisKeys.privateKey" class="btn-success flex-1 justify-center">
+            <PenIcon class="w-3.5 h-3.5" /> 签名
+          </button>
+          <button @click="aigisVerify" :disabled="!aigisKeys.publicKey || !aigisResult.data"
+                  class="btn-warning flex-1 justify-center">
+            <CheckCircleIcon class="w-3.5 h-3.5" /> 验签
+          </button>
+        </div>
+        <div class="card">
+          <CryptoPanel v-model="aigisResult.data" label="签名 (HEX)" type="result"
+                       :success="aigisResult.success" copyable class="break-all text-[11px]" />
+          <div v-if="aigisResult.error" class="mt-2 text-xs"
+               :class="aigisResult.data === 'true' ? 'text-emerald-400' : 'text-red-400'">
+            {{ aigisResult.error || (aigisResult.data === 'true' ? '✅ 签名验证通过' : '') }}
+          </div>
+        </div>
         <div class="card">
           <p class="card-title">参数对比</p>
           <table class="w-full text-xs">
@@ -404,16 +424,8 @@
           <p class="card-title text-amber-400">算法说明</p>
           <div class="text-[11px] space-y-2 leading-relaxed opacity-80">
             <p>• <b>来源:</b> 中国科学院信息工程研究所设计，参加国密 PQC 算法征集。</p>
-            <p>• <b>基础:</b> 与 ML-DSA (Dilithium) 共享相同数学基础，参数针对国密需求优化。</p>
-            <p>• <b>状态:</b> 密钥生成已可用，签名/验签待国密标准正式发布后实现。</p>
-          </div>
-        </div>
-        <div class="card flex items-center gap-3"
-             :class="isDark ? 'border-amber-500/20 bg-amber-500/5' : 'border-amber-200 bg-amber-50'">
-          <div class="text-2xl">⏳</div>
-          <div>
-            <p class="text-sm font-bold" :class="isDark ? 'text-amber-400' : 'text-amber-600'">签名/验签暂未开放</p>
-            <p class="text-xs" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">待国密 PQC 标准 (GM/T XXXX) 正式发布及官方测试向量公布后上线。</p>
+            <p>• <b>基础:</b> 基于 MLWE/MSIS 格难题，独立参数集，支持 SM3/SHAKE 双哈希模式。</p>
+            <p>• <b>状态:</b> 按官方 PQMagic 参考实现完整移植，密钥生成/签名/验签全部可用，已通过官方测试向量验证。</p>
           </div>
         </div>
       </div>
@@ -435,7 +447,7 @@
               FALCON — NTRU格紧凑签名算法
             </p>
             <p class="text-sm leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-              circl v1.6.3 不包含 FALCON 实现。Go 社区也没有成熟的纯 Go 方案。需等待 FIPS 206 标准正式发布后 circl 跟进。目前只能使用 ML-DSA 作为签名方案。
+              circl v1.6.4 (2026.06) 仍不包含 FALCON 实现，Go 社区也无成熟的纯 Go 方案。FIPS 206 标准仍处于草案阶段，需等待标准正式发布后 Go 生态跟进。目前可使用 ML-DSA 或 AIGIS-sig 作为签名方案。
             </p>
           </div>
         </div>
@@ -488,7 +500,7 @@
               HQC — 准循环码密钥封装
             </p>
             <p class="text-sm leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-              HQC 已入选 NIST 第四轮。目前 Go 仅有基于 CGO 的 liboqs 绑定，纯 Go 实现尚在开发中。本工具优先保证跨平台无依赖，待稳定实现发布后即刻上线。
+              HQC 于 2025.03 被 NIST 选为第五个后量子加密算法 (备选 KEM)。标准草案预计 2026 年发布，最终标准预计 2027 年。目前 Go 仅有基于 CGO 的 liboqs 绑定，无成熟纯 Go 实现。本工具优先保证跨平台无依赖，待标准定稿和纯 Go 实现成熟后上线。
             </p>
           </div>
         </div>
@@ -515,7 +527,7 @@
           </div>
           <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
             <p class="font-bold mb-2 text-violet-400 text-[13px]">NIST 标准化进展</p>
-            <p class="text-[13px]">HQC 于 2024 年入选 NIST PQC 第四轮，预计 2025-2026 年完成标准化。届时将作为 ML-KEM 的备选 KEM 正式发布，可与 ML-KEM 混合部署以提升安全边界。</p>
+            <p class="text-[13px]">HQC 于 2025.03 被 NIST 正式选为第五个后量子加密算法，将作为 ML-KEM 的备选 KEM。标准草案预计 2026 年发布，最终标准预计 2027 年，届时可与 ML-KEM 混合部署以提升安全边界。</p>
           </div>
           <div class="p-3 rounded-xl border border-amber-400/20" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
             <p class="font-bold mb-2 text-orange-300 text-[13px]">实现现状</p>
@@ -786,7 +798,7 @@ import {
   SLHDSAKeyGen, SLHDSASign, SLHDSAVerify,
   XWingKeyGen, XWingEncapsulate, XWingDecapsulate,
   TLS13KeyGen, TLS13FullExchange,
-  AigisKeyGen,
+  AigisKeyGen, AigisSign, AigisVerify,
 } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
@@ -1016,23 +1028,35 @@ const slhParams = [
 ]
 
 // AIGIS-sig
-const aigis = reactive({ paramSet: 'AIGIS-sig-1' })
+const aigis = reactive({ paramSet: 'AIGIS-sig-1', data: '' })
 const aigisKeys = reactive({ privateKey: '', publicKey: '' })
-const aigisResult = reactive({ error: '' })
+const aigisKeyError = reactive({ error: '' })
+const aigisResult = reactive({ data: '', error: '', success: null })
 
 async function genAigisKey() {
   try {
+    aigisKeys.privateKey = ''; aigisKeys.publicKey = ''
+    aigisResult.data = ''; aigisResult.error = ''; aigisResult.success = null
     const r = await AigisKeyGen(aigis.paramSet)
     if (r.success) {
       aigisKeys.privateKey = r.privateKey
       aigisKeys.publicKey = r.publicKey
-      aigisResult.error = ''
+      aigisKeyError.error = ''
     } else {
-      aigisResult.error = r.error || '密钥生成失败'
+      aigisKeyError.error = r.error || '密钥生成失败'
     }
   } catch (e) {
-    aigisResult.error = String(e)
+    aigisKeyError.error = String(e)
   }
+}
+async function aigisSign() {
+  aigisResult.data = ''; aigisResult.error = ''; aigisResult.success = null
+  const r = await AigisSign({ privateKey: aigisKeys.privateKey, data: aigis.data, paramSet: aigis.paramSet })
+  aigisResult.data = r.data; aigisResult.error = r.error; aigisResult.success = r.success
+}
+async function aigisVerify() {
+  const r = await AigisVerify({ publicKey: aigisKeys.publicKey, data: aigis.data, signature: aigisResult.data, paramSet: aigis.paramSet })
+  aigisResult.data = r.data; aigisResult.error = r.error; aigisResult.success = r.success
 }
 
 // X-Wing
