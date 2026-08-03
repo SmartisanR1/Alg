@@ -6,8 +6,9 @@
         复制
       </button>
     </div>
-    <div class="result-area" :class="{ 'result-success': success, 'result-error': error }">
-      {{ modelValue || placeholder }}
+    <div class="result-area" :class="{ 'result-success': success, 'result-error': error, 'has-badge': !!modelValue }">
+      <span class="result-value">{{ modelValue || placeholder }}</span>
+      <span v-if="modelValue" class="ck-byte-badge">{{ byteCount }} bytes</span>
     </div>
     <div v-if="error" class="result-error-message">
       {{ error }}
@@ -16,6 +17,8 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   modelValue: {
     type: String,
@@ -44,6 +47,19 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['copy-success', 'copy-error'])
+
+// 判断是否为十六进制: 偶数长度且只含 hex 字符
+const isHex = computed(() => {
+  const v = String(props.modelValue || '').replace(/\s+/g, '')
+  return v.length > 0 && v.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(v)
+})
+
+const byteCount = computed(() => {
+  if (!props.modelValue) return 0
+  const v = String(props.modelValue).replace(/\s+/g, '')
+  if (isHex.value) return v.length / 2
+  return new TextEncoder().encode(props.modelValue).length
+})
 
 const copyToClipboard = async () => {
   if (props.modelValue) {
@@ -76,6 +92,19 @@ const copyToClipboard = async () => {
   color: var(--text, #e4e4f0);
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+.result-area {
+  position: relative;
+}
+
+.result-area.has-badge {
+  padding-bottom: 30px;
+}
+
+.result-value {
+  display: block;
+  word-break: break-all;
 }
 
 .copy-btn {

@@ -207,20 +207,16 @@
         <Card title="XChaCha20-Poly1305 Key/Nonce" class="space-y-3">
           <div>
             <label class="input-label">Key (32字节)</label>
-            <div class="result-area result-area-sm !min-h-0 text-xs font-mono break-all">{{ xchacha.key }}</div>
-            <div v-if="xchacha.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ (xchacha.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
+            <div class="relative">
+              <div class="result-area result-area-sm !min-h-0 pb-7 text-xs font-mono break-all">{{ xchacha.key }}</div>
+              <ByteBadge :model-value="xchacha.key" />
             </div>
           </div>
           <div>
             <label class="input-label">Nonce (24字节)</label>
-            <div class="result-area result-area-sm !min-h-0 text-xs font-mono break-all">{{ xchacha.nonce }}</div>
-            <div v-if="xchacha.nonce" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-cyan-400 border-cyan-500/20 bg-cyan-500/5">
-                {{ (xchacha.nonce.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
+            <div class="relative">
+              <div class="result-area result-area-sm !min-h-0 pb-7 text-xs font-mono break-all">{{ xchacha.nonce }}</div>
+              <ByteBadge :model-value="xchacha.nonce" />
             </div>
           </div>
           <Button variant="tool" block class="text-sm" @click="genXChaCha">生成 Key / Nonce</Button>
@@ -650,6 +646,7 @@ import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
 import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
+import ByteBadge from '../components/ByteBadge.vue'
 import { HexToString, StringToHex, Base64Encode, Base64Decode, XORCompute, URLEncode, URLDecode, UnicodeEncode, UnicodeDecode, GenerateRandom, PaddingApply, PaddingRemove, BaseConvert, TimestampConvert, ParseASN1, ParseASN1File, Base32Encode, Base32Decode, Base58Encode, Base58Decode, Bech32Encode, Bech32Decode, ParseJWT, ConvertKey, VerifyCertChain, ParsePKCS12, ParsePKCS12File, SelectFile } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 

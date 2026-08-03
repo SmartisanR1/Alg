@@ -129,7 +129,10 @@
                 <label class="input-label !mb-0">CA 根证书</label>
                 <Button variant="tool" size="xs" @click="loadCertFile('caCert')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
               </div>
-              <textarea v-model="packet.caCert" rows="1" class="input !min-h-0 py-1 font-mono" placeholder="PEM..."></textarea>
+              <div class="relative">
+                <textarea v-model="packet.caCert" rows="1" class="input !min-h-0 py-1 pb-7 font-mono" placeholder="PEM..."></textarea>
+                <ByteBadge :model-value="packet.caCert" />
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
               <div class="space-y-1">
@@ -137,14 +140,20 @@
                   <label class="input-label !mb-0">签名证书</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientCert')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
                 </div>
-                <textarea v-model="packet.clientCert" rows="1" class="input !min-h-0 py-1 font-mono"></textarea>
+                <div class="relative">
+                  <textarea v-model="packet.clientCert" rows="1" class="input !min-h-0 py-1 pb-7 font-mono"></textarea>
+                  <ByteBadge :model-value="packet.clientCert" />
+                </div>
               </div>
               <div class="space-y-1">
                 <div class="flex justify-between items-center">
                   <label class="input-label !mb-0">签名私钥</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientKey')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
                 </div>
-                <textarea v-model="packet.clientKey" rows="1" class="input !min-h-0 py-1 font-mono"></textarea>
+                <div class="relative">
+                  <textarea v-model="packet.clientKey" rows="1" class="input !min-h-0 py-1 pb-7 font-mono"></textarea>
+                  <ByteBadge :model-value="packet.clientKey" />
+                </div>
               </div>
             </div>
             <div v-if="packet.transport === 'tlcp'" class="grid grid-cols-2 gap-2 animate-in slide-in-from-top-1 duration-200">
@@ -153,14 +162,20 @@
                   <label class="input-label !mb-0">加密证书</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientEncCert')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
                 </div>
-                <textarea v-model="packet.clientEncCert" rows="1" class="input !min-h-0 py-1 font-mono"></textarea>
+                <div class="relative">
+                  <textarea v-model="packet.clientEncCert" rows="1" class="input !min-h-0 py-1 pb-7 font-mono"></textarea>
+                  <ByteBadge :model-value="packet.clientEncCert" />
+                </div>
               </div>
               <div class="space-y-1">
                 <div class="flex justify-between items-center">
                   <label class="input-label !mb-0">加密私钥</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientEncKey')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
                 </div>
-                <textarea v-model="packet.clientEncKey" rows="1" class="input !min-h-0 py-1 font-mono"></textarea>
+                <div class="relative">
+                  <textarea v-model="packet.clientEncKey" rows="1" class="input !min-h-0 py-1 pb-7 font-mono"></textarea>
+                  <ByteBadge :model-value="packet.clientEncKey" />
+                </div>
               </div>
             </div>
             <label class="flex items-center gap-2 cursor-pointer pt-1">
@@ -232,16 +247,22 @@
           <div class="space-y-2">
             <div v-if="packetResult.headerHex" class="space-y-1">
               <label class="text-[10px] opacity-50 uppercase tracking-widest font-bold">报文头 ({{ packet.headerLength }}B)</label>
-              <div class="result-area !min-h-0 py-1.5 font-mono text-xs break-all bg-dark-bg/30">{{ packetResult.headerHex }}</div>
+              <div class="relative">
+                <div class="result-area !min-h-0 py-1.5 pb-7 font-mono text-xs break-all bg-dark-bg/30">{{ packetResult.headerHex }}</div>
+                <ByteBadge :model-value="packetResult.headerHex" />
+              </div>
             </div>
             <div class="space-y-1">
               <div class="flex justify-between items-center">
                 <label class="text-[10px] opacity-50 uppercase tracking-widest font-bold">响应内容</label>
                 <Button variant="tool" size="xs" v-if="packetResult.responseHex" @click="copy(packetResult.responseHex)"><CopyIcon class="w-3 h-3" /></Button>
               </div>
-              <div class="result-area !min-h-[60px] font-mono text-xs break-all max-h-[100px] overflow-y-auto leading-relaxed" 
-                   :class="{ 'text-red-400 border-red-500/20 bg-red-500/5': packetResult.error, 'text-emerald-400/90': !packetResult.error && packetResult.responseHex }">
-                {{ packetResult.error || packetResult.responseHex || '等待网络响应...' }}
+              <div class="relative">
+                <div class="result-area !min-h-[60px] pb-7 font-mono text-xs break-all max-h-[100px] overflow-y-auto leading-relaxed" 
+                     :class="{ 'text-red-400 border-red-500/20 bg-red-500/5': packetResult.error, 'text-emerald-400/90': !packetResult.error && packetResult.responseHex }">
+                  {{ packetResult.error || packetResult.responseHex || '等待网络响应...' }}
+                </div>
+                <ByteBadge v-if="packetResult.responseHex" :model-value="packetResult.responseHex" />
               </div>
             </div>
           </div>
@@ -262,6 +283,7 @@ import ResultArea from '../components/ResultArea.vue'
 import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import Dropdown from '../components/Dropdown.vue'
 import PageLayout from '../components/PageLayout.vue'
+import ByteBadge from '../components/ByteBadge.vue'
 import { SelectFile, ReadFile, SendPacket } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 

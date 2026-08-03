@@ -48,28 +48,15 @@
     </div>
 
     <!-- Byte Count Badge (Bottom Right) -->
-    <div v-if="modelValue && showByteCount"
-         class="absolute bottom-1 right-1 flex items-center gap-1 px-1 py-0.5 rounded border backdrop-blur-sm pointer-events-none transition-opacity duration-200"
-         :class="[
-           success === false ? 'opacity-100' : 'opacity-60 group-hover:opacity-100',
-           isDark ? 'bg-dark-bg/80 border-dark-border/50 text-dark-text' : 'bg-white/80 border-light-border/50 text-light-text'
-         ]">
-      <div class="w-1.5 h-1.5 rounded-full" :class="isHex ? 'bg-violet-500' : 'bg-cyan-500'"></div>
-      <span class="text-[8px] font-mono font-medium whitespace-nowrap">
-        {{ byteCount }} bytes
-      </span>
+    <div v-if="modelValue && showByteCount" class="ck-byte-badge">
+      {{ byteCount }} bytes
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { storeToRefs } from 'pinia'
 import { CopyIcon, CheckIcon, XIcon } from '@lucide/vue'
-import { useAppStore } from '../stores/app'
-
-const store = useAppStore()
-const { isDark } = storeToRefs(store)
 
 const props = defineProps({
   modelValue: String,
@@ -84,6 +71,7 @@ const props = defineProps({
   showByteCount: { type: Boolean, default: true },
   autoTrimHex: { type: Boolean, default: true },
   compact: { type: Boolean, default: false },
+  groupHex: { type: Boolean, default: true },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -98,7 +86,8 @@ const displayValue = computed(() => {
   if (!props.modelValue) return ''
   if (props.type !== 'result') return props.modelValue
   if (!isHex.value) return props.modelValue
-  const clean = props.modelValue.replace(/\\s+/g, '').toUpperCase()
+  const clean = props.modelValue.replace(/\s+/g, '').toUpperCase()
+  if (!props.groupHex) return clean
   return clean.match(/.{1,4}/g)?.join(' ') || clean
 })
 

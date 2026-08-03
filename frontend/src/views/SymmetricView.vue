@@ -163,7 +163,10 @@
             </label>
             <button @click="copyExtra" class="ck-copy-btn text-cyan-400"><CopyIcon class="w-3 h-3" /> 复制</button>
           </div>
-          <div class="result-area !min-h-0 text-cyan-300">{{ result.extra }}</div>
+          <div class="relative">
+            <div class="result-area !min-h-0 pb-7 text-cyan-300">{{ result.extra }}</div>
+            <ByteBadge :model-value="result.extra" />
+          </div>
         </div>
         
       </div>
@@ -254,7 +257,10 @@
               {{ sm4.mode === 'GCM' ? 'Nonce' : 'IV' }}
             </label>
           </div>
-          <div class="result-area !min-h-0 text-cyan-300">{{ sm4Result.extra }}</div>
+          <div class="relative">
+            <div class="result-area !min-h-0 pb-7 text-cyan-300">{{ sm4Result.extra }}</div>
+            <ByteBadge :model-value="sm4Result.extra" />
+          </div>
         </div>
       </div>
     </div>
@@ -315,16 +321,19 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="input-label">发送方私钥 (SM2)</label>
-              <Input v-model="envelope.senderPriv" class="font-mono text-xs" placeholder="64位Hex (32字节)" />
+              <Input v-model="envelope.senderPriv" show-bytes class="font-mono text-xs" placeholder="64位Hex (32字节)" />
             </div>
             <div>
               <label class="input-label">接收方公钥 (SM2)</label>
-              <Input v-model="envelope.receiverPub" class="font-mono text-xs" placeholder="64位Hex (32字节)" />
+              <Input v-model="envelope.receiverPub" show-bytes class="font-mono text-xs" placeholder="64位Hex (32字节)" />
             </div>
           </div>
           <div>
             <label class="input-label">待加密数据</label>
-            <textarea v-model="envelope.data" rows="3" class="input font-mono text-xs" placeholder="Hex 格式数据..."></textarea>
+            <div class="relative">
+              <textarea v-model="envelope.data" rows="3" class="input font-mono text-xs pb-7" placeholder="Hex 格式数据..."></textarea>
+              <ByteBadge :model-value="envelope.data" />
+            </div>
           </div>
           <Button variant="success" @click="makeEnvelope" class="w-full" :disabled="!envelope.senderPriv || !envelope.receiverPub || !envelope.data">
             <LockIcon class="w-3.5 h-3.5" /> 生成数字信封
@@ -332,7 +341,10 @@
           <div v-if="envelopeResult.error" class="text-xs text-red-400">{{ envelopeResult.error }}</div>
           <div v-if="envelopeResult.data">
             <label class="input-label !mb-0 text-emerald-400">数字信封结果</label>
-            <textarea readonly :value="envelopeResult.data" rows="4" class="result-area font-mono text-xs mt-1"></textarea>
+            <div class="relative">
+              <textarea readonly :value="envelopeResult.data" rows="4" class="result-area font-mono text-xs mt-1 pb-7"></textarea>
+              <ByteBadge :model-value="envelopeResult.data" />
+            </div>
           </div>
         </Card>
 
@@ -340,16 +352,19 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="input-label">接收方私钥 (SM2)</label>
-              <Input v-model="envelope.receiverPriv" class="font-mono text-xs" placeholder="64位Hex (32字节)" />
+              <Input v-model="envelope.receiverPriv" show-bytes class="font-mono text-xs" placeholder="64位Hex (32字节)" />
             </div>
             <div>
               <label class="input-label">发送方公钥 (SM2)</label>
-              <Input v-model="envelope.senderPub" class="font-mono text-xs" placeholder="64位Hex (32字节)" />
+              <Input v-model="envelope.senderPub" show-bytes class="font-mono text-xs" placeholder="64位Hex (32字节)" />
             </div>
           </div>
           <div>
             <label class="input-label">数字信封数据</label>
-            <textarea v-model="envelope.envelopeData" rows="4" class="input font-mono text-xs" placeholder="Hex 格式信封数据..."></textarea>
+            <div class="relative">
+              <textarea v-model="envelope.envelopeData" rows="4" class="input font-mono text-xs pb-7" placeholder="Hex 格式信封数据..."></textarea>
+              <ByteBadge :model-value="envelope.envelopeData" />
+            </div>
           </div>
           <Button variant="warning" @click="openEnvelope" class="w-full" :disabled="!envelope.receiverPriv || !envelope.senderPub || !envelope.envelopeData">
             <UnlockIcon class="w-3.5 h-3.5" /> 打开数字信封
@@ -427,7 +442,10 @@
       <div class="space-y-3 sym-main">
         <Card>
           <label class="input-label">明文 (hex)</label>
-          <textarea v-model="des.plaintext" class="input min-h-[100px] resize-y" placeholder="输入hex格式数据..." />
+          <div class="relative">
+            <textarea v-model="des.plaintext" class="input min-h-[100px] resize-y pb-7" placeholder="输入hex格式数据..." />
+            <ByteBadge :model-value="des.plaintext" />
+          </div>
           <div v-if="desLenHint" :class="['mt-1 text-xs', hintClass(desLenHint)]"></div>
         </Card>
         <div class="flex gap-2 shrink-0">
@@ -448,7 +466,10 @@
               {{ des.iv ? '运算后' : '自动生成的' }} IV
             </label>
           </div>
-          <div class="result-area !min-h-0 text-cyan-300">{{ desResult.extra }}</div>
+          <div class="relative">
+            <div class="result-area !min-h-0 pb-7 text-cyan-300">{{ desResult.extra }}</div>
+            <ByteBadge :model-value="desResult.extra" />
+          </div>
         </div>
       </div>
     </div>
@@ -923,6 +944,7 @@ import AlgorithmPrinciple from '../components/AlgorithmPrinciple.vue'
 import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
+import ByteBadge from '../components/ByteBadge.vue'
 import {
   AESEncrypt, AESDecrypt, DESEncrypt, DESDecrypt, ChaCha20Encrypt, ChaCha20Decrypt,
   RC4Encrypt, RC4Decrypt, SIVEncrypt, SIVDecrypt, FPEEncrypt, FPEDecrypt,

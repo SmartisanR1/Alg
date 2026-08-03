@@ -59,14 +59,20 @@
           <div v-if="rsaKeys.privateKey" class="space-y-2 animate-in fade-in">
             <div>
               <label class="input-label text-orange-300">私钥 ({{ asymKeyFormat.toUpperCase() }})</label>
-              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
-                {{ asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex }}
+              <div class="relative">
+                <div class="result-area !min-h-0 !p-2 pb-7 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                  {{ asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex }}
+                </div>
+                <ByteBadge :model-value="asymKeyFormat === 'pem' ? rsaKeys.privateKey : rsaKeys.privHex" />
               </div>
             </div>
             <div>
               <label class="input-label text-cyan-300">公钥 ({{ asymKeyFormat.toUpperCase() }})</label>
-              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
-                {{ asymKeyFormat === 'pem' ? rsaKeys.publicKey : rsaKeys.pubHex }}
+              <div class="relative">
+                <div class="result-area !min-h-0 !p-2 pb-7 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                  {{ asymKeyFormat === 'pem' ? rsaKeys.publicKey : rsaKeys.pubHex }}
+                </div>
+                <ByteBadge :model-value="asymKeyFormat === 'pem' ? rsaKeys.publicKey : rsaKeys.pubHex" />
               </div>
             </div>
           </div>
@@ -100,7 +106,10 @@
           </div>
           <div>
             <label class="input-label">密钥内容 (PEM/Hex)</label>
-            <textarea v-model="rsa.key" class="input text-[11px] font-mono" rows="2" placeholder="粘贴公钥(加密/验签)或私钥(解密/签名)..." />
+            <div class="relative">
+              <textarea v-model="rsa.key" class="input text-[11px] font-mono pb-7" rows="2" placeholder="粘贴公钥(加密/验签)或私钥(解密/签名)..." />
+              <ByteBadge :model-value="rsa.key" />
+            </div>
           </div>
         </Card>
       </div>
@@ -158,8 +167,11 @@
                 <label class="input-label !mb-0 text-orange-300">私钥 ({{ asymKeyFormat === 'hex' ? '裸值32字节' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[80px] text-orange-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-amber-400/20 bg-orange-400/15">
-                {{ asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv }}
+              <div class="relative">
+                <div class="result-area !min-h-[80px] pb-7 text-orange-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-amber-400/20 bg-orange-400/15">
+                  {{ asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv }}
+                </div>
+                <ByteBadge :model-value="asymKeyFormat === 'pem' ? sm2Keys.privateKey : sm2Keys.rawPriv" />
               </div>
             </div>
             <div>
@@ -167,8 +179,11 @@
                 <label class="input-label !mb-0 text-cyan-300">公钥 ({{ asymKeyFormat === 'hex' ? '裸值64字节 X||Y' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? sm2Keys.publicKey : sm2Keys.rawPub)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
-              <div class="result-area !min-h-[60px] text-cyan-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-cyan-500/10 bg-cyan-500/5">
-                {{ asymKeyFormat === 'pem' ? sm2Keys.publicKey : sm2Keys.rawPub }}
+              <div class="relative">
+                <div class="result-area !min-h-[60px] pb-7 text-cyan-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono border-cyan-500/10 bg-cyan-500/5">
+                  {{ asymKeyFormat === 'pem' ? sm2Keys.publicKey : sm2Keys.rawPub }}
+                </div>
+                <ByteBadge :model-value="asymKeyFormat === 'pem' ? sm2Keys.publicKey : sm2Keys.rawPub" />
               </div>
             </div>
           </div>
@@ -262,14 +277,20 @@
           <div v-if="sm9Master.publicKey" class="space-y-2 animate-in fade-in">
             <div>
               <label class="input-label text-orange-300">签名主私钥</label>
-              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
-                {{ sm9Master.privateKey }}
+              <div class="relative">
+                <div class="result-area !min-h-0 !p-2 pb-7 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                  {{ sm9Master.privateKey }}
+                </div>
+                <ByteBadge :model-value="sm9Master.privateKey" />
               </div>
             </div>
             <div>
               <label class="input-label text-cyan-300">签名主公钥</label>
-              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
-                {{ sm9Master.publicKey }}
+              <div class="relative">
+                <div class="result-area !min-h-0 !p-2 pb-7 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                  {{ sm9Master.publicKey }}
+                </div>
+                <ByteBadge :model-value="sm9Master.publicKey" />
               </div>
             </div>
           </div>
@@ -277,14 +298,20 @@
           <div v-if="sm9EncMaster.publicKey" class="space-y-2 mt-3 animate-in fade-in">
             <div>
               <label class="input-label text-orange-300">加密主私钥</label>
-              <div class="result-area !min-h-0 !p-2 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
-                {{ sm9EncMaster.privateKey }}
+              <div class="relative">
+                <div class="result-area !min-h-0 !p-2 pb-7 text-orange-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                  {{ sm9EncMaster.privateKey }}
+                </div>
+                <ByteBadge :model-value="sm9EncMaster.privateKey" />
               </div>
             </div>
             <div>
               <label class="input-label text-cyan-300">加密主公钥</label>
-              <div class="result-area !min-h-0 !p-2 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
-                {{ sm9EncMaster.publicKey }}
+              <div class="relative">
+                <div class="result-area !min-h-0 !p-2 pb-7 text-cyan-300 !text-[11px] break-all max-h-20 overflow-y-auto font-mono">
+                  {{ sm9EncMaster.publicKey }}
+                </div>
+                <ByteBadge :model-value="sm9EncMaster.publicKey" />
               </div>
             </div>
           </div>
@@ -337,8 +364,11 @@
                 <label class="input-label !mb-0 text-orange-300">私钥 ({{ asymKeyFormat === 'hex' ? '裸值' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <div class="result-area !min-h-0 text-orange-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono">
-                {{ asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex }}
+              <div class="relative">
+                <div class="result-area !min-h-0 pb-7 text-orange-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono">
+                  {{ asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex }}
+                </div>
+                <ByteBadge :model-value="asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex" />
               </div>
             </div>
             <div>
@@ -346,8 +376,11 @@
                 <label class="input-label !mb-0 text-cyan-300">公钥 ({{ asymKeyFormat === 'hex' ? '裸值 X||Y' : 'PEM' }})</label>
                 <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
               </div>
-              <div class="result-area !min-h-0 text-cyan-300 !text-[12px] break-all max-h-32 overflow-y-auto font-mono">
-                {{ asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex }}
+              <div class="relative">
+                <div class="result-area !min-h-0 pb-7 text-cyan-300 !text-[12px] break-all max-h-32 overflow-y-auto font-mono">
+                  {{ asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex }}
+                </div>
+                <ByteBadge :model-value="asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex" />
               </div>
             </div>
           </div>
@@ -355,11 +388,17 @@
         <Card>
           <div>
             <label class="input-label">密钥内容 (PEM/Hex)</label>
-            <textarea v-model="ecc.key" class="input text-[10px] font-mono" rows="3" placeholder="粘贴私钥(签名)或公钥(验签/ECDH)..." />
+            <div class="relative">
+              <textarea v-model="ecc.key" class="input text-[10px] font-mono pb-7" rows="3" placeholder="粘贴私钥(签名)或公钥(验签/ECDH)..." />
+              <ByteBadge :model-value="ecc.key" />
+            </div>
           </div>
           <div>
             <label class="input-label">对方公钥 (仅 ECDH 使用)</label>
-            <textarea v-model="ecc.peerKey" class="input text-[10px] font-mono" rows="2" placeholder="密钥交换时填入对方公钥..." />
+            <div class="relative">
+              <textarea v-model="ecc.peerKey" class="input text-[10px] font-mono pb-7" rows="2" placeholder="密钥交换时填入对方公钥..." />
+              <ByteBadge :model-value="ecc.peerKey" />
+            </div>
           </div>
           <CryptoPanel v-model="ecc.data" label="待处理数据 (Hex)" type="input" clearable />
         </Card>
@@ -395,22 +434,28 @@
           <div v-if="c25519.privateKey" class="space-y-2 animate-in fade-in duration-300">
             <div>
               <label class="input-label text-orange-300">私钥 (Hex)</label>
-              <div class="result-area !min-h-0 text-orange-300 text-[12px] font-mono break-all">{{ c25519.privateKey }}</div>
+              <div class="relative">
+                <div class="result-area !min-h-0 pb-7 text-orange-300 text-[12px] font-mono break-all">{{ c25519.privateKey }}</div>
+                <ByteBadge :model-value="c25519.privateKey" />
+              </div>
             </div>
             <div>
               <label class="input-label text-cyan-300">公钥 (Hex)</label>
-              <div class="result-area !min-h-0 text-cyan-300 text-[12px] font-mono break-all">{{ c25519.publicKey }}</div>
+              <div class="relative">
+                <div class="result-area !min-h-0 pb-7 text-cyan-300 text-[12px] font-mono break-all">{{ c25519.publicKey }}</div>
+                <ByteBadge :model-value="c25519.publicKey" />
+              </div>
             </div>
           </div>
         </Card>
         <Card>
           <div>
             <label class="input-label">私钥 (Hex)</label>
-            <Input v-model="c25519.usePriv" class="font-mono text-[10px]" />
+            <Input v-model="c25519.usePriv" show-bytes class="font-mono text-[10px]" />
           </div>
           <div>
             <label class="input-label">对方公钥 / 待验证签名 (Hex)</label>
-            <Input v-model="c25519.peerPub" class="font-mono text-[10px]" />
+            <Input v-model="c25519.peerPub" show-bytes class="font-mono text-[10px]" />
           </div>
           <CryptoPanel v-model="c25519.data" label="待处理数据 (Hex)" type="input" clearable />
         </Card>
@@ -447,6 +492,7 @@ import ResultArea from '../components/ResultArea.vue'
 import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
+import ByteBadge from '../components/ByteBadge.vue'
 import {
   RSAGenerateKey, RSAEncrypt, RSADecrypt, RSASign, RSAVerify,
   ECCGenerateKey, ECCSign, ECCVerify, ECDHCompute,

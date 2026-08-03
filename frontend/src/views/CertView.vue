@@ -349,9 +349,12 @@
               </button>
             </div>
           </div>
-          <div class="result-area !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono"
-               :class="{'text-emerald-400/90': selfResult.success}">
-            {{ selfResult.cert || '等待生成...' }}
+          <div class="relative">
+            <div class="result-area !min-h-[64px] !p-2 pb-7 !text-[10px] break-all overflow-y-auto font-mono"
+                 :class="{'text-emerald-400/90': selfResult.success}">
+              {{ selfResult.cert || '等待生成...' }}
+            </div>
+            <ByteBadge v-if="selfResult.cert" :model-value="selfResult.cert" />
           </div>
         </div>
 
@@ -365,8 +368,11 @@
               </button>
             </div>
           </div>
-          <div class="result-area !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-violet-400/90">
-            {{ selfResult.csr || '等待生成...' }}
+          <div class="relative">
+            <div class="result-area !min-h-[64px] !p-2 pb-7 !text-[10px] break-all overflow-y-auto font-mono text-violet-400/90">
+              {{ selfResult.csr || '等待生成...' }}
+            </div>
+            <ByteBadge v-if="selfResult.csr" :model-value="selfResult.csr" />
           </div>
         </div>
 
@@ -380,8 +386,11 @@
               </button>
             </div>
           </div>
-          <div class="result-area !min-h-[64px] !p-2 !text-[10px] break-all overflow-y-auto font-mono text-orange-300/90">
-            {{ selfResult.key || '等待生成...' }}
+          <div class="relative">
+            <div class="result-area !min-h-[64px] !p-2 pb-7 !text-[10px] break-all overflow-y-auto font-mono text-orange-300/90">
+              {{ selfResult.key || '等待生成...' }}
+            </div>
+            <ByteBadge v-if="selfResult.key" :model-value="selfResult.key" />
           </div>
         </div>
 
@@ -545,6 +554,7 @@ import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
+import ByteBadge from '../components/ByteBadge.vue'
 import { 
   GenerateCSR, ParseCertificate, GenerateCertificate, GenerateSelfSignedCert, 
   GenerateInternalSignedCert, GenerateDualCertificates, GetInternalRootCert, SaveFile, SelectFile, ReadFile 

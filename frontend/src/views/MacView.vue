@@ -48,16 +48,11 @@
               <label class="input-label !mb-0">密钥 (hex)</label>
               <Button variant="tool" size="sm" @click="genMacKey">⚡ 生成</Button>
             </div>
-            <Input v-model="mac.key" class="font-mono" />
+            <Input v-model="mac.key" show-bytes class="font-mono" />
             <div v-if="macKeyHint" :class="['mt-1 text-xs', hintClass(macKeyHint)]">{{ macKeyHint }}</div>
-            <div v-if="mac.key" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ (mac.key.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
-            </div>
           </div>
           <div class="mt-2" v-if="mac.algorithm === 'GMAC'">
-            <Input v-model="mac.iv" label="Nonce (hex, 12字节)" class="font-mono" />
+            <Input v-model="mac.iv" show-bytes label="Nonce (hex, 12字节)" class="font-mono" />
             <div v-if="macNonceHint" :class="['mt-1 text-xs', hintClass(macNonceHint)]">{{ macNonceHint }}</div>
           </div>
           <div class="mt-2">
@@ -117,35 +112,20 @@
             class="mb-3"
           />
           <div>
-            <Input v-model="kdf.password" label="密码/输入密钥 (hex)" class="font-mono ck-trim-space mb-2" placeholder="密码的hex编码..." />
+            <Input v-model="kdf.password" show-bytes label="密码/输入密钥 (hex)" class="font-mono ck-trim-space mb-2" placeholder="密码的hex编码..." />
             <div v-if="kdfPasswordHint" :class="['mt-1 text-xs', hintClass(kdfPasswordHint)]">{{ kdfPasswordHint }}</div>
-            <div v-if="kdf.password" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ (kdf.password.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
-            </div>
           </div>
           <div v-if="!['bcrypt'].includes(kdf.algorithm)">
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0">Salt (hex)</label>
               <Button variant="tool" size="sm" @click="genSalt">⚡ 生成</Button>
             </div>
-            <Input v-model="kdf.salt" class="font-mono ck-trim-space mb-2" placeholder="留空则自动生成..." />
+            <Input v-model="kdf.salt" show-bytes class="font-mono ck-trim-space mb-2" placeholder="留空则自动生成..." />
             <div v-if="kdfSaltHint" :class="['mt-1 text-xs', hintClass(kdfSaltHint)]">{{ kdfSaltHint }}</div>
-            <div v-if="kdf.salt" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ (kdf.salt.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
-            </div>
           </div>
           <div v-if="['HKDF-SHA256','HKDF-SHA512','HKDF-SM3'].includes(kdf.algorithm)">
-            <Input v-model="kdf.info" label="Info (hex, 可选)" class="font-mono ck-trim-space mb-2" />
+            <Input v-model="kdf.info" show-bytes label="Info (hex, 可选)" class="font-mono ck-trim-space mb-2" />
             <div v-if="kdfInfoHint" :class="['mt-1 text-xs', hintClass(kdfInfoHint)]">{{ kdfInfoHint }}</div>
-            <div v-if="kdf.info" class="flex gap-3 mt-1">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border text-orange-300 border-orange-400/40 bg-orange-400/15">
-                {{ (kdf.info.replace(/\s+/g, '').length / 2) + ' bytes' }}
-              </span>
-            </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div v-if="['PBKDF2-SHA1','PBKDF2-SHA256','PBKDF2-SHA512'].includes(kdf.algorithm)">
@@ -198,7 +178,10 @@
           />
           <div v-if="kdfResult.extra" class="mt-2">
             <label class="input-label text-orange-300">使用的Salt</label>
-            <div class="result-area !min-h-0 text-orange-300 text-xs">{{ kdfResult.extra }}</div>
+            <div class="relative">
+              <div class="result-area !min-h-0 pb-7 text-orange-300 text-xs">{{ kdfResult.extra }}</div>
+              <ByteBadge :model-value="kdfResult.extra" />
+            </div>
           </div>
         </Card>
         <Card title="安全建议">
@@ -226,6 +209,7 @@ import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import PageLayout from '../components/PageLayout.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
+import ByteBadge from '../components/ByteBadge.vue'
 import { ComputeMAC, DeriveKey } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 

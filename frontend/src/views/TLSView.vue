@@ -64,21 +64,30 @@
             <div>
               <label class="input-label">CA 证书 (PEM)</label>
               <div class="flex gap-1">
-                <textarea v-model="form.caCertPEM" rows="2" class="ck-textarea flex-1" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                <div class="relative flex-1">
+                  <textarea v-model="form.caCertPEM" rows="2" class="ck-textarea w-full !pb-7" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                  <ByteBadge :model-value="form.caCertPEM" />
+                </div>
                 <Button variant="tool" size="sm" @click="loadFile('caCertPEM')"><FolderOpenIcon class="w-3 h-3" /></Button>
               </div>
             </div>
             <div>
               <label class="input-label">签名证书 (PEM)</label>
               <div class="flex gap-1">
-                <textarea v-model="form.clientCertPEM" rows="2" class="ck-textarea flex-1" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                <div class="relative flex-1">
+                  <textarea v-model="form.clientCertPEM" rows="2" class="ck-textarea w-full !pb-7" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                  <ByteBadge :model-value="form.clientCertPEM" />
+                </div>
                 <Button variant="tool" size="sm" @click="loadFile('clientCertPEM')"><FolderOpenIcon class="w-3 h-3" /></Button>
               </div>
             </div>
             <div>
               <label class="input-label">签名私钥 (PEM)</label>
               <div class="flex gap-1">
-                <textarea v-model="form.clientKeyPEM" rows="2" class="ck-textarea flex-1" placeholder="-----BEGIN PRIVATE KEY-----"></textarea>
+                <div class="relative flex-1">
+                  <textarea v-model="form.clientKeyPEM" rows="2" class="ck-textarea w-full !pb-7" placeholder="-----BEGIN PRIVATE KEY-----"></textarea>
+                  <ByteBadge :model-value="form.clientKeyPEM" />
+                </div>
                 <Button variant="tool" size="sm" @click="loadFile('clientKeyPEM')"><FolderOpenIcon class="w-3 h-3" /></Button>
               </div>
             </div>
@@ -86,14 +95,20 @@
               <div>
                 <label class="input-label text-violet-400">加密证书 (PEM) — TLCP</label>
                 <div class="flex gap-1">
-                  <textarea v-model="form.clientEncCertPEM" rows="2" class="ck-textarea flex-1"></textarea>
+                  <div class="relative flex-1">
+                    <textarea v-model="form.clientEncCertPEM" rows="2" class="ck-textarea w-full !pb-7"></textarea>
+                    <ByteBadge :model-value="form.clientEncCertPEM" />
+                  </div>
                   <Button variant="tool" size="sm" @click="loadFile('clientEncCertPEM')"><FolderOpenIcon class="w-3 h-3" /></Button>
                 </div>
               </div>
               <div>
                 <label class="input-label text-violet-400">加密私钥 (PEM) — TLCP</label>
                 <div class="flex gap-1">
-                  <textarea v-model="form.clientEncKeyPEM" rows="2" class="ck-textarea flex-1"></textarea>
+                  <div class="relative flex-1">
+                    <textarea v-model="form.clientEncKeyPEM" rows="2" class="ck-textarea w-full !pb-7"></textarea>
+                    <ByteBadge :model-value="form.clientEncKeyPEM" />
+                  </div>
                   <Button variant="tool" size="sm" @click="loadFile('clientEncKeyPEM')"><FolderOpenIcon class="w-3 h-3" /></Button>
                 </div>
               </div>
@@ -349,6 +364,7 @@ import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'
 import PageLayout from '../components/PageLayout.vue'
 import Dropdown from '../components/Dropdown.vue'
+import ByteBadge from '../components/ByteBadge.vue'
 import { TLSConnect, TLSSelfTest, ListTLSCipherSuites, ListTLCPCipherSuites, SelectFile, ReadFile } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 

@@ -78,16 +78,5 @@ const hintClass = computed(() => {
   padding-bottom: 24px;
 }
 
-.bytes-badge {
-  position: absolute;
-  right: 8px;
-  bottom: 6px;
-  font-size: 10px;
-  font-family: var(--font-mono);
-  padding: 2px 8px;
-  background: rgba(34, 211, 238, 0.15);
-  color: #67e8f9;
-  border-radius: 4px;
-  pointer-events: none;
-}
+/* 字节角标样式统一使用全局 .bytes-badge (见 styles/components.css) */
 </style>
