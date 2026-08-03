@@ -1,13 +1,15 @@
 module cryptokit
 
-go 1.25.5
+go 1.26
 
 require (
 	gitee.com/Trisia/gotlcp v1.5.0
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/cloudflare/circl v1.6.4
 	github.com/emmansun/gmsm v0.44.1
+	github.com/lattice-safe/falcon-go v0.1.0
 	github.com/secure-io/siv-go v0.0.0-20180922214919-5ff40651e2c4
+	github.com/shurlinet/go-hqc v0.1.1
 	github.com/wailsapp/wails/v2 v2.13.0
 	github.com/zeebo/blake3 v0.2.4
 	golang.org/x/crypto v0.54.0

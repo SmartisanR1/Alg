@@ -431,108 +431,152 @@
       </div>
     </div>
 
-    <!-- FALCON — 调研预览 -->
+    <!-- FALCON -->
     <div v-if="activeTab === 'falcon'" class="sym-workbench animate-fade-in">
-      <!-- 左列: 算法说明 + 参数预览 -->
       <div class="sym-side">
-        <!-- 状态横幅 -->
-        <div class="card flex items-start gap-4"
-             :class="isDark ? 'border-violet-500/20 bg-violet-500/5' : 'border-violet-200 bg-violet-50'">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-               :class="isDark ? 'bg-violet-500/15' : 'bg-violet-100'">
-            <AtomIcon class="w-5 h-5 text-violet-400" />
+        <div class="card">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="badge">FIPS 206</span>
+            <p class="text-sm font-medium">FALCON / FN-DSA — 紧凑数字签名</p>
           </div>
-          <div>
-            <p class="text-sm font-bold mb-1" :class="isDark ? 'text-dark-text' : 'text-light-text'">
-              FALCON — NTRU格紧凑签名算法
-            </p>
-            <p class="text-sm leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-              circl v1.6.4 (2026.06) 仍不包含 FALCON 实现，Go 社区也无成熟的纯 Go 方案。FIPS 206 标准仍处于草案阶段，需等待标准正式发布后 Go 生态跟进。目前可使用 ML-DSA 或 AIGIS-sig 作为签名方案。
-            </p>
+          <label class="input-label">参数集</label>
+          <Dropdown
+            v-model="falcon.paramSet"
+            :options="falconParamInfo.map(p => ({ value: p.name, label: p.name + ' (' + p.nist + ')' }))"
+            class="mb-3"
+          />
+          <button @click="genFalconKey" class="btn-secondary w-full justify-center mb-3">
+            <KeyIcon class="w-3.5 h-3.5" /> 生成签名密钥对
+          </button>
+          <div v-if="falconKeys.publicKey" class="space-y-2">
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="input-label !mb-0 text-orange-300">私钥</label>
+                <button @click="copy(falconKeys.privateKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
+              </div>
+              <textarea readonly class="result-area ck-key-hex !min-h-[72px] text-orange-300 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="falconKeys.privateKey"></textarea>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="input-label !mb-0 text-cyan-400">公钥</label>
+                <button @click="copy(falconKeys.publicKey)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
+              </div>
+              <textarea readonly class="result-area ck-key-hex !min-h-[72px] text-cyan-300 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="falconKeys.publicKey"></textarea>
+            </div>
           </div>
         </div>
-
-        <div class="card flex flex-col items-center justify-center py-12 text-dark-muted space-y-3 opacity-60 border-dashed">
-          <div class="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center">
-            <SettingsIcon class="w-6 h-6 text-violet-400 animate-spin-slow" />
-          </div>
-          <p class="text-xs">正在适配 FIPS 206 标准 API...</p>
+        <div class="card">
+          <CryptoPanel v-model="falcon.data" label="待签名数据 (hex)" type="textarea" :rows="3" clearable />
         </div>
       </div>
 
-      <!-- 右列: 算法原理 -->
-      <div class="card sym-main">
-        <p class="card-title">算法原理 (FALCON)</p>
-        <div class="text-sm space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-          <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-violet-400 text-[13px]">设计基础</p>
-            <p class="text-[13px]">FALCON 基于 NTRU 格，采用 Gentry-Peikert-Vaikuntanathan (GPV) 框架的陷门高斯采样，使用 Fast Fourier Sampling over NTRU lattices 技术高效生成签名。</p>
+      <div class="sym-main">
+        <div class="flex gap-2">
+          <button @click="falconSign" :disabled="!falconKeys.privateKey" class="btn-success flex-1 justify-center">
+            <PenIcon class="w-3.5 h-3.5" /> 签名
+          </button>
+          <button @click="falconVerify" :disabled="!falconKeys.publicKey || !falconResult.data"
+                  class="btn-warning flex-1 justify-center">
+            <CheckCircleIcon class="w-3.5 h-3.5" /> 验签
+          </button>
+        </div>
+        <div class="card">
+          <CryptoPanel v-model="falconResult.data" label="签名 (HEX)" type="result"
+                       :success="falconResult.success" copyable class="break-all text-[11px]" />
+          <div v-if="falconResult.error || falconResult.success !== null" class="mt-2 text-xs"
+               :class="falconResult.success ? 'text-emerald-400' : 'text-red-400'">
+            {{ falconResult.error || (falconResult.op === 'verify'
+                ? (falconResult.success ? '签名验证通过' : '签名验证失败')
+                : (falconResult.success ? '签名成功' : '签名失败')) }}
           </div>
-          <div class="p-3 rounded-xl border border-amber-400/20" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-orange-300 text-[13px]">尺寸优势 — PQC 中最小签名</p>
-            <p class="text-[13px]">FALCON-512 签名仅约 666B，公钥 897B，远小于 ML-DSA-44 (签名 2420B)。在带宽受限场景 (TLS、区块链) 中具有显著优势。</p>
-          </div>
-          <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-blue-400 text-[13px]">NIST 标准化状态</p>
-            <p class="text-[13px]">FALCON 已作为 NIST PQC 签名候选之一纳入评估 (FIPS 206 草案阶段)，与 ML-DSA 互补，ML-DSA 为主流推荐、FALCON 为紧凑场景备选。</p>
-          </div>
-          <div class="p-3 rounded-xl border border-red-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-red-400 text-[13px]">实现挑战</p>
-            <p class="text-[13px]">FALCON 中的高斯采样依赖 IEEE 754 双精度浮点的特定精度保证，正确的常数时间实现极其困难，官方参考实现为 C 语言，Go 移植尚在社区讨论阶段。</p>
-          </div>
+        </div>
+        <div class="card">
+          <p class="card-title">参数对比</p>
+          <table class="w-full text-xs">
+            <thead><tr :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+              <th class="text-left pb-1">参数集</th>
+              <th class="text-right pb-1">公钥</th>
+              <th class="text-right pb-1">签名</th>
+              <th class="text-right pb-1">安全</th>
+            </tr></thead>
+            <tbody :class="isDark ? 'text-dark-text' : 'text-light-text'">
+              <tr v-for="r in falconParamInfo" :key="r.name" class="border-t"
+                  :class="isDark ? 'border-dark-border' : 'border-light-border'">
+                <td class="py-1 font-mono">{{ r.name }}</td>
+                <td class="text-right">{{ r.pk }}</td>
+                <td class="text-right">{{ r.sig }}</td>
+                <td class="text-right">{{ r.nist }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- HQC — 调研预览 -->
+    <!-- HQC -->
     <div v-if="activeTab === 'hqc'" class="sym-workbench animate-fade-in">
-      <!-- 左列 -->
       <div class="sym-side">
-        <!-- 状态横幅 -->
-        <div class="card flex items-start gap-4"
-             :class="isDark ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-emerald-200 bg-emerald-50'">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-               :class="isDark ? 'bg-emerald-500/15' : 'bg-emerald-100'">
-            <AtomIcon class="w-5 h-5 text-emerald-400" />
+        <div class="card">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="badge">FIPS 207</span>
+            <p class="text-sm font-medium">HQC — 准循环码密钥封装</p>
           </div>
-          <div>
-            <p class="text-sm font-bold mb-1" :class="isDark ? 'text-dark-text' : 'text-light-text'">
-              HQC — 准循环码密钥封装
-            </p>
-            <p class="text-sm leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-              HQC 于 2025.03 被 NIST 选为第五个后量子加密算法 (备选 KEM)。标准草案预计 2026 年发布，最终标准预计 2027 年。目前 Go 仅有基于 CGO 的 liboqs 绑定，无成熟纯 Go 实现。本工具优先保证跨平台无依赖，待标准定稿和纯 Go 实现成熟后上线。
-            </p>
+          <label class="input-label">参数集</label>
+          <Dropdown
+            v-model="hqc.paramSet"
+            :options="hqcParamInfo.map(p => ({ value: p.name, label: p.name + ' (' + p.nist + ')' }))"
+            class="mb-3"
+          />
+          <button @click="genHQCKey" class="btn-secondary w-full justify-center mb-3">
+            <KeyIcon class="w-3.5 h-3.5" /> 生成密钥对
+          </button>
+          <div v-if="hqcKeys.publicKey" class="space-y-2">
+            <label class="input-label text-orange-300">私钥</label>
+            <textarea readonly class="result-area ck-key-hex !min-h-[72px] text-orange-300 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="hqcKeys.privateKey"></textarea>
+            <label class="input-label text-cyan-400">公钥</label>
+            <textarea readonly class="result-area ck-key-hex !min-h-[72px] text-cyan-300 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="hqcKeys.publicKey"></textarea>
           </div>
-        </div>
-
-        <div class="card flex flex-col items-center justify-center py-12 text-dark-muted space-y-3 opacity-60 border-dashed">
-          <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-            <SettingsIcon class="w-6 h-6 text-emerald-400 animate-spin-slow" />
-          </div>
-          <p class="text-xs">等待 NIST 标准化及稳定 Go 实现...</p>
         </div>
       </div>
 
-      <!-- 右列: 算法原理 -->
-      <div class="card sym-main">
-        <p class="card-title">算法原理 (HQC)</p>
-        <div class="text-sm space-y-3 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-          <div class="p-3 rounded-xl border border-emerald-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-emerald-400 text-[13px]">设计基础</p>
-            <p class="text-[13px]">HQC (Hamming Quasi-Cyclic) 基于准循环码上的解密失败概率难题。密钥是准循环 LDPC/LRPC 码，安全性归约到随机线性码上的解码问题。</p>
+      <div class="sym-main">
+        <div class="card space-y-3">
+          <button @click="hqcEncap" :disabled="!hqcKeys.publicKey" class="btn-success w-full justify-center">
+            <LockIcon class="w-3.5 h-3.5" /> 封装 (Encapsulate)
+          </button>
+          <div v-if="hqcEncapResult.ciphertext" class="space-y-2">
+            <label class="input-label text-emerald-400">密文</label>
+            <textarea readonly class="result-area ck-key-hex !min-h-[64px] text-emerald-300 text-[12px] font-mono w-full resize-none bg-transparent outline-none border-none" :value="hqcEncapResult.ciphertext"></textarea>
+            <label class="input-label text-yellow-300">共享密钥</label>
+            <div class="result-area text-yellow-300 font-mono break-all">{{ hqcEncapResult.sharedSecret }}</div>
+            <button @click="hqcDecap" :disabled="!hqcKeys.privateKey" class="btn-warning w-full justify-center">
+              <UnlockIcon class="w-3.5 h-3.5" /> 解封装 (Decapsulate)
+            </button>
+            <div v-if="hqcDecapResult.data || hqcDecapResult.error" class="text-xs"
+                 :class="hqcDecapResult.error ? 'text-red-400' : 'text-emerald-400'">
+              {{ hqcDecapResult.error || (hqcDecapResult.data === hqcEncapResult.sharedSecret ? '共享密钥一致，密钥交换成功' : '共享密钥不匹配') }}
+            </div>
           </div>
-          <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-blue-400 text-[13px]">多样性价值</p>
-            <p class="text-[13px]">HQC 与 ML-KEM 的安全假设完全不同 (纠错码 vs 格)。NIST 同时推进两类 KEM 标准，目的是防范单一数学问题被量子算法或经典算法突破的风险。</p>
-          </div>
-          <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-violet-400 text-[13px]">NIST 标准化进展</p>
-            <p class="text-[13px]">HQC 于 2025.03 被 NIST 正式选为第五个后量子加密算法，将作为 ML-KEM 的备选 KEM。标准草案预计 2026 年发布，最终标准预计 2027 年，届时可与 ML-KEM 混合部署以提升安全边界。</p>
-          </div>
-          <div class="p-3 rounded-xl border border-amber-400/20" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-            <p class="font-bold mb-2 text-orange-300 text-[13px]">实现现状</p>
-            <p class="text-[13px]">HQC 参考实现为 C 语言。Go 社区中目前没有经过审计的成熟实现，待 NIST 最终标准发布后，预计 Go 标准库或 cloudflare/circl 将跟进。</p>
-          </div>
+        </div>
+        <div class="card">
+          <p class="card-title">参数对比</p>
+          <table class="w-full text-xs">
+            <thead><tr :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
+              <th class="text-left pb-1">参数集</th>
+              <th class="text-right pb-1">公钥</th>
+              <th class="text-right pb-1">密文</th>
+              <th class="text-right pb-1">安全</th>
+            </tr></thead>
+            <tbody :class="isDark ? 'text-dark-text' : 'text-light-text'">
+              <tr v-for="r in hqcParamInfo" :key="r.name" class="border-t"
+                  :class="isDark ? 'border-dark-border' : 'border-light-border'">
+                <td class="py-1 font-mono">{{ r.name }}</td>
+                <td class="text-right">{{ r.pk }}</td>
+                <td class="text-right">{{ r.ct }}</td>
+                <td class="text-right">{{ r.nist }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -783,7 +827,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { AtomIcon, KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, XCircleIcon, CopyIcon, InfoIcon, XIcon, SettingsIcon } from '@lucide/vue'
+import { AtomIcon, KeyIcon, LockIcon, UnlockIcon, PenIcon, CheckCircleIcon, XCircleIcon, CopyIcon, InfoIcon, XIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'
@@ -799,6 +843,8 @@ import {
   XWingKeyGen, XWingEncapsulate, XWingDecapsulate,
   TLS13KeyGen, TLS13FullExchange,
   AigisKeyGen, AigisSign, AigisVerify,
+  FalconKeyGen, FalconSign, FalconVerify,
+  HQCKeyGen, HQCEncapsulate, HQCDecapsulate,
 } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
@@ -943,26 +989,64 @@ async function kemDecap() {
   kemDecapResult.data = r.data; kemDecapResult.error = r.error
 }
 
-// FALCON — 静态参数信息展示 (暂无纯 Go 实现，仅展示规格)
+// FALCON
+const falcon = reactive({ paramSet: 'Falcon-512', data: '' })
+const falconKeys = reactive({ privateKey: '', publicKey: '' })
+const falconResult = reactive({ data: '', error: '', success: null, op: '' })
 const falconParamInfo = [
-  { name: 'Falcon-512',        pk: '897B',  sig: '~666B',  nist: 'NIST-1' },
-  { name: 'Falcon-1024',       pk: '1793B', sig: '~1280B', nist: 'NIST-5' },
-  { name: 'Falcon-padded-512', pk: '897B',  sig: '809B',   nist: 'NIST-1' },
+  { name: 'Falcon-512',  pk: '897B',  sig: '809B',  nist: 'NIST-1' },
+  { name: 'Falcon-1024', pk: '1793B', sig: '1577B', nist: 'NIST-5' },
 ]
 
-// HQC — 静态参数信息展示
+async function genFalconKey() {
+  falconKeys.privateKey = ''; falconKeys.publicKey = ''
+  falconResult.data = ''; falconResult.error = ''; falconResult.success = null; falconResult.op = ''
+  const r = await FalconKeyGen(falcon.paramSet)
+  if (r.success) { falconKeys.privateKey = r.privateKey; falconKeys.publicKey = r.publicKey }
+  else { falconResult.error = r.error || '密钥生成失败'; falconResult.success = false }
+}
+async function falconSign() {
+  const r = await FalconSign({ privateKey: falconKeys.privateKey, data: falcon.data, paramSet: falcon.paramSet })
+  falconResult.data = r.data; falconResult.error = r.error; falconResult.success = r.success; falconResult.op = 'sign'
+}
+async function falconVerify() {
+  const r = await FalconVerify({ publicKey: falconKeys.publicKey, data: falcon.data, signature: falconResult.data, paramSet: falcon.paramSet })
+  falconResult.data = r.data; falconResult.error = r.error; falconResult.success = r.success; falconResult.op = 'verify'
+}
+
+// HQC
+const hqc = reactive({ paramSet: 'HQC-128' })
+const hqcKeys = reactive({ privateKey: '', publicKey: '' })
+const hqcEncapResult = reactive({ ciphertext: '', sharedSecret: '', error: '' })
+const hqcDecapResult = reactive({ data: '', error: '' })
 const hqcParamInfo = [
-  { name: 'HQC-128', pk: '2249B',  ct: '4481B',  nist: 'NIST-1' },
-  { name: 'HQC-192', pk: '4522B',  ct: '9026B',  nist: 'NIST-3' },
-  { name: 'HQC-256', pk: '7245B',  ct: '14469B', nist: 'NIST-5' },
+  { name: 'HQC-128', pk: '2241B', ct: '4433B',  nist: 'NIST-1' },
+  { name: 'HQC-192', pk: '4514B', ct: '8978B',  nist: 'NIST-3' },
+  { name: 'HQC-256', pk: '7237B', ct: '14421B', nist: 'NIST-5' },
 ]
-const hqcCompare = [
-  { label: '公钥大小', mlkem: '1184B', hqc: '4522B'  },
-  { label: '密文大小', mlkem: '1088B', hqc: '9026B'  },
-  { label: '共享密钥', mlkem: '32B',   hqc: '64B'    },
-  { label: '安全假设', mlkem: '格(LWE)', hqc: '纠错码' },
-  { label: 'Go 支持',  mlkem: '✅ 已上线', hqc: '🔄 调研中' },
-]
+
+async function genHQCKey() {
+  hqcKeys.privateKey = ''; hqcKeys.publicKey = ''
+  hqcEncapResult.ciphertext = ''; hqcEncapResult.sharedSecret = ''; hqcEncapResult.error = ''
+  hqcDecapResult.data = ''; hqcDecapResult.error = ''
+  const r = await HQCKeyGen(hqc.paramSet)
+  if (r.success) { hqcKeys.privateKey = r.privateKey; hqcKeys.publicKey = r.publicKey }
+  else { hqcDecapResult.error = r.error || '密钥生成失败' }
+}
+async function hqcEncap() {
+  const r = await HQCEncapsulate({ publicKey: hqcKeys.publicKey, paramSet: hqc.paramSet })
+  if (r.success) {
+    hqcEncapResult.ciphertext = r.ciphertext
+    hqcEncapResult.sharedSecret = r.sharedSecret
+    hqcEncapResult.error = ''
+  } else {
+    hqcEncapResult.error = r.error || '封装失败'
+  }
+}
+async function hqcDecap() {
+  const r = await HQCDecapsulate({ privateKey: hqcKeys.privateKey, ciphertext: hqcEncapResult.ciphertext, paramSet: hqc.paramSet })
+  hqcDecapResult.data = r.data; hqcDecapResult.error = r.error
+}
 
 const kemParams = [
   { name: 'ML-KEM-512',  pubKey: '800B',  ct: '768B',  security: 'NIST-1' },
