@@ -560,6 +560,7 @@ import {
   GenerateInternalSignedCert, GenerateDualCertificates, GetInternalRootCert, SaveFile, SelectFile, ReadFile 
 } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
+import { copyToClipboard } from '../utils/clipboard'
 import { storeToRefs } from 'pinia'
 
 const store = useAppStore()
@@ -800,11 +801,7 @@ async function genDualCerts() {
   }
 }
 
-async function copyText(t) {
-  if (!t) return
-  await navigator.clipboard.writeText(t)
-  store.showToast('已复制')
-}
+const copyText = (t) => copyToClipboard(t)
 </script>
 
 <style scoped>

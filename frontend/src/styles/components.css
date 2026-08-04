@@ -39,7 +39,6 @@
 .btn-warning,
 .btn-secondary,
 .btn-tool,
-.btn-copy,
 .btn-download,
 .btn-icon {
   display: inline-flex;
@@ -168,22 +167,6 @@
 .btn-icon:hover {
   background: var(--hover);
   color: var(--text);
-}
-
-/* 复制按钮 */
-.btn-copy {
-  padding: 4px 8px;
-  background: rgba(var(--accent-rgb), 0.1);
-  color: var(--accent);
-  border: 1px solid rgba(var(--accent-rgb), 0.2);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-xs);
-  font-weight: 500;
-}
-
-.btn-copy:hover {
-  background: rgba(var(--accent-rgb), 0.2);
-  border-color: rgba(var(--accent-rgb), 0.3);
 }
 
 /* 下载按钮 */

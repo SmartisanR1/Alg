@@ -294,6 +294,10 @@ export function OpenGMEnvelope(arg1) {
   return window['go']['main']['App']['OpenGMEnvelope'](arg1);
 }
 
+export function PacketPerfTest(arg1) {
+  return window['go']['main']['App']['PacketPerfTest'](arg1);
+}
+
 export function PaddingApply(arg1) {
   return window['go']['main']['App']['PaddingApply'](arg1);
 }
@@ -518,28 +522,28 @@ export function TDESEncrypt(arg1) {
   return window['go']['main']['App']['TDESEncrypt'](arg1);
 }
 
-export function TLS13ClientExchange(arg1, arg2) {
-  return window['go']['main']['App']['TLS13ClientExchange'](arg1, arg2);
-}
-
-export function TLS13FullExchange(arg1) {
-  return window['go']['main']['App']['TLS13FullExchange'](arg1);
-}
-
-export function TLS13KeyGen(arg1) {
-  return window['go']['main']['App']['TLS13KeyGen'](arg1);
-}
-
-export function TLS13ServerExchange(arg1) {
-  return window['go']['main']['App']['TLS13ServerExchange'](arg1);
-}
-
 export function TLSConnect(arg1) {
   return window['go']['main']['App']['TLSConnect'](arg1);
 }
 
-export function TLSSelfTest(arg1) {
-  return window['go']['main']['App']['TLSSelfTest'](arg1);
+export function TLSDemoClientConnect(arg1) {
+  return window['go']['main']['App']['TLSDemoClientConnect'](arg1);
+}
+
+export function TLSDemoClose(arg1) {
+  return window['go']['main']['App']['TLSDemoClose'](arg1);
+}
+
+export function TLSDemoGetState(arg1) {
+  return window['go']['main']['App']['TLSDemoGetState'](arg1);
+}
+
+export function TLSDemoSend(arg1) {
+  return window['go']['main']['App']['TLSDemoSend'](arg1);
+}
+
+export function TLSDemoServerStart(arg1) {
+  return window['go']['main']['App']['TLSDemoServerStart'](arg1);
 }
 
 export function TimestampConvert(arg1) {

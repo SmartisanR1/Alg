@@ -198,131 +198,137 @@
       </div>
     </div>
 
-    <!-- 自测模式 -->
+    <!-- 自测模式：本地服务端 + 客户端双向演示 -->
     <div v-if="activeTab === 'selftest'" class="grid grid-cols-2 gap-4 animate-fade-in">
+      <!-- 左侧：服务端 -->
       <div class="space-y-3">
         <Card>
           <div class="flex items-center gap-2 mb-3">
-            <span class="badge bg-emerald-500/20 text-emerald-400">自测</span>
-            <p class="text-sm font-medium">本地 Server + Client</p>
+            <span class="badge bg-emerald-500/20 text-emerald-400">服务端</span>
+            <p class="text-sm font-medium">本地 TLS/TLCP 服务端</p>
           </div>
-          <p class="text-xs mb-3" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            自动创建本地 TLS/TLCP 服务端和客户端，自发送自接收，验证协议握手和数据传输。
-          </p>
-          <div class="mb-3">
-            <label class="input-label">协议</label>
-            <Dropdown
-              v-model="selfTest.protocol"
-              :options="[
-                { value: 'tls1.2', label: 'TLS 1.2' },
-                { value: 'tls1.3', label: 'TLS 1.3' },
-                { value: 'tlcp', label: 'TLCP 1.1 (国密 SM2+SM4)' },
-              ]"
-            />
-          </div>
-          <div class="mb-3">
-            <label class="input-label">测试消息</label>
-            <Input v-model="selfTest.message" placeholder="Hello from CryptoKit!" />
-          </div>
-          <div class="flex items-center gap-2 mb-3">
-            <label class="flex items-center gap-2">
+          <div class="flex items-end gap-2 mb-3">
+            <div class="flex-1">
+              <label class="input-label">协议</label>
+              <Dropdown
+                v-model="selfTest.protocol"
+                :options="[
+                  { value: 'tls1.2', label: 'TLS 1.2' },
+                  { value: 'tls1.3', label: 'TLS 1.3' },
+                  { value: 'tlcp', label: 'TLCP 1.1 (国密 SM2+SM4)' },
+                ]"
+              />
+            </div>
+            <label class="flex items-center gap-2 pb-2 shrink-0">
               <input type="checkbox" :checked="selfTest.enablePQC" @change="selfTest.enablePQC = $event.target.checked" class="rounded" />
-              <span class="text-xs text-violet-400">启用 PQC 混合密钥交换 (X25519MLKEM768)</span>
+              <span class="text-xs text-violet-400">PQC 混合</span>
             </label>
           </div>
-          <Button variant="success" block @click="doSelfTest" :disabled="selfTesting">
-            <ZapIcon class="w-3.5 h-3.5" />
-            {{ selfTesting ? '测试中...' : '执行自测' }}
-          </Button>
+          <div class="flex gap-2 mb-3">
+            <Button variant="success" class="flex-1 justify-center" @click="startDemoServer" :disabled="demoServerStarting">
+              <ServerIcon class="w-3.5 h-3.5" />
+              {{ demoServerStarting ? '启动中...' : (demo.serverStatus === 'listening' || demo.serverStatus === 'connected' ? '重启服务端' : '启动服务端') }}
+            </Button>
+            <Button variant="danger" class="shrink-0" @click="stopDemo" :disabled="!demo.sessionId" title="停止并关闭">
+              <XIcon class="w-3.5 h-3.5" />
+            </Button>
+          </div>
+          <div class="flex items-center gap-2 text-xs mb-1">
+            <span class="text-muted">监听地址:</span>
+            <span class="font-mono">{{ demo.port ? '127.0.0.1:' + demo.port : '未启动' }}</span>
+            <span class="badge" :class="serverStatusClass">{{ serverStatusText }}</span>
+          </div>
+          <p v-if="demo.certificate" class="text-[11px] text-muted">{{ demo.certificate }}</p>
         </Card>
 
-        <!-- 原理说明 -->
-        <Card title="自测原理">
-          <div class="text-xs space-y-2 leading-relaxed" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">
-            <div class="p-3 rounded-xl border border-blue-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-bold mb-1 text-blue-400">工作流程</p>
-              <p>1. 生成临时自签名证书</p>
-              <p>2. 启动本地 TLS/TLCP 服务器 (随机端口)</p>
-              <p>3. 客户端连接服务器，完成握手</p>
-              <p>4. 客户端发送消息，服务器回显</p>
-              <p>5. 验证收发一致性</p>
+        <!-- 服务端协商流程 -->
+        <Card v-if="demo.serverTimeline.length" title="服务端协商流程">
+          <div class="space-y-1.5">
+            <div v-for="(line, i) in demo.serverTimeline" :key="i"
+                 class="flex items-start gap-2 text-[11px]"
+                 :class="line.startsWith('✓') ? 'text-emerald-400 font-semibold' : (line.startsWith('✗') ? 'text-red-400' : 'text-muted')">
+              <span class="shrink-0 w-4 text-center text-[9px] mt-0.5 opacity-60">{{ i + 1 }}</span>
+              <span class="font-mono break-all">{{ line }}</span>
             </div>
-            <div class="p-3 rounded-xl border border-violet-500/10" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
-              <p class="font-bold mb-1 text-violet-400">PQC 混合模式</p>
-              <p>启用后使用 X25519MLKEM768 作为首选密钥交换组，结合经典 X25519 和后量子 ML-KEM-768。</p>
+          </div>
+        </Card>
+
+        <!-- 服务端消息 -->
+        <Card title="服务端消息">
+          <div class="mb-2 flex gap-2">
+            <Input v-model="demoServerMsg" placeholder="服务端发送的消息..." @keyup.enter="sendDemo('server')" />
+            <Button variant="success" class="shrink-0" @click="sendDemo('server')">发送</Button>
+          </div>
+          <div v-if="!demo.serverMessages.length" class="text-xs text-muted py-2">等待客户端发来消息...</div>
+          <div v-else class="space-y-1 max-h-48 overflow-y-auto">
+            <div v-for="(m, i) in demo.serverMessages" :key="i"
+                 class="text-[11px] font-mono p-1.5 rounded-lg" :class="isDark ? 'bg-dark-bg' : 'bg-slate-50'">
+              <span class="text-emerald-400 mr-1">客户端 →</span> {{ m }}
             </div>
           </div>
         </Card>
       </div>
 
-      <!-- 自测结果 -->
+      <!-- 右侧：客户端 -->
       <div class="space-y-3">
         <Card>
           <div class="flex items-center gap-2 mb-3">
-            <span class="badge" :class="selfTestResult.success ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'">
-              {{ selfTestResult.success ? '通过' : '未测试' }}
-            </span>
-            <p class="text-sm font-medium">自测结果</p>
+            <span class="badge bg-sky-500/20 text-sky-400">客户端</span>
+            <p class="text-sm font-medium">连接本地服务端</p>
           </div>
-
-          <div v-if="selfTestResult.error" class="p-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs mb-3">
-            {{ selfTestResult.error }}
+          <Button variant="secondary" block @click="connectDemoClient"
+                  :disabled="!demo.sessionId || demoClientConnecting || demo.clientStatus === 'connected'">
+            <LinkIcon class="w-3.5 h-3.5" />
+            {{ demoClientConnecting ? '连接中...' : (demo.clientStatus === 'connected' ? '已连接' : '连接本地服务端') }}
+          </Button>
+          <div class="flex items-center gap-2 text-xs mt-3">
+            <span class="text-muted">连接地址:</span>
+            <span class="font-mono">{{ demo.port ? '127.0.0.1:' + demo.port : '请先启动服务端' }}</span>
+            <span class="badge" :class="clientStatusClass">{{ clientStatusText }}</span>
           </div>
+        </Card>
 
-          <div v-if="selfTestResult.success" class="space-y-3">
-            <div class="grid grid-cols-2 gap-2">
-              <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
-                <p class="text-[10px] text-muted mb-0.5">协议</p>
-                <p class="text-sm font-semibold" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ selfTestResult.tlsVersion }}</p>
-              </div>
-              <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
-                <p class="text-[10px] text-muted mb-0.5">握手耗时</p>
-                <p class="text-sm font-semibold" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ selfTestResult.handshakeTimeMs }} ms</p>
-              </div>
-              <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
-                <p class="text-[10px] text-muted mb-0.5">密码套件</p>
-                <p class="text-xs font-semibold break-all" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ selfTestResult.cipherSuite }}</p>
-              </div>
-              <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
-                <p class="text-[10px] text-muted mb-0.5">数据交换耗时</p>
-                <p class="text-sm font-semibold" :class="isDark ? 'text-dark-text' : 'text-light-text'">{{ selfTestResult.exchangeTimeMs }} ms</p>
-              </div>
-            </div>
-
-            <div v-if="selfTestResult.curveUsed" class="flex items-center gap-2 text-xs">
-              <span class="text-muted">密钥交换:</span>
-              <span class="font-mono" :class="selfTestResult.curveUsed.includes('PQC') ? 'text-violet-400' : ''">
-                {{ selfTestResult.curveUsed }}
-              </span>
-            </div>
-
-            <!-- 收发验证 -->
-            <div class="p-3 rounded-xl border" :class="selfTestResult.sentMessage === selfTestResult.receivedMessage ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold" :class="selfTestResult.sentMessage === selfTestResult.receivedMessage ? 'text-emerald-400' : 'text-red-400'">
-                  {{ selfTestResult.sentMessage === selfTestResult.receivedMessage ? '✓ 收发一致' : '✗ 收发不一致' }}
-                </span>
-              </div>
-              <div class="space-y-1 text-[11px]">
-                <p><span class="text-muted">发送:</span> <span class="font-mono">{{ selfTestResult.sentMessage }}</span></p>
-                <p><span class="text-muted">接收:</span> <span class="font-mono">{{ selfTestResult.receivedMessage }}</span></p>
-              </div>
+        <!-- 客户端协商流程 -->
+        <Card v-if="demo.clientTimeline.length" title="客户端协商流程">
+          <div class="space-y-1.5">
+            <div v-for="(line, i) in demo.clientTimeline" :key="i"
+                 class="flex items-start gap-2 text-[11px]"
+                 :class="line.startsWith('✓') ? 'text-emerald-400 font-semibold' : (line.startsWith('✗') ? 'text-red-400' : 'text-muted')">
+              <span class="shrink-0 w-4 text-center text-[9px] mt-0.5 opacity-60">{{ i + 1 }}</span>
+              <span class="font-mono break-all">{{ line }}</span>
             </div>
           </div>
         </Card>
 
-        <!-- 证书信息 -->
-        <Card v-if="selfTestResult.peerCertificates && selfTestResult.peerCertificates.length > 0">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="badge bg-violet-500/20 text-violet-400">证书</span>
-            <p class="text-sm font-medium">自签名测试证书</p>
+        <!-- 客户端消息 -->
+        <Card title="客户端消息">
+          <div class="mb-2 flex gap-2">
+            <Input v-model="demoClientMsg" placeholder="客户端发送的消息..." @keyup.enter="sendDemo('client')" />
+            <Button variant="success" class="shrink-0" @click="sendDemo('client')">发送</Button>
           </div>
-          <div v-for="(cert, idx) in selfTestResult.peerCertificates" :key="idx"
-               class="p-3 rounded-xl border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
-            <div class="space-y-1 text-[11px]">
-              <p><span class="text-muted w-16 inline-block">Subject:</span> <span class="font-mono">{{ cert.subject }}</span></p>
-              <p><span class="text-muted w-16 inline-block">有效期:</span> {{ cert.notBefore }} ~ {{ cert.notAfter }}</p>
-              <p><span class="text-muted w-16 inline-block">算法:</span> {{ cert.keyAlgorithm }} / {{ cert.sigAlgorithm }}</p>
+          <div v-if="!demo.clientMessages.length" class="text-xs text-muted py-2">等待服务端发来消息...</div>
+          <div v-else class="space-y-1 max-h-48 overflow-y-auto">
+            <div v-for="(m, i) in demo.clientMessages" :key="i"
+                 class="text-[11px] font-mono p-1.5 rounded-lg" :class="isDark ? 'bg-dark-bg' : 'bg-slate-50'">
+              <span class="text-sky-400 mr-1">服务端 →</span> {{ m }}
+            </div>
+          </div>
+        </Card>
+
+        <!-- 协商结果 -->
+        <Card v-if="demo.tlsVersion" title="协商结果">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
+              <p class="text-[10px] text-muted mb-0.5">协议版本</p>
+              <p class="text-sm font-semibold">{{ demo.tlsVersion }}</p>
+            </div>
+            <div class="p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
+              <p class="text-[10px] text-muted mb-0.5">密钥交换</p>
+              <p class="text-xs font-semibold break-all" :class="demo.curveUsed?.includes('PQC') ? 'text-violet-400' : ''">{{ demo.curveUsed }}</p>
+            </div>
+            <div class="col-span-2 p-2 rounded-lg border" :class="isDark ? 'border-dark-border' : 'border-light-border'">
+              <p class="text-[10px] text-muted mb-0.5">密码套件</p>
+              <p class="text-xs font-semibold break-all">{{ demo.cipherSuite }}</p>
             </div>
           </div>
         </Card>
@@ -356,16 +362,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { ShieldCheckIcon, LockIcon, FolderOpenIcon, ZapIcon, ChevronDownIcon } from '@lucide/vue'
+import { ShieldCheckIcon, LockIcon, FolderOpenIcon, ServerIcon, LinkIcon, XIcon, ChevronDownIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'
 import PageLayout from '../components/PageLayout.vue'
 import Dropdown from '../components/Dropdown.vue'
 import ByteBadge from '../components/ByteBadge.vue'
-import { TLSConnect, TLSSelfTest, ListTLSCipherSuites, ListTLCPCipherSuites, SelectFile, ReadFile } from '../../wailsjs/go/main/App'
+import { TLSConnect, TLSDemoServerStart, TLSDemoClientConnect, TLSDemoSend, TLSDemoGetState, TLSDemoClose, ListTLSCipherSuites, ListTLCPCipherSuites, SelectFile, ReadFile } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
 
 const store = useAppStore()
@@ -412,27 +418,116 @@ const connResult = reactive({
 // Self-test
 const selfTest = reactive({
   protocol: 'tls1.3',
-  message: 'Hello from CryptoKit!',
   enablePQC: false,
 })
 
-const selfTesting = ref(false)
-const selfTestResult = reactive({
-  success: false,
-  protocol: '',
+// 双向连接演示状态（左侧服务端 / 右侧客户端）
+const demo = reactive({
+  sessionId: '',
+  port: 0,
+  serverStatus: 'idle', // idle | listening | connected | error
+  clientStatus: 'idle',
+  serverTimeline: [],
+  clientTimeline: [],
+  serverMessages: [],
+  clientMessages: [],
   cipherSuite: '',
-  cipherSuiteId: '',
   tlsVersion: '',
-  handshakeTimeMs: 0,
-  exchangeTimeMs: 0,
-  peerCertificates: [],
-  alpnProtocol: '',
-  sessionReused: false,
-  sentMessage: '',
-  receivedMessage: '',
   curveUsed: '',
-  error: '',
+  certificate: '',
 })
+const demoServerStarting = ref(false)
+const demoClientConnecting = ref(false)
+const demoServerMsg = ref('')
+const demoClientMsg = ref('')
+let demoPollTimer = null
+
+const serverStatusText = computed(() => ({ idle: '未启动', listening: '监听中', connected: '已连接', error: '错误' }[demo.serverStatus] || demo.serverStatus))
+const clientStatusText = computed(() => ({ idle: '未连接', connected: '已连接', error: '错误' }[demo.clientStatus] || demo.clientStatus))
+const serverStatusClass = computed(() => ({ idle: 'bg-gray-500/20 text-gray-400', listening: 'bg-sky-500/20 text-sky-400', connected: 'bg-emerald-500/20 text-emerald-400', error: 'bg-red-500/20 text-red-400' }[demo.serverStatus] || 'bg-gray-500/20 text-gray-400'))
+const clientStatusClass = computed(() => ({ idle: 'bg-gray-500/20 text-gray-400', connected: 'bg-emerald-500/20 text-emerald-400', error: 'bg-red-500/20 text-red-400' }[demo.clientStatus] || 'bg-gray-500/20 text-gray-400'))
+
+function applyDemoState(r) {
+  demo.sessionId = r.sessionId || demo.sessionId
+  demo.port = r.port ?? demo.port
+  if (r.serverStatus) demo.serverStatus = r.serverStatus
+  if (r.clientStatus) demo.clientStatus = r.clientStatus
+  if (r.serverTimeline) demo.serverTimeline = r.serverTimeline
+  if (r.clientTimeline) demo.clientTimeline = r.clientTimeline
+  if (r.serverMessages) demo.serverMessages = r.serverMessages
+  if (r.clientMessages) demo.clientMessages = r.clientMessages
+  if (r.cipherSuite) demo.cipherSuite = r.cipherSuite
+  if (r.tlsVersion) demo.tlsVersion = r.tlsVersion
+  if (r.curveUsed) demo.curveUsed = r.curveUsed
+  if (r.certificate) demo.certificate = r.certificate
+}
+
+async function startDemoServer() {
+  demoServerStarting.value = true
+  try {
+    const r = await TLSDemoServerStart({ protocol: selfTest.protocol, enablePQC: selfTest.enablePQC })
+    if (r.error && !r.sessionId) {
+      // 会话未建立时的错误直接反馈到状态
+    }
+    applyDemoState(r)
+    startDemoPoll()
+  } catch (e) {
+    demo.serverStatus = 'error'
+  } finally {
+    demoServerStarting.value = false
+  }
+}
+
+async function connectDemoClient() {
+  if (!demo.sessionId) return
+  demoClientConnecting.value = true
+  try {
+    const r = await TLSDemoClientConnect({ sessionId: demo.sessionId })
+    applyDemoState(r)
+  } finally {
+    demoClientConnecting.value = false
+  }
+}
+
+async function sendDemo(side) {
+  if (!demo.sessionId) return
+  const msg = side === 'server' ? demoServerMsg.value : demoClientMsg.value
+  if (!msg.trim()) return
+  try {
+    const r = await TLSDemoSend({ sessionId: demo.sessionId, side, message: msg })
+    applyDemoState(r)
+    if (side === 'server') demoServerMsg.value = ''
+    else demoClientMsg.value = ''
+  } catch (e) { /* ignore */ }
+}
+
+async function refreshDemo() {
+  if (!demo.sessionId) return
+  const r = await TLSDemoGetState({ sessionId: demo.sessionId })
+  applyDemoState(r)
+  if (r.serverStatus === 'idle' && r.clientStatus === 'idle') stopDemoPoll()
+}
+
+async function stopDemo() {
+  if (demo.sessionId) {
+    try { await TLSDemoClose({ sessionId: demo.sessionId }) } catch (e) { /* ignore */ }
+  }
+  stopDemoPoll()
+  Object.assign(demo, {
+    sessionId: '', port: 0, serverStatus: 'idle', clientStatus: 'idle',
+    serverTimeline: [], clientTimeline: [], serverMessages: [], clientMessages: [],
+    cipherSuite: '', tlsVersion: '', curveUsed: '', certificate: '',
+  })
+}
+
+function startDemoPoll() {
+  if (demoPollTimer) return
+  demoPollTimer = setInterval(refreshDemo, 1000)
+}
+function stopDemoPoll() {
+  if (demoPollTimer) { clearInterval(demoPollTimer); demoPollTimer = null }
+}
+onUnmounted(stopDemoPoll)
 
 const tlsCipherSuites = ref([])
 const tlcpCipherSuites = ref([])
@@ -464,26 +559,6 @@ async function doConnect() {
     connResult.error = String(e)
   } finally {
     connecting.value = false
-  }
-}
-
-async function doSelfTest() {
-  selfTesting.value = true
-  selfTestResult.success = false
-  selfTestResult.error = ''
-  selfTestResult.peerCertificates = []
-
-  try {
-    const r = await TLSSelfTest({
-      protocol: selfTest.protocol,
-      message: selfTest.message || 'Hello from CryptoKit!',
-      enablePQC: selfTest.enablePQC,
-    })
-    Object.assign(selfTestResult, r)
-  } catch (e) {
-    selfTestResult.error = String(e)
-  } finally {
-    selfTesting.value = false
   }
 }
 

@@ -156,6 +156,8 @@ export function MakeGMEnvelope(arg1:gm.GMEnvelopeRequest):Promise<symmetric.Cryp
 
 export function OpenGMEnvelope(arg1:gm.GMEnvelopeOpenRequest):Promise<symmetric.CryptoResult>;
 
+export function PacketPerfTest(arg1:utils.PacketPerfRequest):Promise<utils.PacketPerfResult>;
+
 export function PaddingApply(arg1:utils.PaddingRequest):Promise<utils.ToolResult>;
 
 export function PaddingRemove(arg1:utils.PaddingRequest):Promise<utils.ToolResult>;
@@ -268,17 +270,17 @@ export function TDESDecrypt(arg1:finance.TDESRequest):Promise<symmetric.CryptoRe
 
 export function TDESEncrypt(arg1:finance.TDESRequest):Promise<symmetric.CryptoResult>;
 
-export function TLS13ClientExchange(arg1:string,arg2:string):Promise<pqc.TLS13ClientResult>;
-
-export function TLS13FullExchange(arg1:string):Promise<symmetric.CryptoResult>;
-
-export function TLS13KeyGen(arg1:string):Promise<pqc.TLS13KeyGenResult>;
-
-export function TLS13ServerExchange(arg1:pqc.TLS13KeyExchangeRequest):Promise<pqc.TLS13ExchangeResult>;
-
 export function TLSConnect(arg1:utils.TLSConnectRequest):Promise<utils.TLSConnectResult>;
 
-export function TLSSelfTest(arg1:utils.TLSSelfTestRequest):Promise<utils.TLSSelfTestResult>;
+export function TLSDemoClientConnect(arg1:utils.TLSDemoSessionRequest):Promise<utils.TLSDemoResult>;
+
+export function TLSDemoClose(arg1:utils.TLSDemoSessionRequest):Promise<utils.TLSDemoResult>;
+
+export function TLSDemoGetState(arg1:utils.TLSDemoSessionRequest):Promise<utils.TLSDemoResult>;
+
+export function TLSDemoSend(arg1:utils.TLSDemoSendRequest):Promise<utils.TLSDemoResult>;
+
+export function TLSDemoServerStart(arg1:utils.TLSDemoStartRequest):Promise<utils.TLSDemoResult>;
 
 export function TimestampConvert(arg1:utils.TimestampRequest):Promise<utils.ToolResult>;
 

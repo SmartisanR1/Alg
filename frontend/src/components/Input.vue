@@ -4,13 +4,13 @@
     <div class="input-badge-box" :class="{ 'has-badge': showBytes }">
       <input
         :type="type"
-        :value="modelValue"
+        :value="model"
         :placeholder="placeholder"
         :disabled="disabled"
         class="input"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="model = $event.target.value"
       />
-      <ByteBadge v-if="showBytes" :model-value="modelValue" />
+      <ByteBadge v-if="showBytes" :model-value="model" />
     </div>
     <div v-if="hint" class="input-hint">{{ hint }}</div>
   </div>
@@ -19,11 +19,20 @@
 <script setup>
 import ByteBadge from './ByteBadge.vue'
 
+// Vue 3.5 defineModel：最新 v-model API，自动支持 v-model.number 等修饰符
+const [model, modifiers] = defineModel({
+  type: [String, Number],
+  default: '',
+  set(value) {
+    if (modifiers.number && value !== '' && value !== null && value !== undefined) {
+      const n = Number(value)
+      return Number.isNaN(n) ? value : n
+    }
+    return value
+  }
+})
+
 defineProps({
-  modelValue: {
-    type: [String, Number],
-    default: ''
-  },
   label: {
     type: String,
     default: ''
@@ -49,8 +58,6 @@ defineProps({
     default: false
   }
 })
-
-defineEmits(['update:modelValue'])
 </script>
 
 <style scoped>
@@ -58,14 +65,6 @@ defineEmits(['update:modelValue'])
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-.input-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text, #e4e4f0);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
 }
 
 .input-hint {

@@ -538,6 +538,11 @@ func (a *App) SendPacket(req utils.PacketIORequest) utils.PacketIOResult {
 	return utils.SendPacket(req)
 }
 
+// PacketPerfTest 报文发送性能测试（真·多线程并发往返）
+func (a *App) PacketPerfTest(req utils.PacketPerfRequest) utils.PacketPerfResult {
+	return utils.PacketPerfTest(req)
+}
+
 func (a *App) SelectFile() string {
 	path, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "选择文件",
@@ -669,26 +674,6 @@ func (a *App) XWingDecapsulate(req pqc.XWingRequest) symmetric.CryptoResult {
 }
 
 // ============================================================
-// TLS 1.3 混合密钥交换 API
-// ============================================================
-
-func (a *App) TLS13KeyGen(group string) pqc.TLS13KeyGenResult {
-	return pqc.TLS13KeyGen(group)
-}
-
-func (a *App) TLS13ServerExchange(req pqc.TLS13KeyExchangeRequest) pqc.TLS13ExchangeResult {
-	return pqc.TLS13ServerExchange(req)
-}
-
-func (a *App) TLS13ClientExchange(group string, serverKeyShare string) pqc.TLS13ClientResult {
-	return pqc.TLS13ClientExchange(group, serverKeyShare)
-}
-
-func (a *App) TLS13FullExchange(group string) symmetric.CryptoResult {
-	return pqc.TLS13FullExchange(group)
-}
-
-// ============================================================
 // TLS/TLCP 连接测试 API
 // ============================================================
 
@@ -704,6 +689,23 @@ func (a *App) ListTLCPCipherSuites() utils.ToolResult {
 	return utils.ListTLCPCipherSuites()
 }
 
-func (a *App) TLSSelfTest(req utils.TLSSelfTestRequest) utils.TLSSelfTestResult {
-	return utils.TLSSelfTest(req)
+// TLS/TLCP 双向连接演示（左侧服务端 / 右侧客户端）
+func (a *App) TLSDemoServerStart(req utils.TLSDemoStartRequest) utils.TLSDemoResult {
+	return utils.TLSDemoServerStart(req)
+}
+
+func (a *App) TLSDemoClientConnect(req utils.TLSDemoSessionRequest) utils.TLSDemoResult {
+	return utils.TLSDemoClientConnect(req)
+}
+
+func (a *App) TLSDemoSend(req utils.TLSDemoSendRequest) utils.TLSDemoResult {
+	return utils.TLSDemoSend(req)
+}
+
+func (a *App) TLSDemoGetState(req utils.TLSDemoSessionRequest) utils.TLSDemoResult {
+	return utils.TLSDemoGetState(req)
+}
+
+func (a *App) TLSDemoClose(req utils.TLSDemoSessionRequest) utils.TLSDemoResult {
+	return utils.TLSDemoClose(req)
 }

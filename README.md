@@ -32,10 +32,6 @@
 - **AIGIS-sig**: III/V (国密PQC竞赛算法, 与ML-DSA同构)
 - **X-Wing**: 混合KEM (X25519 + ML-KEM-768)
 
-### � TLS 1.3 混合密钥交换
-- X25519, P-256/384/521, SM2
-- X25519MLKEM768, P256MLKEM768, P384MLKEM1024, SM2MLKEM768
-- 完整密钥交换演示 (客户端/服务器双向)
 
 ### 🏦 金融密码工具
 - **PIN Block**: 生成/解析 (ISO 9564 Format 0/1/3), SM2/SM4 PIN 加解密
@@ -57,8 +53,8 @@
 - ASN.1 解析 (文本/文件), 大整数运算
 - JWT 解析
 - 证书工具: CSR 生成, 自签名证书, 内部CA签发, SM2双证书, 证书解析, 证书链校验, PKCS12 解析
-- TLS/TLCP 连接测试, 密码套件列表, 自检
-- 数据包发送 (TCP/UDP)
+- TLS/TLCP 连接测试, 本地服务端/客户端双向连接演示, 密码套件列表
+- 数据包发送 (TCP/UDP), 多线程往返性能测试 (并发连接 × 每连接次数, 统计 RTT 延迟与吞吐量)
 
 ---
 
@@ -67,10 +63,10 @@
 ### 1. 环境依赖
 
 ```bash
-# 安装 Go 1.25+
+# 安装 Go 1.26+
 https://go.dev/dl/
 
-# 安装 Node.js 18+ (含 npm)
+# 安装 Node.js 20.19+ (含 npm)
 https://nodejs.org/
 
 # 安装 Wails v2
@@ -142,7 +138,7 @@ cryptokit/
 │   ├── mac/                 # MAC (CMAC/GMAC/Poly1305/SipHash/CBC-MAC)
 │   ├── kdf/                 # PBKDF2 / HKDF / bcrypt / scrypt / Argon2
 │   ├── gm/                  # SM2 / SM3 / SM4 / SM9 / ZUC
-│   ├── pqc/                 # ML-KEM / ML-DSA / SLH-DSA / Falcon / HQC / AIGIS-sig / X-Wing / TLS 1.3
+│   ├── pqc/                 # ML-KEM / ML-DSA / SLH-DSA / Falcon / HQC / AIGIS-sig / X-Wing
 │   ├── finance/             # PIN Block / CVV / PVV / EMV / TDES / SM4金融
 │   └── utils/               # 编解码 / 证书 / JWT / ASN.1 / 文件 / TLS
 └── frontend/

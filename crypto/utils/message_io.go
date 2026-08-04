@@ -25,7 +25,7 @@ type PacketIORequest struct {
 	ServerName         string `json:"serverName"`
 	InsecureSkipVerify bool   `json:"insecureSkipVerify"`
 	HeaderLength       int    `json:"headerLength"`
-	TimeoutMs          int    `json:"timeoutMs"`
+	TimeoutSec         int    `json:"timeoutSec"`
 	Payload            string `json:"payload"`
 	PayloadFormat      string `json:"payloadFormat"`
 	ResponseFormat     string `json:"responseFormat"`
@@ -76,7 +76,7 @@ func SendPacket(req PacketIORequest) PacketIOResult {
 		return PacketIOResult{Error: "传输模式仅支持 plain / tls / tlcp"}
 	}
 
-	timeout := time.Duration(req.TimeoutMs) * time.Millisecond
+	timeout := time.Duration(req.TimeoutSec) * time.Second
 	if timeout <= 0 {
 		timeout = 5 * time.Second
 	}
@@ -106,7 +106,7 @@ func SendPacket(req PacketIORequest) PacketIOResult {
 	}
 	conn, err := dialPacketConn(dialer, chosenNetwork, addr, host, req)
 	if err != nil {
-		return PacketIOResult{Error: err.Error()}
+		return PacketIOResult{Error: TranslateConnError(err)}
 	}
 	defer conn.Close()
 
@@ -115,17 +115,17 @@ func SendPacket(req PacketIORequest) PacketIOResult {
 	requestBytes := len(header) + payloadSize
 	if len(header) > 0 {
 		if _, err := conn.Write(header); err != nil {
-			return PacketIOResult{Error: "发送报文头失败: " + err.Error()}
+			return PacketIOResult{Error: "发送报文头失败: " + TranslateConnError(err)}
 		}
 	}
 	if _, err := io.Copy(conn, payload); err != nil {
-		return PacketIOResult{Error: "发送报文体失败: " + err.Error()}
+		return PacketIOResult{Error: "发送报文体失败: " + TranslateConnError(err)}
 	}
 
 	respHeader, respBody, err := readPacketResponse(conn, req.HeaderLength)
 	if err != nil {
 		return PacketIOResult{
-			Error:        err.Error(),
+			Error:        TranslateConnError(err),
 			RequestBytes: requestBytes,
 			DurationMs:   time.Since(start).Milliseconds(),
 		}

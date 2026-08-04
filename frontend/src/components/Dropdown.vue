@@ -19,11 +19,11 @@
             <button
               v-for="option in options"
               :key="option.value"
-              :class="['dropdown-option', { selected: option.value === modelValue }]"
+              :class="['dropdown-option', { selected: option.value === model }]"
               @click="selectOption(option)"
             >
               <span class="option-label">{{ option.label }}</span>
-              <CheckIcon v-if="option.value === modelValue" class="check-icon" />
+              <CheckIcon v-if="option.value === model" class="check-icon" />
             </button>
           </div>
         </div>
@@ -36,11 +36,13 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { ChevronDownIcon, CheckIcon } from '@lucide/vue'
 
+// Vue 3.5 defineModel：最新 v-model API
+const model = defineModel({
+  type: [String, Number],
+  default: ''
+})
+
 const props = defineProps({
-  modelValue: {
-    type: [String, Number],
-    default: ''
-  },
   options: {
     type: Array,
     required: true,
@@ -58,14 +60,12 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
-
 const dropdownRef = ref(null)
 const isOpen = ref(false)
 const menuPosition = ref({ top: 0, left: 0, width: 0 })
 
 const selectedLabel = computed(() => {
-  const option = props.options.find(opt => opt.value === props.modelValue)
+  const option = props.options.find(opt => opt.value === model.value)
   return option ? option.label : ''
 })
 
@@ -105,7 +105,7 @@ const closeDropdown = () => {
 }
 
 const selectOption = (option) => {
-  emit('update:modelValue', option.value)
+  model.value = option.value
   closeDropdown()
 }
 

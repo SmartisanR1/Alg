@@ -83,9 +83,9 @@
               <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">{{ r.algo }}</span>
               <div class="flex items-center gap-2">
                 <span class="text-[9px] opacity-40 font-mono">{{ r.data?.length / 2 }} bytes</span>
-                <Button variant="tool" size="sm" @click="copyResult(r.data)">
-                  <CopyIcon class="w-3 h-3" />
-                </Button>
+                <button class="ck-copy-btn" @click="copyResult(r.data)">
+                  <CopyIcon class="w-3 h-3" /> 复制
+                </button>
               </div>
             </div>
             <div class="font-mono text-[11px] break-all leading-relaxed" :class="r.error ? 'text-red-400' : (isDark ? 'text-dark-text' : 'text-light-text')">
@@ -113,9 +113,9 @@
                  :class="isDark ? 'bg-dark-bg border-dark-border text-dark-muted' : 'bg-gray-50 border-gray-200 text-gray-500'">
               <div class="flex justify-between items-center mb-1">
                 <span class="text-violet-400 font-bold">裸私钥 (32字节)</span>
-                <Button variant="tool" size="sm" @click="copyResult(sm3id.rawPriv)">
-                  <CopyIcon class="w-3 h-3" />
-                </Button>
+                <button class="ck-copy-btn" @click="copyResult(sm3id.rawPriv)">
+                  <CopyIcon class="w-3 h-3" /> 复制
+                </button>
               </div>
               <p class="break-all text-[9px]">{{ sm3id.rawPriv }}</p>
             </div>
@@ -216,6 +216,7 @@ import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
 import { Hash, HMAC, SM3HashWithID, SM2GenerateRawKey } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
+import { copyToClipboard } from '../utils/clipboard'
 
 const store = useAppStore()
 const route = useRoute()
@@ -343,11 +344,7 @@ async function genSM2KeyForSM3() {
   }
 }
 
-async function copyResult(t) {
-  if (!t) return
-  await navigator.clipboard.writeText(t)
-  store.showToast('已复制摘要')
-}
+const copyResult = (t) => copyToClipboard(t, '已复制摘要')
 </script>
 
 <style scoped>

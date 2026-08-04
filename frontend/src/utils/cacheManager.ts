@@ -20,7 +20,8 @@ const DEFAULT_CONFIG: CacheConfig = {
   cleanupInterval: 24 * 60 * 60 * 1000 // 24小时
 }
 
-export class CacheManager<T> {
+// 仅在模块内部用于构造 historyCache / tempCache，无需对外暴露
+class CacheManager<T> {
   private config: CacheConfig
   private cache: Map<string, CacheItem<T>>
   private cleanupTimer: ReturnType<typeof setInterval> | null

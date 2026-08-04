@@ -9,9 +9,6 @@
 
     <template #actions>
       <div class="flex gap-2">
-        <Button variant="tool" size="sm" @click="openHelp(activeTab)">
-          <InfoIcon class="w-3.5 h-3.5" /> 使用说明
-        </Button>
         <Button variant="secondary" size="sm" @click="drawerOpen = true">
           <ShieldCheckIcon class="w-3.5 h-3.5" /> 算法原理
         </Button>
@@ -92,7 +89,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">密钥 (hex)</label>
-              <button @click="genKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genKey">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="aes.key" placeholder="输入hex格式密钥..." />
             <div v-if="aesKeyHint" :class="['mt-1 text-xs', hintClass(aesKeyHint)]">{{ aesKeyHint }}</div>
@@ -100,7 +97,7 @@
           <div v-if="!['ECB','GCM','CCM'].includes(aes.mode)">
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">IV (hex)</label>
-              <button @click="genIV" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genIV">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="aes.iv" placeholder="留空则自动生成..." />
             <div v-if="aesIVHint" :class="['mt-1 text-xs', hintClass(aesIVHint)]">{{ aesIVHint }}</div>
@@ -108,7 +105,7 @@
           <div v-if="['GCM','CCM'].includes(aes.mode)">
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">Nonce (hex)</label>
-              <button @click="genNonce" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genNonce">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="aes.nonce" placeholder="留空则自动生成..." />
             <div v-if="aesNonceHint" :class="['mt-1 text-xs', hintClass(aesNonceHint)]">{{ aesNonceHint }}</div>
@@ -155,19 +152,10 @@
           copyable
         />
         
-        <div v-if="result.extra" class="animate-in fade-in zoom-in-95 duration-200">
-          <div class="flex items-center justify-between mb-1">
-            <label class="input-label !mb-0 text-cyan-400">
-              {{ result.success && !result.error ? (aes.iv || aes.nonce ? '运算后' : '自动生成的') : '自动生成的' }}
-              {{ ['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV' }}
-            </label>
-            <button @click="copyExtra" class="ck-copy-btn text-cyan-400"><CopyIcon class="w-3 h-3" /> 复制</button>
-          </div>
-          <div class="relative">
-            <div class="result-area !min-h-0 pb-7 text-cyan-300">{{ result.extra }}</div>
-            <ByteBadge :model-value="result.extra" />
-          </div>
-        </div>
+        <ResultExtra
+          v-model="result.extra"
+          :label="`${result.success && !result.error ? (aes.iv || aes.nonce ? '运算后' : '自动生成的') : '自动生成的'} ${['GCM','CCM'].includes(aes.mode) ? 'Nonce' : 'IV'}`"
+        />
         
       </div>
     </div>
@@ -209,14 +197,14 @@
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0 text-orange-300">密钥 (Key / 16-byte Hex)</label>
-              <button @click="genSM4Key" class="text-xs text-violet-400">⚡ 随机生成</button>
+              <Button variant="tool" size="sm" @click="genSM4Key">⚡ 随机生成</Button>
             </div>
             <InputWithBytes v-model="sm4.key" placeholder="输入 32 位 Hex..." />
           </div>
           <div v-if="sm4.mode !== 'ECB' && sm4.mode !== 'GCM'">
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0 text-cyan-400">初始化向量 (IV / 16-byte Hex)</label>
-              <button @click="genSM4IV" class="text-xs text-violet-400">⚡ 随机生成</button>
+              <Button variant="tool" size="sm" @click="genSM4IV">⚡ 随机生成</Button>
             </div>
             <InputWithBytes v-model="sm4.iv" placeholder="输入 32 位 Hex..." />
           </div>
@@ -224,7 +212,7 @@
             <div>
               <div class="flex justify-between mb-1">
                 <label class="input-label !mb-0 text-cyan-400">Nonce (12-byte Hex)</label>
-                <button @click="genSM4Nonce" class="text-xs text-violet-400">⚡ 随机生成</button>
+                <Button variant="tool" size="sm" @click="genSM4Nonce">⚡ 随机生成</Button>
               </div>
               <InputWithBytes v-model="sm4.nonce" />
             </div>
@@ -250,18 +238,10 @@
           :error="sm4Result.error"
           copyable
         />
-        <div v-if="sm4Result.extra" class="animate-in fade-in zoom-in-95 duration-200">
-          <div class="flex items-center justify-between mb-1">
-            <label class="input-label !mb-0 text-cyan-400">
-              {{ sm4.iv || sm4.nonce ? '运算后' : '自动生成的' }}
-              {{ sm4.mode === 'GCM' ? 'Nonce' : 'IV' }}
-            </label>
-          </div>
-          <div class="relative">
-            <div class="result-area !min-h-0 pb-7 text-cyan-300">{{ sm4Result.extra }}</div>
-            <ByteBadge :model-value="sm4Result.extra" />
-          </div>
-        </div>
+        <ResultExtra
+          v-model="sm4Result.extra"
+          :label="`${sm4.iv || sm4.nonce ? '运算后' : '自动生成的'} ${sm4.mode === 'GCM' ? 'Nonce' : 'IV'}`"
+        />
       </div>
     </div>
 
@@ -284,14 +264,14 @@
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0 text-orange-300">密钥 (Key / Hex)</label>
-              <button @click="genZUCKey" class="text-xs text-violet-400">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genZUCKey">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="zuc.key" :placeholder="zuc.type === 'ZUC-256' ? '64位 Hex' : '32位 Hex'" />
           </div>
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0 text-cyan-400">向量 (IV / Hex)</label>
-              <button @click="genZUCIV" class="text-xs text-violet-400">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genZUCIV">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="zuc.iv" :placeholder="zuc.type === 'ZUC-256' ? '50位 Hex' : '32位 Hex'" />
           </div>
@@ -423,7 +403,7 @@
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0">密钥 (hex)</label>
-              <button @click="genDesKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genDesKey">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="des.key" placeholder="48位Hex (24字节)或16位Hex (8字节)" />
             <div v-if="desKeyHint" :class="['mt-1 text-xs', hintClass(desKeyHint)]"></div>
@@ -431,7 +411,7 @@
           <div v-if="des.mode !== 'ECB'">
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0">IV (hex)</label>
-              <button @click="genDesIV" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genDesIV">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="des.iv" placeholder="16位Hex (8字节)" />
             <div v-if="desIVHint" :class="['mt-1 text-xs', hintClass(desIVHint)]"></div>
@@ -451,7 +431,6 @@
         <div class="flex gap-2 shrink-0">
           <Button variant="success" class="flex-1" @click="desEncrypt" :disabled="desDisabled"><LockIcon class="w-3.5 h-3.5" /> 加密</Button>
           <Button variant="warning" class="flex-1" @click="desDecrypt" :disabled="desDisabled"><UnlockIcon class="w-3.5 h-3.5" /> 解密</Button>
-          <Button variant="tool" @click="openHelp('des')" class="px-3">说明</Button>
         </div>
         <ResultArea
           v-model="desResult.data"
@@ -460,17 +439,7 @@
           :error="desResult.error"
           copyable
         />
-        <div v-if="desResult.extra" class="animate-in fade-in zoom-in-95 duration-200">
-          <div class="flex items-center justify-between mb-1">
-            <label class="input-label !mb-0 text-cyan-400">
-              {{ des.iv ? '运算后' : '自动生成的' }} IV
-            </label>
-          </div>
-          <div class="relative">
-            <div class="result-area !min-h-0 pb-7 text-cyan-300">{{ desResult.extra }}</div>
-            <ByteBadge :model-value="desResult.extra" />
-          </div>
-        </div>
+        <ResultExtra v-model="desResult.extra" :label="`${des.iv ? '运算后' : '自动生成的'} IV`" />
       </div>
     </div>
 
@@ -496,7 +465,7 @@
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0">密钥 (hex, 32字节)</label>
-              <button @click="genChaChaKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genChaChaKey">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="chacha.key" placeholder="64位hex (32字节)..." />
             <div v-if="chachaKeyHint" :class="['mt-1 text-xs', hintClass(chachaKeyHint)]">{{ chachaKeyHint }}</div>
@@ -504,7 +473,7 @@
           <div>
             <div class="flex justify-between mb-1">
               <label class="input-label !mb-0">Nonce (hex)</label>
-              <button @click="genChachaNonce" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genChachaNonce">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="chacha.nonce" :placeholder="chacha.type.startsWith('X') ? '48位Hex (24字节)' : '24位Hex (12字节)'" />
             <div v-if="chachaNonceHint" :class="['mt-1 text-xs', hintClass(chachaNonceHint)]">{{ chachaNonceHint }}</div>
@@ -525,7 +494,6 @@
           <div class="flex gap-2 shrink-0 mt-3">
             <Button variant="success" class="flex-1" @click="chachaEncrypt" :disabled="chachaDisabled"><LockIcon class="w-3.5 h-3.5" /> 加密</Button>
             <Button variant="warning" class="flex-1" @click="chachaDecrypt" :disabled="chachaDisabled"><UnlockIcon class="w-3.5 h-3.5" /> 解密</Button>
-            <Button variant="tool" @click="openHelp('chacha')" class="px-3" title="详细帮助"><InfoIcon class="w-3.5 h-3.5" /></Button>
           </div>
         </Card>
         <ResultArea
@@ -535,7 +503,7 @@
           :error="chachaResult.error"
           copyable
         />
-        <div v-if="chachaResult.extra" class="mt-2 text-[10px] text-orange-300 font-mono bg-orange-400/15 p-1.5 rounded border border-orange-400/20">自动生成 Nonce: {{ chachaResult.extra }}</div>
+        <ResultExtra v-model="chachaResult.extra" label="自动生成 Nonce" />
       </div>
     </div>
 
@@ -546,7 +514,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">密钥 (hex)</label>
-              <button @click="genRC4Key" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genRC4Key">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="rc4.key" placeholder="1-256字节 Hex" />
             <div v-if="rc4KeyHint" :class="['mt-1 text-xs', hintClass(rc4KeyHint)]">{{ rc4KeyHint }}</div>
@@ -594,7 +562,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">密钥 (hex)</label>
-              <button @click="genSIVKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genSIVKey">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="siv.key"
                    :placeholder="siv.mode === 'AES-SIV' ? '64/96/128位Hex (32/48/64字节)' : '32/64位Hex (16/32字节)'" />
@@ -682,7 +650,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <label class="input-label !mb-0">密钥 (hex)</label>
-              <button @click="genFPEKey" class="text-xs text-violet-400 hover:text-violet-300">⚡ 生成</button>
+              <Button variant="tool" size="sm" @click="genFPEKey">⚡ 生成</Button>
             </div>
             <InputWithBytes v-model="fpe.key" :placeholder="fpe.cipher === 'SM4' ? '32位Hex (16字节)' : '32/48/64位Hex (16/24/32字节)'" />
             <div v-if="fpeKeyHint" :class="['mt-1 text-xs', hintClass(fpeKeyHint)]">{{ fpeKeyHint }}</div>
@@ -720,212 +688,6 @@
       </div>
     </div>
 
-    <transition name="fade">
-      <div v-if="helpOpen" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="helpOpen = false">
-        <div class="help-modal animate-in zoom-in-95 duration-200"
-             @click.stop>
-          <div class="flex justify-between items-center px-5 pt-5 pb-3 border-b" :class="isDark ? 'border-dark-border' : 'border-slate-200'">
-            <h3 class="text-[13px] font-semibold flex items-center gap-2">
-              <InfoIcon class="w-4 h-4 text-sky-400" /> {{ helpTitle }}
-            </h3>
-            <button @click="helpOpen = false" class="p-1.5 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
-              <XIcon class="w-4 h-4 text-dark-muted" />
-            </button>
-          </div>
-          <div class="px-5 pt-4 pb-5 text-sm leading-5 space-y-3" :class="isDark ? 'text-dark-muted' : 'text-slate-600'">
-            <template v-if="helpType === 'aes'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES 是现代默认对称算法</p>
-                <p class="text-[13px]">当前配置为 <span class="help-inline-kbd">AES-{{ aes.keySize }}</span> + <span class="help-inline-kbd">{{ aes.mode }}</span>。如果你只是做常规业务加密，优先用 GCM；如果要兼容旧系统，再考虑 CBC。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">输入与填充</p>
-                  <p class="text-[13px]">Hex 输入必须是偶数位；使用 <span class="help-inline-kbd">NoPadding</span> 时，数据长度必须正好是 16 字节的倍数。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">密钥与参数</p>
-                  <p class="text-[13px]">ECB 不需要 IV；CBC/CFB/OFB/CTR 通常需要 IV；GCM/CCM 使用 Nonce，可选再附加 AAD 做认证保护。</p>
-                </div>
-              </div>
-              <div class="help-note">
-                <p class="help-note-title">{{ aes.mode }} 模式怎么选</p>
-                <p class="text-[13px]" v-if="aes.mode === 'ECB'">每个分组独立处理，最容易理解，但会暴露重复明文块的结构，只适合测试或兼容旧接口，不建议业务数据直接使用。</p>
-                <p class="text-[13px]" v-else-if="aes.mode === 'CBC'">传统工程里最常见的模式之一，兼容性强，适合文件和数据库场景。注意 IV 不能重复，且通常需要配合额外 MAC 才能防篡改。未提供 IV 时自动生成，Extra 返回实际使用的 IV。</p>
-                <p class="text-[13px]" v-else-if="aes.mode === 'CFB'">把分组密码转换成流式处理方式，不要求块对齐，适合边到边传输，但新项目里通常会优先考虑更现代的 CTR 或 GCM。</p>
-                <p class="text-[13px]" v-else-if="aes.mode === 'OFB'">通过独立密钥流工作，位错误不会连带扩散，但也因此更依赖正确的参数管理，工程上没有 GCM 那么常见。</p>
-                <p class="text-[13px]" v-else-if="aes.mode === 'CTR'">性能好、可并行、支持随机访问，适合高吞吐处理；但它只负责机密性，不负责完整性，通常要再配认证机制。</p>
-                <p class="text-[13px]" v-else-if="aes.mode === 'GCM'">现代首选。一次完成加密和完整性校验，适合接口、会话、文件交换等绝大多数业务场景，只要保证 Nonce 不重复即可。</p>
-                <p class="text-[13px]" v-else-if="aes.mode === 'CCM'">同样是认证加密，常见于嵌入式、无线和 IoT 协议。它更偏标准化场景，但对消息长度和处理方式限制也更多。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">实战建议</p>
-                  <p class="text-[13px]">新项目优先选 GCM；兼容旧系统选 CBC；如果要流式高性能处理可考虑 CTR，但要额外补完整性校验。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">常见误区</p>
-                  <p class="text-[13px]">不要重复使用同一组 Key + IV/Nonce；不要把 ECB 当通用模式；不要在 NoPadding 下直接喂任意长度数据。</p>
-                </div>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'des'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ des.type === 'DES' ? 'DES 已属于遗留算法' : '3DES 主要用于老系统兼容' }}</p>
-                <p class="text-[13px]" v-if="des.type === 'DES'">它现在更适合教学或历史数据兼容，不应再作为新系统的正式加密方案。</p>
-                <p class="text-[13px]" v-else>3DES 还能在部分金融或遗留设备中见到，但性能和安全边界都明显落后于 AES。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">模式选择</p>
-                  <p class="text-[13px]" v-if="des.mode === 'ECB'">ECB 不需要 IV，但会直接暴露重复块形状，除非做兼容测试，否则不建议用。</p>
-                  <p class="text-[13px]" v-else-if="des.mode === 'CBC'">CBC 是遗留系统里最常见的选项，兼容性相对最好，也是这类算法里最稳妥的工程选择。</p>
-                  <p class="text-[13px]" v-else-if="des.mode === 'CFB'">CFB 可以做流式处理，不要求块对齐，更适合持续输入输出的旧式通道加密。</p>
-                  <p class="text-[13px]" v-else-if="des.mode === 'OFB'">OFB 使用独立密钥流，错误不扩散，但现在实际场景已经不多。</p>
-                  <p class="text-[13px]" v-else-if="des.mode === 'CTR'">CTR 让旧算法也能做并行处理，不过如果能选，通常应直接换到 AES-CTR 或 AES-GCM。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">迁移建议</p>
-                  <p class="text-[13px]">如果你现在还在处理 DES / 3DES，最好把它理解成"兼容接口工具"而不是"主力算法页"，新系统应优先迁移到 AES。</p>
-                </div>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'chacha'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ chacha.type }}</p>
-                <p class="text-[13px]">ChaCha20 系列在纯软件环境下速度非常好，特别适合移动端、容器环境或没有 AES 硬件加速的场景。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">参数要点</p>
-                  <p class="text-[13px]">密钥固定 32 字节；普通版 Nonce 通常为 12 字节；XChaCha20 扩展到 24 字节，更适合大规模随机生成 Nonce 的场景。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">什么时候选它</p>
-                  <p class="text-[13px]">如果你在意跨平台软件性能、实现简洁度和现代协议兼容性，ChaCha20-Poly1305 往往是非常好的选择。</p>
-                </div>
-              </div>
-              <div v-if="chacha.type.includes('Poly1305')" class="help-note">
-                <p class="help-note-title">Poly1305 认证</p>
-                <p class="text-[13px]">带 Poly1305 的版本不只是"加密"，还会一起校验消息是否被改过，因此更适合接口请求、会话数据和安全通信。</p>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'sm4'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">SM4 国密分组加密</p>
-                <p class="text-[13px]">SM4 是我国自主设计的商用分组密码标准，广泛用于金融、政务、物联网等需要符合国密合规的场景。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">技术参数</p>
-                  <p class="text-[13px]">分组长度和密钥长度均为 128 位，采用 32 轮非平衡 Feistel 网络结构。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">模式选择</p>
-                  <p class="text-[13px]" v-if="sm4.mode === 'ECB'">ECB 模式每个块独立加密，仅用于测试或兼容。</p>
-                  <p class="text-[13px]" v-else-if="sm4.mode === 'CBC'">CBC 是最常用的模式，需要 IV，适合大多数场景。未提供 IV 时自动生成，Extra 返回实际使用的 IV。</p>
-                  <p class="text-[13px]" v-else-if="sm4.mode === 'GCM'">GCM 提供认证加密 (AEAD)，是现代首选。</p>
-                  <p class="text-[13px]" v-else>{{ sm4.mode }} 模式适用于特定场景。</p>
-                </div>
-              </div>
-              <div class="help-note">
-                <p class="help-note-title">合规建议</p>
-                <p class="text-[13px]">涉及国密合规的项目，优先使用 SM4-GCM 模式，兼顾安全性和性能。</p>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'zuc'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">{{ zuc.type }}</p>
-                <p class="text-[13px]">ZUC (祖冲之算法) 是面向 3GPP LTE 移动通信系统的流密码标准。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">版本区别</p>
-                  <p class="text-[13px]">ZUC-128 用于 4G 网络；ZUC-256 用于 5G 增强安全，支持更多密钥长度。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">使用场景</p>
-                  <p class="text-[13px]">主要用于移动网络数据加密和完整性保护，流密码具有极高的软件处理性能。</p>
-                </div>
-              </div>
-              <div class="help-note">
-                <p class="help-note-title">注意事项</p>
-                <p class="text-[13px]">流密码不会产生长度扩展，但需要确保每次加密使用不同的 IV。</p>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'siv'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">AES-SIV 合成初始向量</p>
-                <p class="text-[13px]">SIV 模式解决了传统 AEAD 模式下 Nonce 重复导致密钥泄漏的问题。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">工作原理</p>
-                  <p class="text-[13px]">采用"确定性"加密，IV 由明文和附加数据计算得到。即使 Nonce 重复，也只泄漏"明文是否相同"。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">适用场景</p>
-                  <p class="text-[13px]">适合无法保证 Nonce 唯一性的场景，如数据库字段加密。</p>
-                </div>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'rc4'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">RC4 流密码</p>
-                <p class="text-[13px]">RC4 曾经是世界上最流行的流密码，但因安全缺陷已被主流协议禁用。</p>
-              </div>
-              <div class="help-note">
-                <p class="help-note-title">安全警告</p>
-                <p class="text-[13px]">RC4 存在初始字节偏置等弱点，在 TLS 1.2+ 中已被禁用。仅供学习或维护极其古老的系统使用，新项目绝不建议使用。</p>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'fpe'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">FPE 格式保持加密</p>
-                <p class="text-[13px]">FPE 加密后的密文与明文保持相同的格式和长度。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">典型应用</p>
-                  <p class="text-[13px]">16 位银行卡号加密后仍是 16 位数字；身份证号加密后仍是 18 位。</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">标准</p>
-                  <p class="text-[13px]">基于 NIST SP 800-38G 标准的 FF1 和 FF3-1 模式。</p>
-                </div>
-              </div>
-              <div class="help-note">
-                <p class="help-note-title">适用场景</p>
-                <p class="text-[13px]">数据库敏感字段脱敏、遗留系统数据库改造（无需修改字段定义长度）。</p>
-              </div>
-            </template>
-            <template v-else-if="helpType === 'envelope'">
-              <div class="help-hero">
-                <p class="text-[13px] font-semibold mb-1" :class="isDark ? 'text-white' : 'text-slate-900'">数字信封 (SM2 + SM4)</p>
-                <p class="text-[13px]">数字信封解决大规模数据传输时的密钥分发问题。</p>
-              </div>
-              <div class="help-grid">
-                <div class="help-note">
-                  <p class="help-note-title">密封过程</p>
-                  <p class="text-[13px]">1. 生成随机 SM4 密钥<br>2. 用 SM4 加密大数据<br>3. 用接收方 SM2 公钥加密 SM4 密钥</p>
-                </div>
-                <div class="help-note">
-                  <p class="help-note-title">拆解过程</p>
-                  <p class="text-[13px]">1. 用 SM2 私钥解密 SM4 密钥<br>2. 用 SM4 密钥解密大数据</p>
-                </div>
-              </div>
-              <div class="help-note">
-                <p class="help-note-title">优势</p>
-                <p class="text-[13px]">兼具非对称加密的安全分发和对称加密的高效处理性能。</p>
-              </div>
-            </template>
-          </div>
-          <div class="px-5 pb-5 flex justify-end">
-            <Button variant="tool" @click="helpOpen = false" class="px-5">关闭</Button>
-          </div>
-        </div>
-      </div>
-    </transition>
   </PageLayout>
 </template>
 
@@ -933,14 +695,14 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
-import { LockIcon, UnlockIcon, CopyIcon, AlertCircleIcon, InfoIcon, XIcon, ZapIcon, PackageIcon, PackageOpenIcon, ShieldCheckIcon } from '@lucide/vue'
+import { LockIcon, UnlockIcon, AlertCircleIcon, ZapIcon, PackageIcon, PackageOpenIcon, ShieldCheckIcon } from '@lucide/vue'
 import PageLayout from '../components/PageLayout.vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import InputWithBytes from '../components/InputWithBytes.vue'
 import Button from '../components/Button.vue'
 import ResultArea from '../components/ResultArea.vue'
-import AlgorithmPrinciple from '../components/AlgorithmPrinciple.vue'
+import ResultExtra from '../components/ResultExtra.vue'
 import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import CryptoPanel from '../components/CryptoPanel.vue'
 import Dropdown from '../components/Dropdown.vue'
@@ -1127,24 +889,6 @@ watch(() => route.query.tab, (newTab) => {
     activeTab.value = newTab
   }
 })
-const helpOpen = ref(false)
-const helpType = ref('aes')
-const helpTitle = computed(() => {
-  if (helpType.value === 'des') return `${des.type} 使用说明`
-  if (helpType.value === 'chacha') return `${chacha.type} 使用说明`
-  if (helpType.value === 'sm4') return 'SM4 算法使用说明'
-  if (helpType.value === 'zuc') return 'ZUC 算法使用说明'
-  if (helpType.value === 'envelope') return '数字信封操作说明'
-  if (helpType.value === 'rc4') return 'RC4 使用说明'
-  if (helpType.value === 'siv') return 'AES-SIV 使用说明'
-  if (helpType.value === 'fpe') return 'FPE 格式保持加密说明'
-  return `AES-${aes.keySize} ${aes.mode} 使用说明`
-})
-
-function openHelp(type) {
-  helpType.value = type
-  helpOpen.value = true
-}
 
 // AES state
 const aes = reactive({
@@ -1217,11 +961,6 @@ function genIV() {
 function genNonce() {
   const b = new Uint8Array(12); crypto.getRandomValues(b)
   aes.nonce = Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase()
-}
-async function copyExtra() {
-  if (!result.extra) return
-  await navigator.clipboard.writeText(result.extra)
-  store.showToast('已复制')
 }
 
 // DES state

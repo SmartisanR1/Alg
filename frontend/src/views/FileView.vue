@@ -71,7 +71,7 @@
             <div class="flex-1 mx-2 font-mono text-xs truncate" :class="isDark ? 'text-dark-text' : 'text-light-text'">
               {{ r.data || r.error }}
             </div>
-            <Button variant="tool" size="sm" @click="copy(r.data)"><CopyIcon class="w-3 h-3" /></Button>
+            <button class="ck-copy-btn" @click="copy(r.data)"><CopyIcon class="w-3 h-3" /> 复制</button>
           </div>
         </div>
       </div>
@@ -163,6 +163,7 @@ import PageLayout from '../components/PageLayout.vue'
 import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import { HashFile, EncryptFile, DecryptFile, SelectFile } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
+import { copyToClipboard } from '../utils/clipboard'
 
 const store = useAppStore()
 const { isDark } = storeToRefs(store)
@@ -282,9 +283,5 @@ function genEncKey() {
   fileEnc.key = Array.from(b).map(x => x.toString(16).padStart(2,'0')).join('').toUpperCase()
 }
 
-async function copy(t) {
-  if (!t) return
-  await navigator.clipboard.writeText(t)
-  store.showToast('已复制')
-}
+const copy = (t) => copyToClipboard(t)
 </script>

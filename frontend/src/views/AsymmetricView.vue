@@ -362,7 +362,7 @@
             <div>
               <div class="flex justify-between mb-1">
                 <label class="input-label !mb-0 text-orange-300">私钥 ({{ asymKeyFormat === 'hex' ? '裸值' : 'PEM' }})</label>
-                <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
+                <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.privateKey : eccKeys.privHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
               <div class="relative">
                 <div class="result-area !min-h-0 pb-7 text-orange-300 !text-[12px] break-all max-h-40 overflow-y-auto font-mono">
@@ -374,7 +374,7 @@
             <div>
               <div class="flex justify-between mb-1">
                 <label class="input-label !mb-0 text-cyan-300">公钥 ({{ asymKeyFormat === 'hex' ? '裸值 X||Y' : 'PEM' }})</label>
-                <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /></button>
+                <button @click="copy(asymKeyFormat === 'pem' ? eccKeys.publicKey : eccKeys.pubHex)" class="ck-copy-btn"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
               <div class="relative">
                 <div class="result-area !min-h-0 pb-7 text-cyan-300 !text-[12px] break-all max-h-32 overflow-y-auto font-mono">
@@ -502,6 +502,7 @@ import {
   SM9GenerateMasterKey, SM9GenerateEncMasterKey, SM9Sign, SM9Encrypt
 } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
+import { copyToClipboard } from '../utils/clipboard'
 
 const store = useAppStore()
 const route = useRoute()
@@ -753,11 +754,7 @@ async function ed25519Verify() {
   c25519Result.data = r.data; c25519Result.error = r.error; c25519Result.success = r.success
 }
 
-async function copy(t) {
-  if (!t) return
-  await navigator.clipboard.writeText(t)
-  store.showToast('已复制')
-}
+const copy = (t) => copyToClipboard(t)
 </script>
 
 <style scoped>

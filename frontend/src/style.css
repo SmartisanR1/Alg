@@ -1,12 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 补充无前缀 muted 颜色工具类 (text-muted / bg-muted 等)，
+   映射到随主题切换的 --muted 变量。tailwind.config.js 只注册了
+   dark.* / light.* 命名空间，历史代码中大量 text-muted 从未生效。 */
+@theme {
+  --color-muted: var(--muted);
+}
 
 @layer base {
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+  }
+
+  /* Tailwind v4 中 border 的默认色从 gray-200 改为 currentColor，
+     导致只用 border 未显式写边框色的元素出现黑色边框。
+     这里恢复 v3 的默认边框色；带显式 border-* 颜色类的元素
+     因类选择器优先级更高不受影响。 */
+  *, ::before, ::after {
+    border-color: var(--default-border-color, #e5e7eb);
   }
 
   html, body {
@@ -143,23 +158,39 @@
   }
 
   .ck-textarea {
-    @apply ck-input resize-none leading-relaxed;
+    @apply w-full rounded-xl border px-2.5 py-[6px] text-[13px] font-medium transition-all duration-200 outline-none leading-relaxed resize-none;
     min-height: 58px;
     line-height: 1.5;
+  }
+  .dark .ck-textarea {
+    @apply bg-[#1a1a26] border-dark-border text-dark-text placeholder-dark-muted;
+    @apply focus:border-dark-accent focus:ring-2 focus:ring-dark-accent/10;
+  }
+  :not(.dark) .ck-textarea {
+    @apply bg-white border-light-border text-light-text placeholder-light-muted;
+    @apply focus:border-light-accent focus:ring-2 focus:ring-light-accent/10 shadow-sm;
   }
 
   /* Select */
   .ck-select {
-    @apply ck-input appearance-none cursor-pointer;
+    @apply w-full rounded-xl border px-2.5 py-[6px] text-[13px] font-medium transition-all duration-200 outline-none leading-relaxed appearance-none cursor-pointer;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238888a8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 36px;
   }
+  .dark .ck-select {
+    @apply bg-[#1a1a26] border-dark-border text-dark-text;
+    @apply focus:border-dark-accent focus:ring-2 focus:ring-dark-accent/10;
+  }
+  :not(.dark) .ck-select {
+    @apply bg-white border-light-border text-light-text;
+    @apply focus:border-light-accent focus:ring-2 focus:ring-light-accent/10 shadow-sm;
+  }
 
   /* 金融模块紧凑输入框 */
   .ck-input-sm {
-    @apply ck-input px-2 py-[5px] text-[12px];
+    @apply w-full rounded-xl border px-2.5 py-[6px] text-[13px] font-medium transition-all duration-200 outline-none leading-relaxed px-2 py-[5px] text-[12px];
   }
   .dark .ck-input-sm {
     @apply bg-[#1a1a26] border-dark-border text-dark-text placeholder-dark-muted;
@@ -172,7 +203,7 @@
 
   /* 金融模块紧凑textarea */
   .ck-textarea-sm {
-    @apply ck-input resize-none px-2 py-[5px] text-[12px];
+    @apply w-full rounded-xl border px-2.5 py-[6px] text-[13px] font-medium transition-all duration-200 outline-none leading-relaxed resize-none px-2 py-[5px] text-[12px];
     min-height: 46px;
     line-height: 1.5;
   }
@@ -201,11 +232,11 @@
   }
 
   .ck-btn-primary {
-    @apply ck-btn bg-dark-accent text-white hover:bg-dark-accentHover hover:shadow-lg hover:shadow-dark-accent/20 active:scale-[0.98];
+    @apply inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold tracking-[0.01em] transition-all duration-200 cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed bg-dark-accent text-white hover:bg-dark-accentHover hover:shadow-lg hover:shadow-dark-accent/20 active:scale-[0.98];
   }
 
   .ck-btn-secondary {
-    @apply ck-btn border;
+    @apply inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold tracking-[0.01em] transition-all duration-200 cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed border;
   }
 
   .dark .ck-btn-secondary {
@@ -216,11 +247,11 @@
   }
 
   .ck-btn-success {
-    @apply ck-btn bg-emerald-600 text-white hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/20 active:scale-[0.98];
+    @apply inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold tracking-[0.01em] transition-all duration-200 cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed bg-emerald-600 text-white hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-600/20 active:scale-[0.98];
   }
 
   .ck-btn-muted {
-    @apply ck-btn border shadow-none;
+    @apply inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold tracking-[0.01em] transition-all duration-200 cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed border shadow-none;
   }
 
   .dark .ck-btn-muted {
@@ -234,7 +265,7 @@
   }
 
   .ck-btn-danger {
-    @apply ck-btn bg-red-600 text-white hover:bg-red-500 hover:shadow-lg hover:shadow-red-600/20 active:scale-[0.98];
+    @apply inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[13px] font-semibold tracking-[0.01em] transition-all duration-200 cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed bg-red-600 text-white hover:bg-red-500 hover:shadow-lg hover:shadow-red-600/20 active:scale-[0.98];
   }
 
   .ck-mini-trigger {
@@ -282,21 +313,6 @@
 
   :not(.dark) .ck-card {
     @apply bg-white border-light-border shadow-md shadow-gray-200/50 hover:shadow-lg hover:shadow-gray-200/80;
-  }
-
-  /* ============================================================
-   * 标签 — 提升字号
-   * ============================================================ */
-  .ck-label {
-    @apply block text-[11px] font-semibold uppercase tracking-wider mb-1;
-    letter-spacing: 0.08em;
-  }
-
-  .dark .ck-label {
-    @apply text-dark-muted;
-  }
-  :not(.dark) .ck-label {
-    @apply text-light-muted;
   }
 
   /* ============================================================
@@ -414,16 +430,16 @@
   }
 
   .ck-badge-purple {
-    @apply ck-badge bg-purple-500/15 text-purple-400 border border-purple-500/20;
+    @apply inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-400 border border-purple-500/20;
   }
   .ck-badge-cyan {
-    @apply ck-badge bg-cyan-500/15 text-cyan-400 border border-cyan-500/20;
+    @apply inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-cyan-500/15 text-cyan-400 border border-cyan-500/20;
   }
   .ck-badge-green {
-    @apply ck-badge bg-emerald-500/15 text-emerald-400 border border-emerald-500/20;
+    @apply inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/20;
   }
   .ck-badge-red {
-    @apply ck-badge bg-red-500/15 text-red-400 border border-red-500/20;
+    @apply inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-red-500/15 text-red-400 border border-red-500/20;
   }
 
   /* ============================================================
@@ -570,67 +586,6 @@
   }
   :not(.dark) .ck-key-box {
     @apply bg-gray-50 border-light-border shadow-inner;
-  }
-
-  .help-note {
-    @apply rounded-xl border px-3 py-3;
-  }
-
-  .dark .help-note {
-    @apply bg-dark-bg border-dark-border;
-  }
-
-  :not(.dark) .help-note {
-    @apply bg-slate-50 border-slate-200;
-  }
-
-  .help-note-title {
-    @apply text-[13px] font-semibold mb-1.5;
-  }
-
-  .help-modal {
-    @apply w-full max-w-2xl rounded-[20px] border shadow-2xl;
-  }
-
-  .dark .help-modal {
-    background: linear-gradient(180deg, rgba(27, 27, 38, 0.98), rgba(20, 20, 30, 0.98));
-    @apply border-dark-border;
-  }
-
-  :not(.dark) .help-modal {
-    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98));
-    @apply border-slate-200;
-  }
-
-  .help-hero {
-    @apply rounded-2xl border px-4 py-3.5;
-  }
-
-  .dark .help-hero {
-    background: linear-gradient(135deg, rgba(99,102,241,0.16), rgba(14,165,233,0.1));
-    @apply border-violet-500/20;
-  }
-
-  :not(.dark) .help-hero {
-    background: linear-gradient(135deg, rgba(238,242,255,0.98), rgba(240,249,255,0.98));
-    @apply border-indigo-200;
-  }
-
-  .help-grid {
-    @apply grid gap-3;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
-
-  .help-inline-kbd {
-    @apply inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold;
-  }
-
-  .dark .help-inline-kbd {
-    @apply bg-white/5 text-slate-200;
-  }
-
-  :not(.dark) .help-inline-kbd {
-    @apply bg-slate-100 text-slate-700;
   }
 
   .ck-workbench {

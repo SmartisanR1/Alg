@@ -1,7 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+// Tailwind v4 通过 style.css 中的 @config 指令加载此旧版配置。
+// 注意: v4 使用 @custom-variant dark 实现 class 暗色模式（见 style.css），
+// 不再读取 darkMode 字段; content 由 v4 自动探测，无需在此声明。
 export default {
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {

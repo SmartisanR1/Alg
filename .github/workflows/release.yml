@@ -41,10 +41,13 @@ jobs:
           go-version-file: go.mod
 
       # 🌐 Node.js 环境
+      # 注意: Vite 8 要求 Node >= 20.19 / >= 22.12,
+      # 且 @vitejs/plugin-vue 6.x 使用了 crypto.hash (Node >= 20.12 才提供),
+      # 因此不能用 Node 18, 否则前端构建会报 crypto.hash is not a function
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
 
       # ⚙️ Linux 依赖
       - name: Install Linux Dependencies

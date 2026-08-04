@@ -1,9 +1,9 @@
 <template>
   <div class="result-area-wrapper">
     <div class="result-header">
-      <label class="result-label">{{ label }}</label>
-      <button v-if="copyable" class="copy-btn" @click="copyToClipboard">
-        复制
+      <label class="input-label">{{ label }}</label>
+      <button v-if="copyable" class="ck-copy-btn" @click="copyToClipboard(modelValue)">
+        <CopyIcon class="w-3 h-3" /> 复制
       </button>
     </div>
     <div class="result-area" :class="{ 'result-success': success, 'result-error': error, 'has-badge': !!modelValue }">
@@ -18,6 +18,8 @@
 
 <script setup>
 import { computed } from 'vue'
+import { CopyIcon } from '@lucide/vue'
+import { copyToClipboard } from '../utils/clipboard'
 
 const props = defineProps({
   modelValue: {
@@ -46,8 +48,6 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['copy-success', 'copy-error'])
-
 // 判断是否为十六进制: 偶数长度且只含 hex 字符
 const isHex = computed(() => {
   const v = String(props.modelValue || '').replace(/\s+/g, '')
@@ -60,17 +60,6 @@ const byteCount = computed(() => {
   if (isHex.value) return v.length / 2
   return new TextEncoder().encode(props.modelValue).length
 })
-
-const copyToClipboard = async () => {
-  if (props.modelValue) {
-    try {
-      await navigator.clipboard.writeText(props.modelValue)
-      emit('copy-success')
-    } catch (err) {
-      emit('copy-error', err)
-    }
-  }
-}
 </script>
 
 <style scoped>
@@ -86,14 +75,6 @@ const copyToClipboard = async () => {
   align-items: center;
 }
 
-.result-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text, #e4e4f0);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
 .result-area {
   position: relative;
 }
@@ -107,22 +88,6 @@ const copyToClipboard = async () => {
   word-break: break-all;
 }
 
-.copy-btn {
-  padding: 3px 6px;
-  background: var(--hover, rgba(255,255,255,0.06));
-  border: 1px solid transparent;
-  border-radius: 4px;
-  font-size: 10px;
-  color: var(--muted, #a0a0b0);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.copy-btn:hover {
-  background: var(--border, rgba(255,255,255,0.12));
-  color: var(--text, #e4e4f0);
-  border-color: var(--border, rgba(255,255,255,0.12));
-}
 
 .result-success {
   color: var(--success, #22c55e);

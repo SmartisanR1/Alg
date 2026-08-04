@@ -31,8 +31,8 @@
     <div v-if="activeTab === 'encode'" class="sym-workbench animate-fade-in">
       <div class="sym-side">
         <!-- Str <-> Hex -->
-        <Card title="字符串 ↔ Hex">
-          <CryptoPanel v-model="enc.input" label="输入" type="textarea" :rows="3" clearable placeholder="输入文本或hex..." />
+        <Card title="ASCII / 文本 ↔ Hex">
+          <CryptoPanel v-model="enc.input" label="输入" type="textarea" :rows="3" clearable trim-hex-spaces placeholder="输入文本或hex（粘贴带空格的hex会自动去空格）..." />
           <div class="flex gap-2 mt-2">
             <Button variant="success" class="flex-1 justify-center text-xs" @click="strToHex">文本 → Hex</Button>
             <Button variant="warning" class="flex-1 justify-center text-xs" @click="hexToStr">Hex → 文本</Button>
@@ -64,7 +64,7 @@
               />
             </div>
           </div>
-          <CryptoPanel v-model="b64.input" label="输入" type="textarea" :rows="3" clearable />
+          <CryptoPanel v-model="b64.input" label="输入" type="textarea" :rows="3" clearable trim-hex-spaces />
           <div class="flex gap-2 mt-2">
             <Button variant="success" class="flex-1 justify-center text-xs" @click="b64Encode">编码</Button>
             <Button variant="warning" class="flex-1 justify-center text-xs" @click="b64Decode">解码</Button>
@@ -75,6 +75,7 @@
       <div class="sym-side">
         <!-- URL Encode -->
         <Card title="URL 编解码">
+          <p class="text-[11px] mb-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">把特殊字符（空格、中文等）转成 %XX 百分号编码，用于 URL 参数 / 表单传输</p>
           <CryptoPanel v-model="urlEnc.input" label="输入" type="textarea" :rows="3" clearable />
           <div class="flex gap-2 mt-2">
             <Button variant="success" class="flex-1 justify-center text-xs" @click="doUrlEncode">URL编码</Button>
@@ -84,6 +85,7 @@
 
         <!-- Unicode -->
         <Card title="Unicode 转义">
+          <p class="text-[11px] mb-2" :class="isDark ? 'text-dark-muted' : 'text-light-muted'">把中文/特殊字符转成 \uXXXX 转义序列，常用于 JSON 字符串、源码内嵌</p>
           <CryptoPanel v-model="unicode.input" label="输入" type="textarea" :rows="3" clearable />
           <div class="flex gap-2 mt-2">
             <Button variant="success" class="flex-1 justify-center text-xs" @click="unicodeEnc">编码 (\u转义)</Button>
@@ -945,11 +947,6 @@ async function uploadPfx() {
   pfxResult.error = r.error
 }
 
-async function copyResult(data) {
-  if (!data) return
-  await navigator.clipboard.writeText(data)
-  store.showToast('已复制')
-}
 </script>
 
 <style scoped>

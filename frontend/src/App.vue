@@ -242,6 +242,7 @@ const navGroups = [
 </script>
 
 <style>
+@reference "./style.css";
 /* 工具栏 - 精致紧凑 */
 .compact-toolbar {
   @apply rounded-lg border px-2 py-1;

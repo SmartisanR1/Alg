@@ -7,50 +7,11 @@
 
     <template #actions>
        <div class="flex gap-2">
-         <Button variant="tool" size="sm" @click="showHelp = true">
-           <InfoIcon class="w-3 h-3" /> 使用说明
-         </Button>
          <Button variant="secondary" size="sm" @click="showPrinciple = true">
            <ShieldCheckIcon class="w-3.5 h-3.5" /> 算法原理
          </Button>
        </div>
      </template>
-
-     <!-- Help Modal -->
-     <transition name="fade">
-       <div v-if="showHelp" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showHelp = false">
-         <div class="card max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200" :class="isDark ? 'bg-dark-card border-dark-border' : 'bg-white border-gray-200'">
-           <div class="flex justify-between items-center mb-4 border-b pb-3" :class="isDark ? 'border-dark-border' : 'border-gray-100'">
-             <h3 class="text-sm font-bold flex items-center gap-2">
-               <InfoIcon class="w-4 h-4 text-violet-400" /> 使用说明
-             </h3>
-              <button @click="showHelp = false" class="p-1 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-md transition-colors">
-               <XIcon class="w-4 h-4 text-dark-muted" />
-             </button>
-           </div>
-           <div class="text-sm leading-relaxed space-y-3" :class="isDark ? 'text-dark-muted' : 'text-gray-600'">
-             <p class="font-bold text-violet-400 text-[13px]">使用步骤</p>
-             <p class="text-[13px]">1. 配置连接信息：填写主机地址和端口号</p>
-             <p class="text-[13px]">2. 选择网络协议：IPv4 或 IPv6</p>
-             <p class="text-[13px]">3. 设置安全模式：明文、TLS 或国密 TLCP</p>
-             <p class="text-[13px]">4. 配置证书（如果使用安全模式）：上传 CA 证书、客户端证书和私钥</p>
-             <p class="text-[13px]">5. 设置报文头长度：选择 0、1、2 或 4 字节</p>
-             <p class="text-[13px]">6. 配置超时时间：设置连接和响应的等待时间（毫秒）</p>
-             <p class="font-bold text-violet-400 mt-2 text-[13px]">报文发送</p>
-             <p class="text-[13px]">• 选择报文格式：HEX 或 文本</p>
-             <p class="text-[13px]">• 输入报文内容：直接输入或通过外部文件加载</p>
-             <p class="text-[13px]">• 点击发送请求按钮开始传输</p>
-             <p class="font-bold text-violet-400 mt-2 text-[13px]">查看结果</p>
-             <p class="text-[13px]">• 查看发送和接收的字节数</p>
-             <p class="text-[13px]">• 查看报文头内容（如果已配置）</p>
-             <p class="text-[13px]">• 查看响应数据：支持复制和错误提示</p>
-           </div>
-           <div class="mt-6 flex justify-end">
-              <button @click="showHelp = false" class="btn-success px-6">确定</button>
-           </div>
-         </div>
-        </div>
-      </transition>
 
     <!-- Algorithm Principle Drawer -->
     <AlgorithmDrawer
@@ -115,7 +76,7 @@
               />
             </div>
             <div>
-              <Input v-model.number="packet.timeoutMs" label="超时(ms)" type="number" />
+              <Input v-model.number="packet.timeoutSec" label="超时(秒)" type="number" />
             </div>
           </div>
         </Card>
@@ -126,7 +87,7 @@
           <div class="space-y-2">
             <div class="space-y-1">
               <div class="flex justify-between items-center">
-                <label class="input-label !mb-0">CA 根证书</label>
+                  <label class="input-label !mb-0">根证书</label>
                 <Button variant="tool" size="xs" @click="loadCertFile('caCert')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
               </div>
               <div class="relative">
@@ -185,24 +146,43 @@
           </div>
         </div>
 
-        <Card title="历史记录 (最近 20 条)" class="overflow-hidden flex flex-col max-h-[120px]">
-          <div v-if="!packetHistory.length" class="flex-1 flex items-center justify-center text-xs opacity-30 italic py-2">无记录</div>
-          <div v-else class="flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
-            <button v-for="h in packetHistory" :key="h.id" @click="applyHistory(h)"
-                    class="w-full text-left p-1.5 rounded-lg hover:bg-white/5 transition-all border border-transparent hover:border-dark-border flex flex-col gap-0.5 group">
-              <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-violet-400">{{ h.host }}:{{ h.port }}</span>
-                <span class="text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">{{ h.time }}</span>
+        <Card title="性能测试 (往返时延)" class="space-y-2">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="input-label">并发连接数</label>
+              <Input v-model.number="perf.concurrency" type="number" min="1" max="100" />
+            </div>
+            <div>
+              <label class="input-label">每连接次数</label>
+              <Input v-model.number="perf.count" type="number" min="1" max="10000" />
+            </div>
+          </div>
+          <p class="text-[10px] text-dark-muted leading-relaxed">真·多线程测试：并发 {{ perf.concurrency }} 个连接 × 每连接 {{ perf.count }} 次往返请求，统计时延与吞吐。</p>
+          <Button variant="success" class="w-full justify-center" :disabled="perfRunning" @click="doPerfTest">
+            <GaugeIcon class="w-3.5 h-3.5" /> {{ perfRunning ? '测试中...' : '开始性能测试' }}
+          </Button>
+          <div v-if="perfRunning" class="text-xs text-dark-muted animate-pulse text-center py-1">正在执行 {{ perf.concurrency * perf.count }} 次请求，请稍候...</div>
+          <div v-if="perfResult.success !== null && !perfRunning" class="space-y-1.5 pt-2 border-t border-dark-border/30">
+            <div v-if="!perfResult.success" class="flex items-center gap-1.5 text-xs text-red-400">
+              <span class="text-[10px] text-dark-muted uppercase tracking-widest font-bold shrink-0">失败</span>
+              <span class="truncate">{{ perfResult.error }}</span>
+            </div>
+            <template v-else>
+              <div class="grid grid-cols-3 gap-2">
+                <div v-for="m in perfMetrics" :key="m.label" class="p-2 rounded-lg border border-dark-border bg-dark-bg/40">
+                  <p class="text-[10px] text-dark-muted mb-1">{{ m.label }}</p>
+                  <p class="text-sm font-semibold tabular-nums" :class="m.cls">{{ m.value }}</p>
+                </div>
               </div>
-              <div class="text-[10px] truncate opacity-50 font-mono group-hover:opacity-80 transition-opacity">{{ h.preview }}</div>
-            </button>
+              <p class="text-[10px] text-dark-muted">并发 {{ perfResult.concurrency }} × 每连接 {{ perfResult.count }} · 上行 {{ formatBytes(perfResult.bytesSent) }} / 下行 {{ formatBytes(perfResult.bytesReceived) }}</p>
+            </template>
           </div>
         </Card>
       </div>
 
       <!-- Right side: Data and Results -->
       <div class="packet-side h-full flex flex-col">
-        <Card title="报文发送 (Payload)" class="space-y-2 flex flex-col flex-1 min-h-0">
+        <Card title="报文发送" class="space-y-2 flex flex-col flex-1 min-h-0">
           <div class="flex items-center justify-between shrink-0">
             <div class="flex gap-2">
               <Button variant="tool" size="sm" @click="choosePacketFile">
@@ -211,8 +191,8 @@
               <Dropdown
                 v-model="packet.payloadFormat"
                 :options="[
-                  { value: 'hex', label: 'HEX' },
-                  { value: 'text', label: 'TEXT' }
+                  { value: 'hex', label: '十六进制' },
+                  { value: 'text', label: '文本' }
                 ]"
               />
             </div>
@@ -236,17 +216,17 @@
           </div>
         </Card>
 
-        <Card title="响应数据 (Response)" class="space-y-2 shrink-0">
+        <Card title="响应数据" class="space-y-2 shrink-0">
           <div class="flex items-center justify-between">
             <div class="flex gap-3 text-xs opacity-60 font-mono">
-              <span v-if="packetResult.requestBytes" class="text-cyan-400">已发: {{ packetResult.requestBytes }}B</span>
-              <span v-if="packetResult.responseBytes" class="text-emerald-400">已收: {{ packetResult.responseBytes }}B</span>
-              <span v-if="packetResult.durationMs" class="text-orange-300">{{ packetResult.durationMs }}ms</span>
+              <span v-if="packetResult.requestBytes" class="text-cyan-400">已发: {{ packetResult.requestBytes }} 字节</span>
+              <span v-if="packetResult.responseBytes" class="text-emerald-400">已收: {{ packetResult.responseBytes }} 字节</span>
+              <span v-if="packetResult.durationMs" class="text-orange-300">{{ packetResult.durationMs }} 毫秒</span>
             </div>
           </div>
           <div class="space-y-2">
             <div v-if="packetResult.headerHex" class="space-y-1">
-              <label class="text-[10px] opacity-50 uppercase tracking-widest font-bold">报文头 ({{ packet.headerLength }}B)</label>
+              <label class="text-[10px] text-dark-muted uppercase tracking-widest font-bold">报文头 ({{ packet.headerLength }} 字节)</label>
               <div class="relative">
                 <div class="result-area !min-h-0 py-1.5 pb-7 font-mono text-xs break-all bg-dark-bg/30">{{ packetResult.headerHex }}</div>
                 <ByteBadge :model-value="packetResult.headerHex" />
@@ -254,8 +234,8 @@
             </div>
             <div class="space-y-1">
               <div class="flex justify-between items-center">
-                <label class="text-[10px] opacity-50 uppercase tracking-widest font-bold">响应内容</label>
-                <Button variant="tool" size="xs" v-if="packetResult.responseHex" @click="copy(packetResult.responseHex)"><CopyIcon class="w-3 h-3" /></Button>
+                <label class="text-[10px] text-dark-muted uppercase tracking-widest font-bold">响应内容</label>
+                <button v-if="packetResult.responseHex" class="ck-copy-btn" @click="copy(packetResult.responseHex)"><CopyIcon class="w-3 h-3" /> 复制</button>
               </div>
               <div class="relative">
                 <div class="result-area !min-h-[60px] pb-7 font-mono text-xs break-all max-h-[100px] overflow-y-auto leading-relaxed" 
@@ -267,6 +247,20 @@
             </div>
           </div>
         </Card>
+
+        <Card title="历史记录 (最近 20 条)" class="overflow-hidden flex flex-col max-h-[120px] shrink-0">
+          <div v-if="!packetHistory.length" class="flex-1 flex items-center justify-center text-xs opacity-30 italic py-2">无记录</div>
+          <div v-else class="flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+            <button v-for="h in packetHistory" :key="h.id" @click="applyHistory(h)"
+                    class="w-full text-left p-1.5 rounded-lg hover:bg-white/5 transition-all border border-transparent hover:border-dark-border flex flex-col gap-0.5 group">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-violet-400">{{ h.host }}:{{ h.port }}</span>
+                <span class="text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">{{ h.time }}</span>
+              </div>
+              <div class="text-[10px] truncate opacity-50 font-mono group-hover:opacity-80 transition-opacity">{{ h.preview }}</div>
+            </button>
+          </div>
+        </Card>
       </div>
     </div>
   </PageLayout>
@@ -275,7 +269,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { SendIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, UploadIcon, CopyIcon, InfoIcon, XIcon, ShieldCheckIcon } from '@lucide/vue'
+import { SendIcon, ZapIcon, RefreshCwIcon, FolderOpenIcon, UploadIcon, CopyIcon, ShieldCheckIcon, GaugeIcon } from '@lucide/vue'
 import Card from '../components/Card.vue'
 import Input from '../components/Input.vue'
 import Button from '../components/Button.vue'
@@ -284,14 +278,14 @@ import AlgorithmDrawer from '../components/AlgorithmDrawer.vue'
 import Dropdown from '../components/Dropdown.vue'
 import PageLayout from '../components/PageLayout.vue'
 import ByteBadge from '../components/ByteBadge.vue'
-import { SelectFile, ReadFile, SendPacket } from '../../wailsjs/go/main/App'
+import { SelectFile, ReadFile, SendPacket, PacketPerfTest } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
+import { copyToClipboard } from '../utils/clipboard'
 
 const store = useAppStore()
 const { isDark } = storeToRefs(store)
 
 const showPrinciple = ref(false)
-const showHelp = ref(false)
 
 // Principle content for algorithm drawer
 const principleData = ref({
@@ -355,7 +349,7 @@ const packet = reactive({
   clientEncCert: '',
   clientEncKey: '',
   headerLength: '4',
-  timeoutMs: 5000,
+  timeoutSec: 5,
   payloadData: '',
   payloadFormat: 'hex',
   filePath: ''
@@ -372,6 +366,80 @@ const packetResult = reactive({
 })
 
 const packetHistory = ref([])
+
+const perf = reactive({ concurrency: 10, count: 100 })
+
+const perfResult = reactive({
+  success: null,
+  error: '',
+  concurrency: 0,
+  count: 0,
+  totalRequests: 0,
+  successCount: 0,
+  failCount: 0,
+  totalTimeMs: 0,
+  avgLatencyMs: 0,
+  minLatencyMs: 0,
+  maxLatencyMs: 0,
+  throughput: 0,
+  bytesSent: 0,
+  bytesReceived: 0,
+  mbps: 0
+})
+
+function formatBytes(bytes) {
+  if (!bytes || bytes <= 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+  return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) + ' ' + units[i]
+}
+
+const perfMetrics = computed(() => [
+  { label: '总请求', value: perfResult.totalRequests, cls: 'text-cyan-300' },
+  { label: '成功', value: perfResult.successCount, cls: 'text-emerald-400' },
+  { label: '失败', value: perfResult.failCount, cls: 'text-red-400' },
+  { label: '总耗时', value: perfResult.totalTimeMs + ' 毫秒', cls: 'text-orange-300' },
+  { label: 'TPS', value: perfResult.throughput.toFixed(0), cls: 'text-violet-300' },
+  { label: '带宽', value: perfResult.mbps.toFixed(2) + ' Mbps', cls: 'text-violet-300' },
+  { label: '平均时延', value: perfResult.avgLatencyMs.toFixed(2) + ' 毫秒', cls: 'text-dark-text' },
+  { label: '最小时延', value: perfResult.minLatencyMs.toFixed(2) + ' 毫秒', cls: 'text-emerald-400' },
+  { label: '最大时延', value: perfResult.maxLatencyMs.toFixed(2) + ' 毫秒', cls: 'text-red-400' }
+])
+
+const perfRunning = ref(false)
+
+async function doPerfTest() {
+  perfResult.success = null
+  perfResult.error = ''
+  perfRunning.value = true
+  try {
+    const r = await PacketPerfTest({
+      host: packet.host,
+      port: packet.port,
+      network: packet.network,
+      transport: packet.transport,
+      serverName: packet.serverName,
+      insecureSkipVerify: packet.insecureSkipVerify,
+      headerLength: parseInt(packet.headerLength),
+      timeoutSec: packet.timeoutSec,
+      payloadFormat: packet.payloadFormat,
+      payload: packet.payloadData,
+      caCertPem: packet.caCert,
+      clientCertPem: packet.clientCert,
+      clientKeyPem: packet.clientKey,
+      clientEncCertPem: packet.clientEncCert,
+      clientEncKeyPem: packet.clientEncKey,
+      concurrency: Math.min(Math.max(perf.concurrency || 1, 1), 100),
+      count: Math.min(Math.max(perf.count || 1, 1), 10000)
+    })
+    Object.assign(perfResult, r)
+  } catch (e) {
+    perfResult.success = false
+    perfResult.error = String(e && e.message ? e.message : e)
+  } finally {
+    perfRunning.value = false
+  }
+}
 
 onMounted(() => {
   const saved = localStorage.getItem('ck-packet-v2-prefs')
@@ -419,7 +487,7 @@ async function sendPacketNow() {
     serverName: packet.serverName,
     insecureSkipVerify: packet.insecureSkipVerify,
     headerLength: parseInt(packet.headerLength),
-    timeoutMs: packet.timeoutMs,
+    timeoutSec: packet.timeoutSec,
     payloadFormat: packet.payloadFormat,
     payload: packet.payloadData,
     responseFormat: 'hex',
@@ -469,10 +537,7 @@ function resetPacket() {
   packetResult.durationMs = 0
 }
 
-function copy(text) {
-  navigator.clipboard.writeText(text)
-  store.showToast('已复制到剪贴板')
-}
+const copy = (text) => copyToClipboard(text, '已复制到剪贴板')
 </script>
 
 <style scoped>

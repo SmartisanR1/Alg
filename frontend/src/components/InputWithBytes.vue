@@ -4,8 +4,8 @@
     <div class="input-container">
       <textarea
         v-if="type === 'textarea'"
-        :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
+        :value="model"
+        @input="model = $event.target.value"
         :placeholder="placeholder"
         :rows="rows || 3"
         :class="['input', 'font-mono', inputClass]"
@@ -13,14 +13,14 @@
       />
       <input
         v-else
-        :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
+        :value="model"
+        @input="model = $event.target.value"
         :placeholder="placeholder"
         :type="type || 'text'"
         :class="['input', 'font-mono', inputClass]"
         :disabled="disabled"
       />
-      <div v-if="modelValue && showBytes" class="bytes-badge">
+      <div v-if="model && showBytes" class="bytes-badge">
         {{ byteCount }} bytes
       </div>
     </div>
@@ -31,8 +31,20 @@
 <script setup>
 import { computed } from 'vue'
 
+// Vue 3.5 defineModel：最新 v-model API，自动支持 v-model.number 等修饰符
+const [model, modifiers] = defineModel({
+  type: [String, Number],
+  default: '',
+  set(value) {
+    if (modifiers.number && value !== '' && value !== null && value !== undefined) {
+      const n = Number(value)
+      return Number.isNaN(n) ? value : n
+    }
+    return value
+  }
+})
+
 const props = defineProps({
-  modelValue: { type: [String, Number], default: '' },
   label: String,
   placeholder: String,
   type: { type: String, default: 'text' },
@@ -45,11 +57,9 @@ const props = defineProps({
   isHex: { type: Boolean, default: true }
 })
 
-defineEmits(['update:modelValue'])
-
 const byteCount = computed(() => {
-  if (!props.modelValue) return 0
-  const val = String(props.modelValue).replace(/\s+/g, '')
+  if (!model.value) return 0
+  const val = String(model.value).replace(/\s+/g, '')
   if (props.isHex) {
     return Math.floor(val.length / 2)
   }

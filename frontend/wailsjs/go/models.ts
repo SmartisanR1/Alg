@@ -1136,72 +1136,6 @@ export namespace pqc {
 	        this.paramSet = source["paramSet"];
 	    }
 	}
-	export class TLS13ClientResult {
-	    success: boolean;
-	    sharedSecret: string;
-	    error: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new TLS13ClientResult(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.success = source["success"];
-	        this.sharedSecret = source["sharedSecret"];
-	        this.error = source["error"];
-	    }
-	}
-	export class TLS13ExchangeResult {
-	    success: boolean;
-	    sharedSecret: string;
-	    serverKeyShare: string;
-	    error: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new TLS13ExchangeResult(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.success = source["success"];
-	        this.sharedSecret = source["sharedSecret"];
-	        this.serverKeyShare = source["serverKeyShare"];
-	        this.error = source["error"];
-	    }
-	}
-	export class TLS13KeyExchangeRequest {
-	    group: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new TLS13KeyExchangeRequest(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.group = source["group"];
-	    }
-	}
-	export class TLS13KeyGenResult {
-	    success: boolean;
-	    publicKey: string;
-	    privateKey: string;
-	    group: string;
-	    error: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new TLS13KeyGenResult(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.success = source["success"];
-	        this.publicKey = source["publicKey"];
-	        this.privateKey = source["privateKey"];
-	        this.group = source["group"];
-	        this.error = source["error"];
-	    }
-	}
 	export class XWingRequest {
 	    publicKey: string;
 	    ciphertext: string;
@@ -1858,7 +1792,7 @@ export namespace utils {
 	    serverName: string;
 	    insecureSkipVerify: boolean;
 	    headerLength: number;
-	    timeoutMs: number;
+	    timeoutSec: number;
 	    payload: string;
 	    payloadFormat: string;
 	    responseFormat: string;
@@ -1882,7 +1816,7 @@ export namespace utils {
 	        this.serverName = source["serverName"];
 	        this.insecureSkipVerify = source["insecureSkipVerify"];
 	        this.headerLength = source["headerLength"];
-	        this.timeoutMs = source["timeoutMs"];
+	        this.timeoutSec = source["timeoutSec"];
 	        this.payload = source["payload"];
 	        this.payloadFormat = source["payloadFormat"];
 	        this.responseFormat = source["responseFormat"];
@@ -1918,6 +1852,90 @@ export namespace utils {
 	        this.responseBytes = source["responseBytes"];
 	        this.headerHex = source["headerHex"];
 	        this.durationMs = source["durationMs"];
+	    }
+	}
+	export class PacketPerfRequest {
+	    host: string;
+	    port: number;
+	    network: string;
+	    transport: string;
+	    serverName: string;
+	    insecureSkipVerify: boolean;
+	    headerLength: number;
+	    timeoutSec: number;
+	    payload: string;
+	    payloadFormat: string;
+	    caCertPem: string;
+	    clientCertPem: string;
+	    clientKeyPem: string;
+	    clientEncCertPem: string;
+	    clientEncKeyPem: string;
+	    concurrency: number;
+	    count: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PacketPerfRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.host = source["host"];
+	        this.port = source["port"];
+	        this.network = source["network"];
+	        this.transport = source["transport"];
+	        this.serverName = source["serverName"];
+	        this.insecureSkipVerify = source["insecureSkipVerify"];
+	        this.headerLength = source["headerLength"];
+	        this.timeoutSec = source["timeoutSec"];
+	        this.payload = source["payload"];
+	        this.payloadFormat = source["payloadFormat"];
+	        this.caCertPem = source["caCertPem"];
+	        this.clientCertPem = source["clientCertPem"];
+	        this.clientKeyPem = source["clientKeyPem"];
+	        this.clientEncCertPem = source["clientEncCertPem"];
+	        this.clientEncKeyPem = source["clientEncKeyPem"];
+	        this.concurrency = source["concurrency"];
+	        this.count = source["count"];
+	    }
+	}
+	export class PacketPerfResult {
+	    success: boolean;
+	    error: string;
+	    concurrency: number;
+	    count: number;
+	    totalRequests: number;
+	    successCount: number;
+	    failCount: number;
+	    totalTimeMs: number;
+	    avgLatencyMs: number;
+	    minLatencyMs: number;
+	    maxLatencyMs: number;
+	    throughput: number;
+	    bytesSent: number;
+	    bytesReceived: number;
+	    mbps: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PacketPerfResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.error = source["error"];
+	        this.concurrency = source["concurrency"];
+	        this.count = source["count"];
+	        this.totalRequests = source["totalRequests"];
+	        this.successCount = source["successCount"];
+	        this.failCount = source["failCount"];
+	        this.totalTimeMs = source["totalTimeMs"];
+	        this.avgLatencyMs = source["avgLatencyMs"];
+	        this.minLatencyMs = source["minLatencyMs"];
+	        this.maxLatencyMs = source["maxLatencyMs"];
+	        this.throughput = source["throughput"];
+	        this.bytesSent = source["bytesSent"];
+	        this.bytesReceived = source["bytesReceived"];
+	        this.mbps = source["mbps"];
 	    }
 	}
 	export class PaddingRequest {
@@ -2098,77 +2116,85 @@ export namespace utils {
 		    return a;
 		}
 	}
-	export class TLSSelfTestRequest {
-	    protocol: string;
-	    enablePQC: boolean;
+	export class TLSDemoResult {
+	    success: boolean;
+	    error: string;
+	    sessionId: string;
+	    port: number;
+	    serverStatus: string;
+	    clientStatus: string;
+	    serverTimeline: string[];
+	    clientTimeline: string[];
+	    serverMessages: string[];
+	    clientMessages: string[];
+	    cipherSuite: string;
+	    tlsVersion: string;
+	    curveUsed: string;
+	    certificate: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLSDemoResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.error = source["error"];
+	        this.sessionId = source["sessionId"];
+	        this.port = source["port"];
+	        this.serverStatus = source["serverStatus"];
+	        this.clientStatus = source["clientStatus"];
+	        this.serverTimeline = source["serverTimeline"];
+	        this.clientTimeline = source["clientTimeline"];
+	        this.serverMessages = source["serverMessages"];
+	        this.clientMessages = source["clientMessages"];
+	        this.cipherSuite = source["cipherSuite"];
+	        this.tlsVersion = source["tlsVersion"];
+	        this.curveUsed = source["curveUsed"];
+	        this.certificate = source["certificate"];
+	    }
+	}
+	export class TLSDemoSendRequest {
+	    sessionId: string;
+	    side: string;
 	    message: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new TLSSelfTestRequest(source);
+	        return new TLSDemoSendRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sessionId = source["sessionId"];
+	        this.side = source["side"];
+	        this.message = source["message"];
+	    }
+	}
+	export class TLSDemoSessionRequest {
+	    sessionId: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLSDemoSessionRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sessionId = source["sessionId"];
+	    }
+	}
+	export class TLSDemoStartRequest {
+	    protocol: string;
+	    enablePQC: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new TLSDemoStartRequest(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.protocol = source["protocol"];
 	        this.enablePQC = source["enablePQC"];
-	        this.message = source["message"];
 	    }
-	}
-	export class TLSSelfTestResult {
-	    success: boolean;
-	    protocol: string;
-	    cipherSuite: string;
-	    cipherSuiteId: string;
-	    tlsVersion: string;
-	    handshakeTimeMs: number;
-	    exchangeTimeMs: number;
-	    peerCertificates: CertInfo[];
-	    alpnProtocol: string;
-	    sessionReused: boolean;
-	    sentMessage: string;
-	    receivedMessage: string;
-	    curveUsed: string;
-	    error: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new TLSSelfTestResult(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.success = source["success"];
-	        this.protocol = source["protocol"];
-	        this.cipherSuite = source["cipherSuite"];
-	        this.cipherSuiteId = source["cipherSuiteId"];
-	        this.tlsVersion = source["tlsVersion"];
-	        this.handshakeTimeMs = source["handshakeTimeMs"];
-	        this.exchangeTimeMs = source["exchangeTimeMs"];
-	        this.peerCertificates = this.convertValues(source["peerCertificates"], CertInfo);
-	        this.alpnProtocol = source["alpnProtocol"];
-	        this.sessionReused = source["sessionReused"];
-	        this.sentMessage = source["sentMessage"];
-	        this.receivedMessage = source["receivedMessage"];
-	        this.curveUsed = source["curveUsed"];
-	        this.error = source["error"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
 	}
 	export class TimestampRequest {
 	    value: string;

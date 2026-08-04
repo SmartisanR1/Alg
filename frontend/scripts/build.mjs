@@ -1,5 +1,6 @@
 import { build } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { copyFileSync, mkdirSync } from 'node:fs'
@@ -17,7 +18,7 @@ copyFileSync(rootIcon, resolve(buildDir, 'appicon.png'))
 await build({
   configFile: false,
   root: __dirname,
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -29,9 +30,10 @@ await build({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vue-vendor': ['vue', 'vue-router', 'pinia'],
-          icons: ['@lucide/vue'],
+        // vite 8 (rolldown) 要求 manualChunks 为函数形式
+        manualChunks(id) {
+          if (/[\\/]node_modules[\\/](@vue|vue|vue-router|pinia)[\\/]/.test(id)) return 'vue-vendor'
+          if (/[\\/]node_modules[\\/]@lucide[\\/]/.test(id)) return 'icons'
         },
       },
     },

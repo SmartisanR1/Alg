@@ -1,13 +1,13 @@
 <template>
   <div class="flex items-center justify-between mb-1">
-    <label class="ck-label !mb-0">{{ label }}</label>
+    <label class="input-label !mb-0">{{ label }}</label>
     <div class="flex gap-1">
-      <button v-if="copyable && modelValue" @click="copy" class="ck-copy-btn">
+      <button v-if="copyable && model" @click="copy" class="ck-copy-btn">
         <CheckIcon v-if="copied" class="w-3 h-3 text-emerald-400" />
         <CopyIcon v-else class="w-3 h-3" />
         {{ copied ? '已复制' : '复制' }}
       </button>
-      <button v-if="clearable && modelValue" @click="$emit('update:modelValue', '')" class="ck-copy-btn">
+      <button v-if="clearable && model" @click="model = ''" class="ck-copy-btn">
         <XIcon class="w-3 h-3" />
         清空
       </button>
@@ -18,7 +18,7 @@
     <!-- Input/Textarea -->
     <textarea
       v-if="type === 'textarea'"
-      :value="modelValue"
+      :value="model"
       @input="handleInput"
       @blur="handleBlur"
       :placeholder="placeholder"
@@ -29,7 +29,7 @@
     />
     <input
       v-else-if="type === 'input'"
-      :value="modelValue"
+      :value="model"
       @input="handleInput"
       @blur="handleBlur"
       :placeholder="placeholder"
@@ -43,12 +43,12 @@
             { 'ck-result-sm': compact },
             { 'text-emerald-400': success === true, 'text-red-400': success === false }
           ]">
-      <span v-if="modelValue">{{ displayValue }}</span>
+      <span v-if="model">{{ displayValue }}</span>
       <span v-else class="ck-empty">{{ placeholder || '结果将显示在这里...' }}</span>
     </div>
 
     <!-- Byte Count Badge (Bottom Right) -->
-    <div v-if="modelValue && showByteCount" class="ck-byte-badge">
+    <div v-if="model && showByteCount" class="ck-byte-badge">
       {{ byteCount }} bytes
     </div>
   </div>
@@ -57,9 +57,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { CopyIcon, CheckIcon, XIcon } from '@lucide/vue'
+import { copyToClipboard } from '../utils/clipboard'
+
+// Vue 3.5 defineModel：最新 v-model API
+const model = defineModel({ type: String })
 
 const props = defineProps({
-  modelValue: String,
   label: String,
   placeholder: String,
   type: { type: String, default: 'textarea' },
@@ -70,11 +73,11 @@ const props = defineProps({
   success: { type: Boolean, default: null },
   showByteCount: { type: Boolean, default: true },
   autoTrimHex: { type: Boolean, default: true },
+  // 智能去空格：当输入内容仅由 hex 字符和空格组成时自动去掉空格（便于粘贴带空格的 hex 数据）
+  trimHexSpaces: { type: Boolean, default: false },
   compact: { type: Boolean, default: false },
   groupHex: { type: Boolean, default: true },
 })
-
-const emit = defineEmits(['update:modelValue'])
 
 const copied = ref(false)
 
@@ -83,21 +86,21 @@ const isHex = computed(() => {
 })
 
 const displayValue = computed(() => {
-  if (!props.modelValue) return ''
-  if (props.type !== 'result') return props.modelValue
-  if (!isHex.value) return props.modelValue
-  const clean = props.modelValue.replace(/\s+/g, '').toUpperCase()
+  if (!model.value) return ''
+  if (props.type !== 'result') return model.value
+  if (!isHex.value) return model.value
+  const clean = model.value.replace(/\s+/g, '').toUpperCase()
   if (!props.groupHex) return clean
   return clean.match(/.{1,4}/g)?.join(' ') || clean
 })
 
 const byteCount = computed(() => {
-  if (!props.modelValue) return 0
+  if (!model.value) return 0
   if (isHex.value) {
-    const cleanHex = props.modelValue.replace(/\s+/g, '')
+    const cleanHex = model.value.replace(/\s+/g, '')
     return Math.ceil(cleanHex.length / 2)
   }
-  return new TextEncoder().encode(props.modelValue).length
+  return new TextEncoder().encode(model.value).length
 })
 
 function handleInput(e) {
@@ -111,23 +114,28 @@ function handleInput(e) {
       // For manual typing, it's slightly aggressive but meets the requirement.
       val = cleaned
     }
+  } else if (props.trimHexSpaces && /^[0-9a-fA-F\s]*$/.test(val) && /\S/.test(val)) {
+    // 智能去空格：内容仅由 hex 字符和空格组成时自动去掉空格，便于粘贴带空格的 hex 数据
+    const cleaned = val.replace(/\s+/g, '')
+    if (val !== cleaned) {
+      val = cleaned
+    }
   }
-  emit('update:modelValue', val)
+  model.value = val
 }
 
 function handleBlur(e) {
   if (isHex.value && props.autoTrimHex) {
     const cleaned = e.target.value.replace(/\s+/g, '')
     const upper = cleaned.toUpperCase()
-    emit('update:modelValue', upper)
+    model.value = upper
   }
 }
 
 async function copy() {
-  if (!props.modelValue) return
-  await navigator.clipboard.writeText(props.modelValue)
+  const ok = await copyToClipboard(model.value)
+  if (!ok) return
   copied.value = true
-  store.showToast('已复制')
   setTimeout(() => { copied.value = false }, 2000)
 }
 </script>

@@ -52,7 +52,7 @@
                :class="biResult.error ? (isDark ? 'bg-red-500/5 border-red-500/20' : 'bg-red-50 border-red-200') : (isDark ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200')">
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-[11px] font-bold" :class="biResult.success ? 'text-emerald-400' : 'text-red-400'">{{ biResult.success ? '✓ 成功' : '✕ 失败' }}</span>
-              <Button variant="tool" size="sm" v-if="biResult.data" @click="copy(biResult.data)"><CopyIcon class="w-3 h-3" /></Button>
+              <button v-if="biResult.data" class="ck-copy-btn" @click="copy(biResult.data)"><CopyIcon class="w-3 h-3" /> 复制</button>
             </div>
             <div class="font-mono text-[11px] break-all leading-relaxed" :class="biResult.error ? 'text-red-400' : 'text-emerald-400'">{{ biResult.error || biResult.data }}</div>
           </div>
@@ -136,6 +136,7 @@ import PageLayout from '../components/PageLayout.vue'
 import Dropdown from '../components/Dropdown.vue'
 import { BigIntOperation } from '../../wailsjs/go/main/App'
 import { useAppStore } from '../stores/app'
+import { copyToClipboard } from '../utils/clipboard'
 
 const store = useAppStore()
 const { isDark } = storeToRefs(store)
@@ -215,9 +216,5 @@ async function doBigIntOp(op) {
   }
 }
 
-async function copy(text) {
-  if (!text) return
-  await navigator.clipboard.writeText(text)
-  store.showToast('已复制')
-}
+const copy = (text) => copyToClipboard(text)
 </script>
