@@ -412,7 +412,7 @@ select.text-xs::after {
   font-size: var(--font-sm);
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   display: block;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;

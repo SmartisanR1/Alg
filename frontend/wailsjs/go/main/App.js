@@ -510,6 +510,10 @@ export function SendPacket(arg1) {
   return window['go']['main']['App']['SendPacket'](arg1);
 }
 
+export function SetWindowTheme(arg1) {
+  return window['go']['main']['App']['SetWindowTheme'](arg1);
+}
+
 export function StringToHex(arg1) {
   return window['go']['main']['App']['StringToHex'](arg1);
 }

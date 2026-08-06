@@ -25,7 +25,7 @@ func main() {
 	webviewDataDir := filepath.Join(exeDir, "webview-data")
 
 	err := wails.Run(&options.App{
-		Title:         "",
+		Title:         "CryptoKit",
 		Width:         1240,
 		Height:        800,
 		MinWidth:      1040,
@@ -52,8 +52,11 @@ func main() {
 			app,
 		},
 		Windows: &windows.Options{
-			WebviewIsTransparent:              false,
-			WindowIsTranslucent:               false,
+			// Windows 11 Fluent Design：开启 Mica 半透明后层（Win10 及以下自动安全降级为不透明窗口）
+			// 需配合 WebviewIsTransparent + WindowIsTranslucent，页面背景在 .platform-windows 下变为半透明毛玻璃
+			WebviewIsTransparent:              true,
+			WindowIsTranslucent:               true,
+			BackdropType:                      windows.Mica,
 			DisableWindowIcon:                 false,
 			DisableFramelessWindowDecorations: false,
 			WebviewUserDataPath:               webviewDataDir,

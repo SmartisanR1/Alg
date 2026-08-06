@@ -184,12 +184,13 @@
       <div class="packet-side h-full flex flex-col">
         <Card title="报文发送" class="space-y-2 flex flex-col flex-1 min-h-0">
           <div class="flex items-center justify-between shrink-0">
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-stretch">
               <Button variant="tool" size="sm" @click="choosePacketFile">
                 <FolderOpenIcon class="w-3 h-3" /> {{ packet.filePath ? '已选文件' : '外部文件' }}
               </Button>
               <Dropdown
                 v-model="packet.payloadFormat"
+                class="packet-format-dropdown"
                 :options="[
                   { value: 'hex', label: '十六进制' },
                   { value: 'text', label: '文本' }
@@ -219,19 +220,10 @@
         <Card title="响应数据" class="space-y-2 shrink-0">
           <div class="flex items-center justify-between">
             <div class="flex gap-3 text-xs opacity-60 font-mono">
-              <span v-if="packetResult.requestBytes" class="text-cyan-400">已发: {{ packetResult.requestBytes }} 字节</span>
-              <span v-if="packetResult.responseBytes" class="text-emerald-400">已收: {{ packetResult.responseBytes }} 字节</span>
               <span v-if="packetResult.durationMs" class="text-orange-300">{{ packetResult.durationMs }} 毫秒</span>
             </div>
           </div>
           <div class="space-y-2">
-            <div v-if="packetResult.headerHex" class="space-y-1">
-              <label class="text-[10px] text-dark-muted uppercase tracking-widest font-bold">报文头 ({{ packet.headerLength }} 字节)</label>
-              <div class="relative">
-                <div class="result-area !min-h-0 py-1.5 pb-7 font-mono text-xs break-all bg-dark-bg/30">{{ packetResult.headerHex }}</div>
-                <ByteBadge :model-value="packetResult.headerHex" />
-              </div>
-            </div>
             <div class="space-y-1">
               <div class="flex justify-between items-center">
                 <label class="text-[10px] text-dark-muted uppercase tracking-widest font-bold">响应内容</label>
@@ -248,7 +240,7 @@
           </div>
         </Card>
 
-        <Card title="历史记录 (最近 20 条)" class="overflow-hidden flex flex-col max-h-[120px] shrink-0">
+        <Card title="历史记录 (最近 20 条)" class="packet-history-card overflow-hidden flex flex-col max-h-[140px] shrink-0">
           <div v-if="!packetHistory.length" class="flex-1 flex items-center justify-center text-xs opacity-30 italic py-2">无记录</div>
           <div v-else class="flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
             <button v-for="h in packetHistory" :key="h.id" @click="applyHistory(h)"
@@ -552,6 +544,22 @@ const copy = (text) => copyToClipboard(text, '已复制到剪贴板')
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* 历史记录卡片：让 Card 内部的 .card-content 参与 flex 布局，
+   从而让内部的 overflow-y-auto 列表获得有界高度并支持滚动 */
+.packet-history-card :deep(.card-content) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 工具栏：下拉框与“外部文件”按钮等高、按内容自适应宽度，上下对齐协调 */
+.packet-workbench .packet-side .packet-format-dropdown {
+  width: auto;
+  flex: none;
 }
 
 /* 自定义滚动条 */

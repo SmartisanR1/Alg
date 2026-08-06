@@ -12,6 +12,7 @@ import (
 	"cryptokit/crypto/symmetric"
 	"cryptokit/crypto/utils"
 	"os"
+	stdruntime "runtime"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -34,6 +35,9 @@ func (a *App) domReady(ctx context.Context) {
 	// StartHidden=true 模式：前端就绪后立即展示完整界面
 	// 避免 Windows 下 WebView2 初始化阶段用户看到空白窗口
 	runtime.WindowShow(ctx)
+
+	// Windows 11：解锁原生 Mica 毛玻璃（清空遮挡后层的窗口背景刷）
+	enableWindowsMica()
 }
 
 func (a *App) beforeClose(ctx context.Context) (prevent bool) {
@@ -41,6 +45,22 @@ func (a *App) beforeClose(ctx context.Context) (prevent bool) {
 }
 
 func (a *App) shutdown(ctx context.Context) {}
+
+// SetWindowTheme 同步原生窗口标题栏主题：'system' | 'light' | 'dark'。
+// 仅 Windows 生效（macOS 前端未实现 WindowSetDarkTheme 等接口，直接调用会 panic，故用 GOOS 防护）。
+func (a *App) SetWindowTheme(theme string) {
+	if stdruntime.GOOS != "windows" {
+		return
+	}
+	switch theme {
+	case "light":
+		runtime.WindowSetLightTheme(a.ctx)
+	case "dark":
+		runtime.WindowSetDarkTheme(a.ctx)
+	default:
+		runtime.WindowSetSystemDefaultTheme(a.ctx)
+	}
+}
 
 // ============================================================
 // 对称加密 API

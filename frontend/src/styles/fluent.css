@@ -1,0 +1,238 @@
+/* ============================================================
+   CryptoKit 平台化界面层 (Platform Fluent Layer)
+   ------------------------------------------------------------
+   - Windows: Windows 11 Fluent Design 适配
+     · Segoe UI Variable 字体系统（等宽用 Cascadia Code）
+     · 整体字号 +1px，控件尺寸加大（解决 Windows 下字体/数字偏小）
+     · Mica 毛玻璃：主容器透明 → 配合 main.go 的 BackdropType=Mica，
+       内容舞台/导航条半透明 + backdrop-filter 双保险
+     · Fluent Reveal：卡片/按钮/导航的悬浮高光与按压反馈
+   - macOS: 原生毛玻璃细节（标题栏 / 顶部导航）
+   - 仅作用于对应平台类（.platform-windows / .platform-mac），
+     互不影响，未加平台类的环境保持原样。
+   ============================================================ */
+
+/* ─────────── Windows 字体系统 ─────────── */
+.app-container.platform-windows {
+  font-family: "Segoe UI Variable Text", "Segoe UI Variable Display", "Segoe UI",
+    "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  letter-spacing: 0.005em;
+}
+
+/* 等宽字体 → Win11 终端风格 Cascadia Code */
+.app-container.platform-windows :is(.font-mono, [class*="font-mono"]) {
+  font-family: "Cascadia Code", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+}
+
+/* ─────────── Windows 字号整体放大 (+1px) ─────────── */
+/* 解决 Windows 下"整体数字与字体偏小"：将常用的 Tailwind 字号工具类整体 +1px */
+.app-container.platform-windows .text-xs   { font-size: 11px !important; }
+.app-container.platform-windows .text-sm   { font-size: 12px !important; }
+.app-container.platform-windows .text-base { font-size: 13px !important; }
+.app-container.platform-windows .text-md   { font-size: 14px !important; }
+.app-container.platform-windows .text-lg   { font-size: 15px !important; }
+.app-container.platform-windows .text-xl   { font-size: 17px !important; }
+.app-container.platform-windows .text-2xl  { font-size: 21px !important; }
+
+/* 常见任意字号工具类同步放大 */
+.app-container.platform-windows [class*="text-[10px]"] { font-size: 11px !important; }
+.app-container.platform-windows [class*="text-[11px]"] { font-size: 12px !important; }
+.app-container.platform-windows [class*="text-[12px]"] { font-size: 13px !important; }
+.app-container.platform-windows [class*="text-[13px]"] { font-size: 14px !important; }
+
+/* ─────────── Windows 控件尺寸与字号 ─────────── */
+.app-container.platform-windows .ck-btn {
+  font-size: 14px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.app-container.platform-windows .btn-sm { font-size: 12px; padding: 7px 14px; border-radius: 8px; }
+.app-container.platform-windows .btn-md { font-size: 13px; padding: 9px 18px; border-radius: 8px; }
+.app-container.platform-windows .btn-xs { font-size: 11px; padding: 4px 8px; border-radius: 6px; }
+.app-container.platform-windows .btn-lg { font-size: 14px; padding: 11px 22px; border-radius: 10px; }
+
+/* Windows 控件统一高度（与 Dropdown 触发器等同一行时上下对齐协调） */
+.app-container.platform-windows .ck-input,
+.app-container.platform-windows .ck-textarea,
+.app-container.platform-windows .ck-select {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+.app-container.platform-windows .ck-input,
+.app-container.platform-windows .ck-select {
+  min-height: 40px;
+}
+.app-container.platform-windows .input { font-size: 13px; min-height: 40px; padding: 8px 12px; }
+.app-container.platform-windows select.input,
+.app-container.platform-windows select:not(.input) {
+  height: 40px;
+  font-size: 13px;
+}
+
+/* 按钮文字垂直居中，避免与相邻输入框高度不一致 */
+.app-container.platform-windows .btn { line-height: 1; }
+
+.app-container.platform-windows .card-title    { font-size: 15px; }
+.app-container.platform-windows .card-subtitle { font-size: 12px; }
+.app-container.platform-windows .input-label   { font-size: 12px; }
+.app-container.platform-windows .ck-result     { font-size: 14px; }
+
+.app-container.platform-windows .ck-byte-badge    { font-size: 11px; padding: 2px 9px; }
+.app-container.platform-windows .ck-tab           { font-size: 13px; padding: 7px 13px; }
+.app-container.platform-windows .ck-copy-btn      { font-size: 13px; padding: 5px 10px; }
+.app-container.platform-windows .ck-section-title { font-size: 13px; }
+
+.app-container.platform-windows .nav-item { font-size: 12px; padding: 6px 7px; }
+.app-container.platform-windows .nav-label { font-size: 12px; }
+.app-container.platform-windows .dropdown-trigger { height: 40px; font-size: 13px; }
+
+/* ─────────── Windows 毛玻璃 + 光效背景 ─────────── */
+/* 主容器透明，让 Win11 原生 Mica 从 WebView 底层透出；
+   Win10/降级场景由页面内彩色光效层 + CSS 磨砂兜底，表现依然现代。 */
+.app-container.platform-windows.dark {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.app-container.platform-windows.light {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.app-container.platform-windows .app-shell {
+  background: transparent !important;
+}
+
+/* 彩色光效背景层：模拟 Win11 Mica/Acrylic 的柔和彩色磨砂，
+   作为所有半透明表面的底层，让整体观感明显更现代、更丝滑。
+   - 深色：透明底（透过 HTML 底色的 #12121a，若 Mica 解锁则透出桌面）
+   - 浅色：半透明白底，保持浅色主题的明亮感 */
+.app-container.platform-windows::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+}
+.app-container.platform-windows.dark::before {
+  background-image:
+    radial-gradient(1100px 560px at 12% -8%, rgba(99, 102, 241, 0.22), transparent 62%),
+    radial-gradient(880px 480px at 88% -6%, rgba(16, 185, 129, 0.16), transparent 56%),
+    radial-gradient(1000px 720px at 52% 112%, rgba(124, 58, 237, 0.20), transparent 62%),
+    radial-gradient(640px 400px at 28% 62%, rgba(14, 165, 233, 0.10), transparent 60%);
+}
+.app-container.platform-windows.light::before {
+  background-color: rgba(245, 245, 251, 0.9);
+  background-image:
+    radial-gradient(1100px 560px at 12% -8%, rgba(99, 102, 241, 0.16), transparent 62%),
+    radial-gradient(880px 480px at 88% -6%, rgba(16, 185, 129, 0.12), transparent 56%),
+    radial-gradient(1000px 720px at 52% 112%, rgba(139, 92, 246, 0.14), transparent 62%);
+}
+
+/* 内容舞台：半透明磨砂玻璃，透过下层光效 */
+.app-container.platform-windows .page-stage {
+  border-radius: 0;
+  backdrop-filter: blur(30px) saturate(170%);
+  transition: background-color 0.2s ease;
+}
+/* 注：加 !important 以压过 App.vue 中无层级的 .page-stage-dark/.page-stage-light 背景 */
+.app-container.platform-windows .page-stage-dark {
+  background: rgba(20, 20, 30, 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+.app-container.platform-windows .page-stage-light {
+  background: rgba(248, 248, 252, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 顶部导航：Win11 风格毛玻璃条 */
+.app-container.platform-windows .top-navigation {
+  background: rgba(20, 20, 30, 0.5) !important;
+  backdrop-filter: blur(26px) saturate(170%);
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+.app-container.platform-windows.light .top-navigation {
+  background: rgba(248, 248, 252, 0.58) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 卡片：轻微半透明，与磨砂背景协调（保证文字可读性） */
+.app-container.platform-windows.dark .card,
+.app-container.platform-windows.dark .ck-card {
+  background: rgba(30, 30, 46, 0.82);
+}
+.app-container.platform-windows.light .card,
+.app-container.platform-windows.light .ck-card {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* ─────────── Windows Fluent Reveal 悬浮 / 按压反馈 ─────────── */
+.app-container.platform-windows .card,
+.app-container.platform-windows .ck-card {
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.app-container.platform-windows .card-hoverable:hover,
+.app-container.platform-windows .ck-card:hover {
+  transform: translateY(-1px);
+}
+.app-container.platform-windows.dark .card-hoverable:hover,
+.app-container.platform-windows.dark .ck-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.55);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(var(--accent-rgb), 0.12);
+}
+.app-container.platform-windows.light .card-hoverable:hover,
+.app-container.platform-windows.light .ck-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  box-shadow: 0 6px 18px rgba(31, 38, 135, 0.08),
+    inset 0 0 0 1px rgba(var(--accent-rgb), 0.1);
+}
+
+/* 导航项：Win11 分段控件式激活态 */
+.app-container.platform-windows .nav-item {
+  border-radius: 8px;
+  transition: background-color 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+.app-container.platform-windows .nav-item:active { transform: scale(0.97); }
+.app-container.platform-windows.dark .nav-item.active {
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.24), rgba(var(--accent-rgb), 0.14));
+  border-color: rgba(var(--accent-rgb), 0.4);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.app-container.platform-windows.light .nav-item.active {
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0.08));
+  border-color: rgba(var(--accent-rgb), 0.3);
+}
+
+/* 按钮：悬浮提亮 + 按压缩放 */
+.app-container.platform-windows .btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.app-container.platform-windows .btn:hover { filter: brightness(1.06); }
+.app-container.platform-windows .btn:active { transform: scale(0.97); }
+
+/* 输入控件：Fluent 强调色聚焦环 */
+.app-container.platform-windows :is(.ck-input, .ck-textarea, .ck-select, .input, .dropdown-trigger):focus {
+  outline: none;
+  border-color: rgba(var(--accent-rgb), 0.9) !important;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
+}
+
+/* ─────────── macOS 原生毛玻璃细节 ─────────── */
+/* 标题栏 + 顶部导航毛玻璃（Webview 不透时仍可对页面底层产生柔和磨砂） */
+.app-container.platform-mac .titlebar-drag {
+  backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(22, 22, 31, 0.72) !important;
+}
+.app-container.platform-mac.light .titlebar-drag {
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+.app-container.platform-mac .top-navigation {
+  backdrop-filter: blur(18px) saturate(160%);
+  background: rgba(22, 22, 31, 0.55) !important;
+}
+.app-container.platform-mac.light .top-navigation {
+  background: rgba(248, 248, 252, 0.6) !important;
+}

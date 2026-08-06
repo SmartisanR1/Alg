@@ -17,6 +17,9 @@
         </template>
       </div>
     </div>
+    <div v-if="$slots.right" class="nav-right">
+      <slot name="right" />
+    </div>
   </nav>
 </template>
 
@@ -43,9 +46,10 @@ const navigateTo = (path) => {
 <style scoped>
 .top-navigation {
   width: 100%;
+  display: flex;
+  align-items: center;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  overflow-x: auto;
   scrollbar-width: none;
 }
 
@@ -53,34 +57,51 @@ const navigateTo = (path) => {
   display: none;
 }
 
+/* 左侧导航项可横向滚动，右侧主题控件固定不动 */
 .nav-scroll {
-  padding: 8px 16px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 10px;
+}
+
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 8px;
 }
 
 .nav-items {
   display: flex;
-  gap: 4px;
+  gap: 1px;
   align-items: center;
 }
 
 .nav-divider {
   width: 1px;
-  height: 24px;
-  background: var(--border);
-  margin: 0 8px;
-  opacity: 0.5;
+  height: 14px;
+  background: var(--muted);
+  margin: 0 2px;
+  opacity: 0.3;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: 4px;
+  padding: 6px 7px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--muted);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 7px;
   transition: all 0.2s ease;
   white-space: nowrap;
   font-size: 12px;

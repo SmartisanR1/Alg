@@ -64,12 +64,12 @@ defineProps({
 .input-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
 .input-hint {
   font-size: 10px;
   color: var(--muted, #a0a0b0);
+  margin-top: 4px;
 }
 
 /* 启用字节角标时，为角标预留底部空间，避免与文本重叠 */

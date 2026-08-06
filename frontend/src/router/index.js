@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
-  { path: '/', redirect: '/symmetric' },
+  { path: '/', redirect: '/packet' },
   { path: '/symmetric', component: () => import('../views/SymmetricView.vue'), meta: { title: '对称加密' } },
   { path: '/asymmetric', component: () => import('../views/AsymmetricView.vue'), meta: { title: '非对称加密' } },
   { path: '/hash', component: () => import('../views/HashView.vue'), meta: { title: '哈希 / HMAC' } },

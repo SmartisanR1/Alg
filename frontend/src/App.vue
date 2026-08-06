@@ -32,26 +32,9 @@
          </div>
         </div>
 
-        <!-- Theme -->
-        <div class="flex items-center gap-2 titlebar-nodrag">
-          <!-- 色彩选择器 -->
-          <div class="color-picker">
-            <button
-              v-for="(scheme, color) in colorSchemes"
-              :key="color"
-              :class="['color-option', { active: accentColor === color }]"
-              :style="{ background: scheme.accent }"
-              @click="setAccentColor(color)"
-            />
-          </div>
-
-          <!-- 主题切换 -->
-          <button @click="handleToggleTheme" class="titlebar-icon-btn">
-           <SunIcon v-if="isDark" class="w-4 h-4 text-amber-400" />
-           <MoonIcon v-else class="w-4 h-4 text-violet-400" />
-         </button>
-       </div>
-     </div>
+        <!-- Theme（Mac 标题栏；Windows/Linux 在导航栏右侧） -->
+        <ThemeControls class="titlebar-nodrag" />
+      </div>
 
     <!-- Transparent overlay: close history when clicking outside the panel -->
     <div v-if="showHistory" class="fixed inset-0 z-40" @click="showHistory = false" style="background:transparent"></div>
@@ -82,7 +65,12 @@
     <!-- Main Content -->
     <div class="flex-1 overflow-hidden flex flex-col app-shell" :class="isDark ? 'bg-dark-bg' : 'bg-light-bg'">
       <!-- Navigation Bar -->
-      <TopNavigation :groups="navGroups" />
+      <TopNavigation :groups="navGroups">
+        <!-- Windows / Linux：无自绘标题栏，主题切换放到导航栏右侧 -->
+        <template v-if="!isMac" #right>
+          <ThemeControls />
+        </template>
+      </TopNavigation>
       
       <!-- Content Area -->
       <main class="app-main-region flex-1 overflow-y-auto relative px-3 pb-3">
@@ -114,18 +102,20 @@ import { storeToRefs } from 'pinia'
 import * as runtime from '../wailsjs/runtime/runtime'
 import { useWindowManager } from './utils/windowManager'
 import TopNavigation from './components/TopNavigation.vue'
+import ThemeControls from './components/ThemeControls.vue'
 import './styles/variables.css'
 import './styles/components.css'
+import './styles/fluent.css'
 import {
-  ShieldCheckIcon, SunIcon, MoonIcon,
+  ShieldCheckIcon,
   CalculatorIcon,
   LockIcon, KeyIcon, HashIcon, ShieldHalfIcon,
   AtomIcon, WrenchIcon, FileIcon, FingerprintIcon, SendIcon
 } from '@lucide/vue'
 
 const store = useAppStore()
-const { isDark, accentColor, colorSchemes, history, toast } = storeToRefs(store)
-const { toggleTheme, clearHistory, setAccentColor } = store
+const { isDark, history, toast } = storeToRefs(store)
+const { clearHistory } = store
 
 const { saveWindowState } = useWindowManager()
 
@@ -139,24 +129,10 @@ const isLinux    = ref(false)
 // 全屏检测
 const isFullscreen = ref(false)
 
-const themeMode = ref('auto') // 'light', 'dark', 'auto'
-
-// ── 主题逻辑 ────────────────────────────────────────────────
-const updateThemeByTime = () => {
-  if (themeMode.value !== 'auto') return
-  const hour = new Date().getHours()
-  const shouldBeDark = hour >= 18 || hour < 7
-  if (isDark.value !== shouldBeDark) toggleTheme()
-}
-
-const handleToggleTheme = () => {
-  if (themeMode.value === 'auto') {
-    themeMode.value = isDark.value ? 'light' : 'dark'
-    toggleTheme()
-  } else {
-    toggleTheme()
-    themeMode.value = isDark.value ? 'dark' : 'light'
-  }
+// 系统主题跟随：监听系统深浅色变化（'system' 模式实时响应；手动模式重复应用无副作用）
+let systemThemeMq = null
+const onSystemThemeChange = () => {
+  store.applyTheme()
 }
 
 // ── 全屏状态检测 ────────────────────────────────────────────
@@ -187,16 +163,19 @@ onMounted(async () => {
   checkFullscreen()
   window.addEventListener('resize', checkFullscreen)
 
-  // 主题自动切换
-  updateThemeByTime()
-  setInterval(updateThemeByTime, 60000)
-  
-  // 初始化应用状态
+  // 跟随系统主题：监听系统深浅色变化（WebView2 / WKWebView 均支持 prefers-color-scheme）
+  if (window.matchMedia) {
+    systemThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
+    systemThemeMq.addEventListener('change', onSystemThemeChange)
+  }
+
+  // 初始化应用状态（含主题）
   store.init()
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkFullscreen)
+  if (systemThemeMq) systemThemeMq.removeEventListener('change', onSystemThemeChange)
 })
 
 // ── 导航结构 ────────────────────────────────────────────────
@@ -429,26 +408,56 @@ const navGroups = [
   border-radius: 0;
 }
 
-/* 色彩选择器 */
+/* 主题色选择器：默认只显示调色盘图标，悬停时配色点向左侧划出（节省空间） */
+.color-picker-reveal {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: default;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.app-container.dark .color-picker-reveal:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.app-container.light .color-picker-reveal:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text);
+}
+
 .color-picker {
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  gap: 5px;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 0.22s ease, opacity 0.22s ease;
+}
+
+.color-picker-reveal:hover .color-picker {
+  max-width: 140px;
+  opacity: 1;
 }
 
 .color-option {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
+  padding: 0;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .color-option:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
 .color-option.active {

@@ -264,6 +264,8 @@ export function SelectFile():Promise<string>;
 
 export function SendPacket(arg1:utils.PacketIORequest):Promise<utils.PacketIOResult>;
 
+export function SetWindowTheme(arg1:string):Promise<void>;
+
 export function StringToHex(arg1:string):Promise<utils.ToolResult>;
 
 export function TDESDecrypt(arg1:finance.TDESRequest):Promise<symmetric.CryptoResult>;
