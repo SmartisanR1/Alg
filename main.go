@@ -4,6 +4,7 @@ import (
 	"embed"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -19,10 +20,24 @@ var assets embed.FS
 func main() {
 	app := NewApp()
 
-	// 获取可执行文件所在目录，用于存放 WebView 数据
-	exePath, _ := os.Executable()
-	exeDir := filepath.Dir(exePath)
-	webviewDataDir := filepath.Join(exeDir, "webview-data")
+	// WebView2 用户数据目录：优先放到系统标准的 %LOCALAPPDATA%\CryptoKit 下，
+	// 让程序目录只保留 CryptoKit.exe 一个文件，不产生任何垃圾/临时目录。
+	// 说明：WebView2 Runtime（Windows 内置）强制要求一个可写数据目录用于缓存、
+	// LocalStorage、GPU 缓存等，无法完全禁用，但可以放到用户 AppData 而非 exe 目录。
+	webviewDataDir := ""
+	if runtime.GOOS == "windows" {
+		if local := os.Getenv("LOCALAPPDATA"); local != "" {
+			webviewDataDir = filepath.Join(local, "CryptoKit", "webview-data")
+		} else if home, err := os.UserHomeDir(); err == nil {
+			// LOCALAPPDATA 缺失的极端情况，回退到用户目录
+			webviewDataDir = filepath.Join(home, "AppData", "Local", "CryptoKit", "webview-data")
+		}
+	}
+	if webviewDataDir == "" {
+		// 非 Windows 平台（该字段仅对 Windows WebView2 生效）或无法获取 AppData 时回退
+		exePath, _ := os.Executable()
+		webviewDataDir = filepath.Join(filepath.Dir(exePath), "webview-data")
+	}
 
 	err := wails.Run(&options.App{
 		Title:         "CryptoKit",

@@ -47,6 +47,11 @@
       <span v-else class="ck-empty">{{ placeholder || '结果将显示在这里...' }}</span>
     </div>
 
+    <!-- 可选右上角动作按钮（如 ⚡ 生成），定位在输入框右上角 -->
+    <div v-if="$slots.action" class="ck-panel-action">
+      <slot name="action" />
+    </div>
+
     <!-- Byte Count Badge (Bottom Right) -->
     <div v-if="model && showByteCount" class="ck-byte-badge">
       {{ byteCount }} bytes
@@ -139,3 +144,17 @@ async function copy() {
   setTimeout(() => { copied.value = false }, 2000)
 }
 </script>
+
+<style scoped>
+/* 输入框右上角动作按钮（⚡ 生成）定位：相对 .relative.group（只含输入框，不含 label），
+   因此 top:50% 即输入框垂直居中，正好在输入框右上角 */
+.ck-panel-action {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+</style>

@@ -24,67 +24,69 @@
   font-family: "Cascadia Code", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
 }
 
-/* ─────────── Windows 字号整体放大 (+1px) ─────────── */
-/* 解决 Windows 下"整体数字与字体偏小"：将常用的 Tailwind 字号工具类整体 +1px */
-.app-container.platform-windows .text-xs   { font-size: 11px !important; }
-.app-container.platform-windows .text-sm   { font-size: 12px !important; }
-.app-container.platform-windows .text-base { font-size: 13px !important; }
-.app-container.platform-windows .text-md   { font-size: 14px !important; }
-.app-container.platform-windows .text-lg   { font-size: 15px !important; }
-.app-container.platform-windows .text-xl   { font-size: 17px !important; }
-.app-container.platform-windows .text-2xl  { font-size: 21px !important; }
+/* ─────────── Windows 字号整体放大 (+2px) ─────────── */
+/* 解决 Windows 下"整体数字与字体偏小"：将常用的 Tailwind 字号工具类整体放大 */
+.app-container.platform-windows .text-xs   { font-size: 12px !important; }
+.app-container.platform-windows .text-sm   { font-size: 13px !important; }
+.app-container.platform-windows .text-base { font-size: 14px !important; }
+.app-container.platform-windows .text-md   { font-size: 15px !important; }
+.app-container.platform-windows .text-lg   { font-size: 16px !important; }
+.app-container.platform-windows .text-xl   { font-size: 18px !important; }
+.app-container.platform-windows .text-2xl  { font-size: 22px !important; }
 
 /* 常见任意字号工具类同步放大 */
-.app-container.platform-windows [class*="text-[10px]"] { font-size: 11px !important; }
-.app-container.platform-windows [class*="text-[11px]"] { font-size: 12px !important; }
-.app-container.platform-windows [class*="text-[12px]"] { font-size: 13px !important; }
-.app-container.platform-windows [class*="text-[13px]"] { font-size: 14px !important; }
+.app-container.platform-windows [class*="text-[10px]"] { font-size: 12px !important; }
+.app-container.platform-windows [class*="text-[11px]"] { font-size: 13px !important; }
+.app-container.platform-windows [class*="text-[12px]"] { font-size: 14px !important; }
+.app-container.platform-windows [class*="text-[13px]"] { font-size: 15px !important; }
 
-/* ─────────── Windows 控件尺寸与字号 ─────────── */
+/* ─────────── Windows 控件尺寸与字号（统一为 14px 基准） ─────────── */
 .app-container.platform-windows .ck-btn {
-  font-size: 14px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  font-size: 15px;
+  padding-top: 9px;
+  padding-bottom: 9px;
 }
-.app-container.platform-windows .btn-sm { font-size: 12px; padding: 7px 14px; border-radius: 8px; }
-.app-container.platform-windows .btn-md { font-size: 13px; padding: 9px 18px; border-radius: 8px; }
-.app-container.platform-windows .btn-xs { font-size: 11px; padding: 4px 8px; border-radius: 6px; }
-.app-container.platform-windows .btn-lg { font-size: 14px; padding: 11px 22px; border-radius: 10px; }
+.app-container.platform-windows .btn-sm { font-size: 13px; padding: 8px 15px; border-radius: 8px; }
+.app-container.platform-windows .btn-md { font-size: 14px; padding: 10px 19px; border-radius: 8px; }
+.app-container.platform-windows .btn-xs { font-size: 12px; padding: 5px 9px; border-radius: 6px; }
+.app-container.platform-windows .btn-lg { font-size: 15px; padding: 12px 23px; border-radius: 10px; }
 
 /* Windows 控件统一高度（与 Dropdown 触发器等同一行时上下对齐协调） */
 .app-container.platform-windows .ck-input,
 .app-container.platform-windows .ck-textarea,
-.app-container.platform-windows .ck-select {
-  font-size: 14px;
-  padding: 8px 12px;
+.app-container.platform-windows .ck-select,
+.app-container.platform-windows .input {
+  font-size: 14px; /* .input 与 .ck-* 统一为 14px，消除字号不统一 */
+  padding: 9px 13px;
 }
 .app-container.platform-windows .ck-input,
-.app-container.platform-windows .ck-select {
+.app-container.platform-windows .ck-select,
+.app-container.platform-windows .input {
   min-height: 40px;
 }
-.app-container.platform-windows .input { font-size: 13px; min-height: 40px; padding: 8px 12px; }
 .app-container.platform-windows select.input,
 .app-container.platform-windows select:not(.input) {
   height: 40px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* 按钮文字垂直居中，避免与相邻输入框高度不一致 */
 .app-container.platform-windows .btn { line-height: 1; }
 
-.app-container.platform-windows .card-title    { font-size: 15px; }
-.app-container.platform-windows .card-subtitle { font-size: 12px; }
-.app-container.platform-windows .input-label   { font-size: 12px; }
-.app-container.platform-windows .ck-result     { font-size: 14px; }
+.app-container.platform-windows .card-title    { font-size: 16px; }
+.app-container.platform-windows .card-subtitle { font-size: 13px; }
+.app-container.platform-windows .input-label   { font-size: 13px; }
+.app-container.platform-windows .ck-result     { font-size: 15px; }
+.app-container.platform-windows .result-area   { font-size: 14px; }
 
-.app-container.platform-windows .ck-byte-badge    { font-size: 11px; padding: 2px 9px; }
-.app-container.platform-windows .ck-tab           { font-size: 13px; padding: 7px 13px; }
-.app-container.platform-windows .ck-copy-btn      { font-size: 13px; padding: 5px 10px; }
+.app-container.platform-windows .ck-byte-badge    { font-size: 12px; padding: 2px 10px; }
+.app-container.platform-windows .ck-tab           { font-size: 14px; padding: 7px 15px; }
+.app-container.platform-windows .ck-copy-btn      { font-size: 13px; padding: 5px 11px; }
 .app-container.platform-windows .ck-section-title { font-size: 13px; }
 
-.app-container.platform-windows .nav-item { font-size: 12px; padding: 6px 7px; }
-.app-container.platform-windows .nav-label { font-size: 12px; }
-.app-container.platform-windows .dropdown-trigger { height: 40px; font-size: 13px; }
+.app-container.platform-windows .nav-item  { font-size: 13px; padding: 7px 10px; }
+.app-container.platform-windows .nav-label { font-size: 13px; }
+.app-container.platform-windows .dropdown-trigger { height: 40px; font-size: 14px; }
 
 /* ─────────── Windows 毛玻璃 + 光效背景 ─────────── */
 /* 主容器透明，让 Win11 原生 Mica 从 WebView 底层透出；
@@ -220,6 +222,37 @@
   box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
 }
 
+/* ─────────── macOS 字号放大（解决 Mac 下整体字体偏小、看着费劲） ─────────── */
+/* 与 Windows 采用一致的放大档位，保证跨平台字号观感统一 */
+.app-container.platform-mac .text-xs   { font-size: 12px !important; }
+.app-container.platform-mac .text-sm   { font-size: 13px !important; }
+.app-container.platform-mac .text-base { font-size: 14px !important; }
+.app-container.platform-mac .text-md   { font-size: 15px !important; }
+.app-container.platform-mac .text-lg   { font-size: 16px !important; }
+.app-container.platform-mac .text-xl   { font-size: 18px !important; }
+.app-container.platform-mac .text-2xl  { font-size: 22px !important; }
+.app-container.platform-mac [class*="text-[10px]"] { font-size: 12px !important; }
+.app-container.platform-mac [class*="text-[11px]"] { font-size: 13px !important; }
+.app-container.platform-mac [class*="text-[12px]"] { font-size: 14px !important; }
+.app-container.platform-mac [class*="text-[13px]"] { font-size: 15px !important; }
+
+.app-container.platform-mac .ck-input,
+.app-container.platform-mac .ck-textarea,
+.app-container.platform-mac .ck-select,
+.app-container.platform-mac .input {
+  font-size: 14px;
+  padding: 9px 12px;
+}
+.app-container.platform-mac .input-label   { font-size: 13px; }
+.app-container.platform-mac .card-title    { font-size: 16px; }
+.app-container.platform-mac .card-subtitle { font-size: 13px; }
+.app-container.platform-mac .dropdown-trigger { font-size: 14px; }
+.app-container.platform-mac .ck-tab        { font-size: 14px; }
+.app-container.platform-mac .ck-copy-btn   { font-size: 13px; }
+.app-container.platform-mac .ck-result     { font-size: 15px; }
+.app-container.platform-mac .nav-item  { font-size: 13px; padding: 7px 10px; }
+.app-container.platform-mac .nav-label { font-size: 13px; }
+
 /* ─────────── macOS 原生毛玻璃细节 ─────────── */
 /* 标题栏 + 顶部导航毛玻璃（Webview 不透时仍可对页面底层产生柔和磨砂） */
 .app-container.platform-mac .titlebar-drag {
@@ -235,4 +268,125 @@
 }
 .app-container.platform-mac.light .top-navigation {
   background: rgba(248, 248, 252, 0.6) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Fluent Design 强化 (2026-08-08)
+   ------------------------------------------------------------
+   目标：让 Windows 观感更贴近 WinUI3 / Win11 Fluent Design。
+   与 Material 风格的关键差异：
+   1. 按钮 → 纯色填充，去渐变、去彩色重阴影、hover 不"浮起"，
+      改用叠加提亮 + 按压轻微压暗（Fluent Reveal 手感）。
+   2. 输入控件 → 填充层（fill）风格：深色半透明黑底 + 细边框。
+   3. 选项卡 → Win11 分段控件（Segmented Control）观感。
+   4. 卡片 hover → Fluent「边缘光」（内发光描边）。
+   ════════════════════════════════════════════════════════════ */
+
+/* ── 1. 主操作按钮：Fluent 纯色填充 ── */
+.app-container.platform-windows .btn-primary,
+.app-container.platform-windows .btn-success,
+.app-container.platform-windows .btn-warning,
+.app-container.platform-windows .btn-download {
+  background-image: none !important;                 /* 去掉 135° 渐变 */
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28) !important; /* 单一柔和投影 */
+  font-weight: 600;
+}
+.app-container.platform-windows .btn-primary  { background-color: var(--accent) !important; }
+.app-container.platform-windows .btn-success  { background-color: #10b981 !important; }
+.app-container.platform-windows .btn-warning  { background-color: #f59e0b !important; }
+.app-container.platform-windows .btn-download { background-color: #6366f1 !important; }
+
+/* hover：叠加提亮（Fluent Reveal 高光），不浮起 */
+.app-container.platform-windows .btn-primary:hover,
+.app-container.platform-windows .btn-success:hover,
+.app-container.platform-windows .btn-warning:hover,
+.app-container.platform-windows .btn-download:hover {
+  transform: none !important;
+  filter: brightness(1.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.32) !important;
+}
+/* active：轻微压暗（WinUI 按压反馈） */
+.app-container.platform-windows .btn-primary:active,
+.app-container.platform-windows .btn-success:active,
+.app-container.platform-windows .btn-warning:active,
+.app-container.platform-windows .btn-download:active {
+  transform: scale(0.97);
+  filter: brightness(0.90);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* 次要描边按钮：hover 不浮起（保持描边风格） */
+.app-container.platform-windows .btn-secondary:hover {
+  transform: none !important;
+}
+
+/* ── 2. 输入控件：Win11 填充层风格 ── */
+/* 注意：style.css 的 @layer base 有 `.dark input/textarea/select { background:#1e1e2e !important }`
+   （深色白输入框修复）。CSS 规范中 !important 声明「layer 内 > 未分层」，
+   故此处深色覆盖必须同样放入 @layer base 且提高特异性（.platform-windows.dark 前缀）才能生效。 */
+@layer base {
+  .app-container.platform-windows.dark .ck-input,
+  .app-container.platform-windows.dark .ck-textarea,
+  .app-container.platform-windows.dark .input,
+  .app-container.platform-windows.dark .dropdown-trigger,
+  .app-container.platform-windows.dark select.input,
+  .app-container.platform-windows.dark select:not(.input),
+  .app-container.platform-windows.dark textarea,
+  .app-container.platform-windows.dark input {
+    background: rgba(0, 0, 0, 0.30) !important;
+    border-color: rgba(255, 255, 255, 0.10) !important;
+  }
+  .app-container.platform-windows.dark .ck-input:hover,
+  .app-container.platform-windows.dark .ck-textarea:hover,
+  .app-container.platform-windows.dark .input:hover,
+  .app-container.platform-windows.dark .dropdown-trigger:hover,
+  .app-container.platform-windows.dark select.input:hover,
+  .app-container.platform-windows.dark select:not(.input):hover,
+  .app-container.platform-windows.dark textarea:hover,
+  .app-container.platform-windows.dark input:hover {
+    background: rgba(0, 0, 0, 0.42) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+  }
+}
+.app-container.platform-windows.light .ck-input,
+.app-container.platform-windows.light .ck-textarea,
+.app-container.platform-windows.light .input,
+.app-container.platform-windows.light .dropdown-trigger,
+.app-container.platform-windows.light select.input {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+.app-container.platform-windows.light .ck-input:hover,
+.app-container.platform-windows.light .ck-textarea:hover,
+.app-container.platform-windows.light .input:hover,
+.app-container.platform-windows.light .dropdown-trigger:hover {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.20) !important;
+}
+
+/* ── 3. 选项卡：Win11 分段控件观感 ── */
+.app-container.platform-windows .ck-tab {
+  border-radius: 8px;
+  padding: 7px 15px;
+  font-weight: 600;
+}
+.app-container.platform-windows .ck-tab.active {
+  background: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ── 4. 卡片：Fluent「边缘光」hover ── */
+.app-container.platform-windows.dark .card-hoverable:hover,
+.app-container.platform-windows.dark .ck-card:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--accent-rgb), 0.35),
+    0 8px 22px rgba(0, 0, 0, 0.32) !important;
+}
+.app-container.platform-windows.light .card-hoverable:hover,
+.app-container.platform-windows.light .ck-card:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--accent-rgb), 0.30),
+    0 8px 22px rgba(31, 38, 135, 0.10) !important;
 }

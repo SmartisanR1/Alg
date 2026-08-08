@@ -138,7 +138,7 @@ onUnmounted(() => {
 
 .dropdown-trigger {
   width: 100%;
-  height: 36px;
+  height: 40px;
   padding: 0 12px;
   background: var(--bg);
   border: 1.5px solid var(--border);

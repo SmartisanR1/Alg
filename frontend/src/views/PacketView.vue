@@ -85,7 +85,7 @@
         <div v-if="packet.transport !== 'plain'" class="card space-y-2 animate-in fade-in duration-300">
           <p class="card-title">安全证书 ({{ packet.transport.toUpperCase() }})</p>
           <div class="space-y-2">
-            <div class="space-y-1">
+            <div class="space-y-2">
               <div class="flex justify-between items-center">
                   <label class="input-label !mb-0">根证书</label>
                 <Button variant="tool" size="xs" @click="loadCertFile('caCert')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
@@ -96,7 +96,7 @@
               </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
+              <div class="space-y-2">
                 <div class="flex justify-between items-center">
                   <label class="input-label !mb-0">签名证书</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientCert')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
@@ -106,7 +106,7 @@
                   <ByteBadge :model-value="packet.clientCert" />
                 </div>
               </div>
-              <div class="space-y-1">
+              <div class="space-y-2">
                 <div class="flex justify-between items-center">
                   <label class="input-label !mb-0">签名私钥</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientKey')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
@@ -118,7 +118,7 @@
               </div>
             </div>
             <div v-if="packet.transport === 'tlcp'" class="grid grid-cols-2 gap-2 animate-in slide-in-from-top-1 duration-200">
-              <div class="space-y-1">
+              <div class="space-y-2">
                 <div class="flex justify-between items-center">
                   <label class="input-label !mb-0">加密证书</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientEncCert')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
@@ -128,7 +128,7 @@
                   <ByteBadge :model-value="packet.clientEncCert" />
                 </div>
               </div>
-              <div class="space-y-1">
+              <div class="space-y-2">
                 <div class="flex justify-between items-center">
                   <label class="input-label !mb-0">加密私钥</label>
                   <Button variant="tool" size="xs" @click="loadCertFile('clientEncKey')"><UploadIcon class="w-2.5 h-2.5" /> 上传</Button>
@@ -205,11 +205,11 @@
           </div>
           
           <div class="flex-1 min-h-0">
-            <textarea v-model="packet.payloadData" class="input h-full font-mono text-xs leading-relaxed" 
+            <textarea v-model="packet.payloadData" class="input h-full font-mono leading-relaxed" 
                       :placeholder="packet.payloadFormat === 'hex' ? '输入 16 进制报文...' : '输入原始文本内容...'"></textarea>
           </div>
 
-          <div class="flex gap-2 shrink-0 pt-2 border-t border-dark-border/30">
+          <div class="flex gap-2 shrink-0 pt-2">
             <Button variant="success" class="flex-1 justify-center" @click="sendPacketNow">
               <ZapIcon class="w-3.5 h-3.5" /> 发送请求
             </Button>
@@ -222,20 +222,15 @@
             <div class="flex gap-3 text-xs opacity-60 font-mono">
               <span v-if="packetResult.durationMs" class="text-orange-300">{{ packetResult.durationMs }} 毫秒</span>
             </div>
+            <button v-if="packetResult.responseHex" class="ck-copy-btn" @click="copy(packetResult.responseHex)"><CopyIcon class="w-3 h-3" /> 复制</button>
           </div>
           <div class="space-y-2">
-            <div class="space-y-1">
-              <div class="flex justify-between items-center">
-                <label class="text-[10px] text-dark-muted uppercase tracking-widest font-bold">响应内容</label>
-                <button v-if="packetResult.responseHex" class="ck-copy-btn" @click="copy(packetResult.responseHex)"><CopyIcon class="w-3 h-3" /> 复制</button>
+            <div class="relative">
+              <div class="result-area !min-h-[60px] pb-7 font-mono break-all max-h-[100px] overflow-y-auto leading-relaxed" 
+                   :class="{ 'text-red-400 border-red-500/20 bg-red-500/5': packetResult.error, 'text-emerald-400/90': !packetResult.error && packetResult.responseHex }">
+                {{ packetResult.error || packetResult.responseHex || '等待网络响应...' }}
               </div>
-              <div class="relative">
-                <div class="result-area !min-h-[60px] pb-7 font-mono text-xs break-all max-h-[100px] overflow-y-auto leading-relaxed" 
-                     :class="{ 'text-red-400 border-red-500/20 bg-red-500/5': packetResult.error, 'text-emerald-400/90': !packetResult.error && packetResult.responseHex }">
-                  {{ packetResult.error || packetResult.responseHex || '等待网络响应...' }}
-                </div>
-                <ByteBadge v-if="packetResult.responseHex" :model-value="packetResult.responseHex" />
-              </div>
+              <ByteBadge v-if="packetResult.responseHex" :model-value="packetResult.responseHex" />
             </div>
           </div>
         </Card>

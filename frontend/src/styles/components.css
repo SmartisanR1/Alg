@@ -220,7 +220,7 @@
 /* 标准输入框 */
 .input {
   width: 100%;
-  padding: 8px 10px;
+  padding: 9px 12px;
   background: var(--hover);
   border: 1.5px solid var(--border);
   border-radius: 6px;
@@ -412,10 +412,18 @@ select.text-xs::after {
   font-size: var(--font-sm);
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   display: block;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
+}
+
+/* 标签行（标签 + “生成/复制/上传”按钮同行）与下方输入框的间距统一加大到 8px。
+   这类行原来用 Tailwind mb-1(4px)/mb-1.5(6px)，导致“汉字和显示框”贴得太近。
+   未分层规则优先于 Tailwind @layer utilities，故可稳定覆盖。 */
+.flex.justify-between.mb-1:has(.input-label),
+.flex.justify-between.mb-1\.5:has(.input-label) {
+  margin-bottom: 8px;
 }
 
 /* ── 结果区域 ─────────────────────────────── */

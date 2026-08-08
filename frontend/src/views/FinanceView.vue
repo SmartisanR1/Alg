@@ -33,48 +33,48 @@
         <Card title="3DES Retail MAC" class="space-y-2">
           <CryptoPanel v-model="retail.key" label="密钥 (Hex)" type="input" placeholder="K1K2 或 K1K2K3..." />
           <CryptoPanel v-model="retail.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
-          <div class="flex gap-2">
+          <div class="flex gap-2 items-stretch">
             <Dropdown
               v-model="retail.padding"
               :options="[
                 { value: 'ISO9797-1-P2', label: 'P2 (0x80...)' },
                 { value: 'ISO9797-1-P1', label: 'P1 (0x00...)' }
               ]"
-              class="flex-1"
+              class="finance-dropdown-auto shrink-0"
             />
-            <Button variant="primary" class="justify-center shrink-0" @click="doRetailMAC">计算 MAC</Button>
+            <Button variant="primary" class="flex-1 justify-center" @click="doRetailMAC">计算 MAC</Button>
           </div>
         </Card>
 
         <Card title="SM4-CBC-MAC" class="space-y-2">
           <CryptoPanel v-model="sm4mac.key" label="密钥 (Hex)" type="input" placeholder="32位Hex..." />
           <CryptoPanel v-model="sm4mac.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
-          <div class="flex gap-2">
+          <div class="flex gap-2 items-stretch">
             <Dropdown
               v-model="sm4mac.padding"
               :options="[
                 { value: 'ISO9797-1-P2', label: 'P2 (0x80...)' },
                 { value: 'ISO9797-1-P1', label: 'P1' }
               ]"
-              class="flex-1"
+              class="finance-dropdown-auto shrink-0"
             />
-            <Button variant="secondary" class="justify-center shrink-0" @click="doSM4MAC">SM4-CBC-MAC</Button>
+            <Button variant="secondary" class="flex-1 justify-center" @click="doSM4MAC">SM4-CBC-MAC</Button>
           </div>
         </Card>
 
         <Card title="SM4-CMAC" class="space-y-2">
           <CryptoPanel v-model="sm4cmac.key" label="密钥 (Hex)" type="input" placeholder="32位Hex..." />
           <CryptoPanel v-model="sm4cmac.data" label="数据 (Hex)" type="textarea" :rows="3" clearable />
-          <div class="flex gap-2">
+          <div class="flex gap-2 items-stretch">
             <Dropdown
               v-model="sm4cmac.padding"
               :options="[
                 { value: 'ISO9797-1-P2', label: 'P2 (0x80...)' },
                 { value: 'ISO9797-1-P1', label: 'P1' }
               ]"
-              class="flex-1"
+              class="finance-dropdown-auto shrink-0"
             />
-            <Button variant="primary" class="justify-center shrink-0" @click="doSM4CMAC">SM4-CMAC</Button>
+            <Button variant="primary" class="flex-1 justify-center" @click="doSM4CMAC">SM4-CMAC</Button>
           </div>
         </Card>
       </div>
@@ -153,12 +153,16 @@
               { value: 'SM2', label: 'SM2' }
             ]"
           />
-          <div class="relative">
-            <CryptoPanel v-if="pinCryptoMode !== 'SM2'" v-model="pin.key" label="密钥 (Hex)" type="input" :placeholder="pinCryptoMode === 'SM4' ? '32位...' : '32/48位...'" />
-            <CryptoPanel v-if="pinCryptoMode === 'SM2'" v-model="sm2pin.key" label="SM2密钥 (Hex)" type="input" placeholder="公钥/私钥Hex..." />
-            <Button variant="tool" size="sm" v-if="pinCryptoMode !== 'SM2'" @click="genPINKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</Button>
-            <Button variant="tool" size="sm" v-if="pinCryptoMode === 'SM2'" @click="genSM2Key" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</Button>
-          </div>
+          <CryptoPanel v-if="pinCryptoMode !== 'SM2'" v-model="pin.key" label="密钥 (Hex)" type="input" :placeholder="pinCryptoMode === 'SM4' ? '32位...' : '32/48位...'">
+            <template #action>
+              <Button variant="tool" size="sm" @click="genPINKey" class="ck-mini-trigger">⚡</Button>
+            </template>
+          </CryptoPanel>
+          <CryptoPanel v-if="pinCryptoMode === 'SM2'" v-model="sm2pin.key" label="SM2密钥 (Hex)" type="input" placeholder="公钥/私钥Hex...">
+            <template #action>
+              <Button variant="tool" size="sm" @click="genSM2Key" class="ck-mini-trigger">⚡</Button>
+            </template>
+          </CryptoPanel>
           <CryptoPanel v-model="pin.block" label="PIN Block (Hex)" type="input" placeholder="8字节..." />
           <div class="grid grid-cols-2 gap-2">
             <Button variant="primary" v-if="pinCryptoMode === '3DES'" @click="encryptPINBlock" class="justify-center">加密</Button>
@@ -224,10 +228,11 @@
       <div class="sym-side">
         <div class="card space-y-2">
           <p class="card-title">CVV / CVC / CVN / CSC</p>
-          <div class="relative">
-            <CryptoPanel v-model="cvv.cvk" label="CVK (Hex)" type="input" placeholder="32/48位..." />
-            <button @click="genCVK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
+          <CryptoPanel v-model="cvv.cvk" label="CVK (Hex)" type="input" placeholder="32/48位...">
+            <template #action>
+              <button @click="genCVK" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
           <input v-model="cvv.pan" class="input font-mono" placeholder="PAN" />
           <div class="grid grid-cols-2 gap-2">
             <input v-model="cvv.exp" class="input font-mono" placeholder="有效期 YYMM" />
@@ -247,10 +252,11 @@
 
         <div class="card space-y-2">
           <p class="card-title">PVV (Visa PIN Verification)</p>
-          <div class="relative">
-            <CryptoPanel v-model="pvv.pvk" label="PVK (Hex)" type="input" placeholder="32/48位..." />
-            <button @click="genPVK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
+          <CryptoPanel v-model="pvv.pvk" label="PVK (Hex)" type="input" placeholder="32/48位...">
+            <template #action>
+              <button @click="genPVK" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
           <div class="grid grid-cols-3 gap-2">
             <input v-model="pvv.pvki" class="input font-mono" placeholder="PVKI" />
             <input v-model="pvv.pin" class="input font-mono" placeholder="PIN" />
@@ -290,10 +296,11 @@
       <div class="sym-side">
         <div class="card space-y-2">
           <p class="card-title">EMV UDK 分散</p>
-          <div class="relative">
-            <CryptoPanel v-model="udk.mdk" label="MDK (Hex)" type="input" placeholder="32/48位..." />
-            <button @click="genMDK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
+          <CryptoPanel v-model="udk.mdk" label="MDK (Hex)" type="input" placeholder="32/48位...">
+            <template #action>
+              <button @click="genMDK" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
           <div class="grid grid-cols-2 gap-2">
             <input v-model="udk.pan" class="input font-mono" placeholder="PAN" />
             <input v-model="udk.psn" class="input font-mono" placeholder="PSN (2位)" />
@@ -303,23 +310,26 @@
 
         <div class="card space-y-2">
           <p class="card-title">Double One Way (DOW)</p>
-          <div class="relative">
-            <CryptoPanel v-model="dow.key" label="Key (Hex)" type="input" placeholder="32/48位..." />
-            <button @click="genDOWKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
-          <div class="relative">
-            <CryptoPanel v-model="dow.data" label="Data (Hex)" type="input" placeholder="16位Hex..." />
-            <button @click="genDOWData" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
+          <CryptoPanel v-model="dow.key" label="Key (Hex)" type="input" placeholder="32/48位...">
+            <template #action>
+              <button @click="genDOWKey" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
+          <CryptoPanel v-model="dow.data" label="Data (Hex)" type="input" placeholder="16位Hex...">
+            <template #action>
+              <button @click="genDOWData" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
           <button @click="doDOW" class="btn-warning w-full justify-center">计算 DOW</button>
         </div>
 
         <div class="card space-y-2">
           <p class="card-title">SM4 UDK 分散</p>
-          <div class="relative">
-            <CryptoPanel v-model="sm4udk.mdk" label="SM4 MDK (Hex)" type="input" placeholder="32位..." />
-            <button @click="genSM4MDK" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
+          <CryptoPanel v-model="sm4udk.mdk" label="SM4 MDK (Hex)" type="input" placeholder="32位...">
+            <template #action>
+              <button @click="genSM4MDK" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
           <div class="grid grid-cols-2 gap-2">
             <input v-model="sm4udk.pan" class="input font-mono" placeholder="PAN" />
             <input v-model="sm4udk.psn" class="input font-mono" placeholder="PSN" />
@@ -365,21 +375,22 @@
       <div class="sym-side">
         <div class="card space-y-2">
           <p class="card-title">ARQC / AC / Script MAC</p>
-          <div class="relative">
-            <CryptoPanel v-model="emv.key" label="Session Key (Hex)" type="input" placeholder="32/48位..." />
-            <button @click="genSessionKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
+          <CryptoPanel v-model="emv.key" label="Session Key (Hex)" type="input" placeholder="32/48位...">
+            <template #action>
+              <button @click="genSessionKey" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
           <CryptoPanel v-model="emv.data" label="CDOL/Script (Hex)" type="textarea" :rows="3" clearable />
-          <div class="flex gap-2">
+          <div class="flex gap-2 items-stretch">
             <Dropdown
               v-model="emv.padding"
               :options="[
                 { value: 'ISO9797-1-P2', label: 'P2' },
                 { value: 'ISO9797-1-P1', label: 'P1' }
               ]"
-              class="flex-1"
+              class="finance-dropdown-auto shrink-0"
             />
-            <button @click="doARQC" class="btn-success justify-center shrink-0">计算 AC</button>
+            <button @click="doARQC" class="btn-success flex-1 justify-center">计算 AC</button>
           </div>
         </div>
 
@@ -392,11 +403,16 @@
               { value: 'SM4', label: 'SM4' }
             ]"
           />
-          <div class="relative">
-            <CryptoPanel v-if="cryptoMode === '3DES'" v-model="tdes.key" label="Key (Hex)" type="input" placeholder="32/48位..." />
-            <CryptoPanel v-if="cryptoMode === 'SM4'" v-model="sm4crypto.key" label="SM4 Key (Hex)" type="input" placeholder="32位..." />
-            <button @click="genCryptoKey" class="absolute right-8 top-1/2 -translate-y-1/2 ck-mini-trigger">⚡</button>
-          </div>
+          <CryptoPanel v-if="cryptoMode === '3DES'" v-model="tdes.key" label="Key (Hex)" type="input" placeholder="32/48位...">
+            <template #action>
+              <button @click="genCryptoKey" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
+          <CryptoPanel v-if="cryptoMode === 'SM4'" v-model="sm4crypto.key" label="SM4 Key (Hex)" type="input" placeholder="32位...">
+            <template #action>
+              <button @click="genCryptoKey" class="ck-mini-trigger">⚡</button>
+            </template>
+          </CryptoPanel>
           <div class="grid grid-cols-2 gap-2">
             <Dropdown
               v-model="tdes.mode"
@@ -702,6 +718,12 @@ function genCryptoKey() {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* 金融卡片里“填充方式”下拉：宽度自适应内容（避免 flex-1 撑满整行显得框太长） */
+.finance-dropdown-auto {
+  width: auto !important;
+  flex: 0 0 auto !important;
 }
 
 @media (max-width: 1080px) {

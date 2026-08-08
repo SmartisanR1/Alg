@@ -14,6 +14,7 @@ require (
 	github.com/zeebo/blake3 v0.2.4
 	golang.org/x/crypto v0.54.0
 	golang.org/x/exp v0.0.0-20260727155853-b88d891fe743
+	golang.org/x/sys v0.47.0
 	software.sslmate.com/src/go-pkcs12 v0.7.3
 )
 
@@ -45,6 +46,5 @@ require (
 	github.com/wailsapp/go-webview2 v1.0.23 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	golang.org/x/net v0.57.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
 )

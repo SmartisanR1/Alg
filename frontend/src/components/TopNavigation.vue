@@ -63,7 +63,7 @@ const navigateTo = (path) => {
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
-  padding: 4px 10px;
+  padding: 4px 12px;
 }
 
 .nav-scroll::-webkit-scrollbar {
@@ -75,37 +75,43 @@ const navigateTo = (path) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-right: 8px;
+  padding-right: 10px;
 }
 
 .nav-items {
   display: flex;
-  gap: 1px;
+  gap: 2px;
   align-items: center;
 }
 
 .nav-divider {
   width: 1px;
-  height: 14px;
+  height: 15px;
   background: var(--muted);
-  margin: 0 2px;
+  margin: 0 6px;
   opacity: 0.3;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 7px;
+  gap: 6px;
+  padding: 7px 10px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--muted);
   cursor: pointer;
-  border-radius: 7px;
+  border-radius: 8px;
   transition: all 0.2s ease;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
+}
+
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .nav-item:hover {
@@ -120,13 +126,7 @@ const navigateTo = (path) => {
   border-color: rgba(var(--accent-rgb), 0.3);
 }
 
-.nav-icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
 .nav-label {
-  font-size: 12px;
+  font-size: 13px;
 }
 </style>
